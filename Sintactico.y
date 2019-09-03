@@ -36,8 +36,8 @@
 
 %%
 
-start:
-	declaraciones programa
+	start:
+		declaraciones programa
 	;
 
 	declaraciones:
