@@ -1,7 +1,7 @@
 %{
 	#include <stdio.h>
-  #include <stdbool.h>
-  #include <string.h>
+	#include <stdbool.h>
+	#include <string.h>
 	#include "y.tab.h"
 
 	// funciones de Flex y Bison
@@ -53,11 +53,11 @@ int main(int argc, char *argv[]) {
 	printf("==============================================================\n");
 	printf("analisis-comienza\n");
 	printf("==============================================================\n");
-    if ((yyin = fopen(argv[1], "rt")) == NULL) {
+		if ((yyin = fopen(argv[1], "rt")) == NULL) {
 			printf("ERROR: abriendo archivo [%s]\n", argv[1]);
 		} else {
-				yyparse();
-				fclose(yyin);
+			yyparse();
+			fclose(yyin);
 		}
 	printf("==============================================================\n");
 	printf("analisis-finaliza\n");
