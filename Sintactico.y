@@ -53,12 +53,12 @@ int main(int argc, char *argv[]) {
 	printf("==============================================================\n");
 	printf("analisis-comienza\n");
 	printf("==============================================================\n");
-		if ((yyin = fopen(argv[1], "rt")) == NULL) {
-			printf("ERROR: abriendo archivo [%s]\n", argv[1]);
-		} else {
-			yyparse();
-			fclose(yyin);
-		}
+	if ((yyin = fopen(argv[1], "rt")) == NULL) {
+		printf("ERROR: abriendo archivo [%s]\n", argv[1]);
+	} else {
+		yyparse();
+		fclose(yyin);
+	}
 	printf("==============================================================\n");
 	printf("analisis-finaliza\n");
 	printf("==============================================================\n");
