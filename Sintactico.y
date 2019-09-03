@@ -37,13 +37,24 @@
 %%
 
 	start:
-		declaraciones programa
+	{
+		printf("SECUENCIA DE REGLAS INICIO\n");
+		printf("start\n");
+	} declaraciones programa {
+		printf("SECUENCIA DE REGLAS FIN\n");
+	}
 	;
 
 	declaraciones:
+	{
+		printf("declaraciones\n");
+	}
 	;
 
 	programa:
+	{
+		printf("programa\n");
+	}
 	;
 	
 %%
