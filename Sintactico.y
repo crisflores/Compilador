@@ -12,7 +12,7 @@
 	// variables de Flex y Bison
 	// --------------------------------------------------------
 	extern char * yytext;
-  FILE *yyin;
+	FILE *yyin;
 %}
 
 %locations
