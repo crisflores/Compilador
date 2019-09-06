@@ -15,3 +15,6 @@ SINTÁCTICO:
 - entradas-salidas
 - condiciones
 - variables
+
+FIXME:
+- en la sentencia "declaracion" no andan los printf
