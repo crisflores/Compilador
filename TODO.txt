@@ -3,7 +3,10 @@ LEXICO:
 - comentarios anidados a un nivel
 - filter
 - inlist
-- tipo de datos (reales (32bit) y enteras (16bit))
+- tipo de datos:
+  -> reales 32bit
+  -> enteras 16bit
+  -> string hasta 30 caracteres
 
 SINTÁCTICO:
 - declaraciones
@@ -13,7 +16,7 @@ SINTÁCTICO:
 - decisiones
 - asignaciones (deben ser permitidas, solo en los casos en los que los tipos son compatibles, caso contrario deberá desplegarse un error)
 - entradas-salidas
-- condiciones
+- condiciones (hasta dos anidados)
 - variables
 
 FIXME:
