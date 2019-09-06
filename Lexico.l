@@ -21,18 +21,6 @@ CONSTANTE_STRING ((")(({DIGITO}|{LETRA}| ){0,30})("))
 
 %%
 
-{ID} {
-	return ID;
-}
-{CONSTANTE_ENTERA} {
-	return CONSTANTE_ENTERA;
-}
-{CONSTANTE_REAL} {
-	return CONSTANTE_REAL;
-}
-{CONSTANTE_STRING} {
-	return CONSTANTE_STRING;
-}
 "REPEAT" {
 	return REPEAT;
 }
@@ -50,6 +38,27 @@ CONSTANTE_STRING ((")(({DIGITO}|{LETRA}| ){0,30})("))
 }
 "ENDVAR" {
 	return ENDVAR;
+}
+"Integer" {
+	return INTEGER;
+}
+"Float" {
+	return FLOAT;
+}
+{ID} {
+	return ID;
+}
+{CONSTANTE_ENTERA} {
+	return CONSTANTE_ENTERA;
+}
+{CONSTANTE_REAL} {
+	return CONSTANTE_REAL;
+}
+{CONSTANTE_STRING} {
+	return CONSTANTE_STRING;
+}
+"," {
+	return COMA;
 }
 ":=" {
 	return OP_ASIGNACION;

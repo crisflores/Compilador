@@ -1,0 +1,17 @@
+LEXICO:
+- comentarios
+- comentarios anidados a un nivel
+- filter
+- inlist
+- tipo de datos (reales (32bit) y enteras (16bit))
+
+SINTÁCTICO:
+- declaraciones
+- filter
+- inlist
+- iteraciones
+- decisiones
+- asignaciones (deben ser permitidas, solo en los casos en los que los tipos son compatibles, caso contrario deberá desplegarse un error)
+- entradas-salidas
+- condiciones
+- variables

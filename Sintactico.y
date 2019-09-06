@@ -17,16 +17,19 @@
 
 %locations
 %start start
-%token ID
-%token CONSTANTE_ENTERA
-%token CONSTANTE_REAL
-%token CONSTANTE_STRING
 %token REPEAT
 %token IF
 %token PRINT
 %token READ
 %token VAR
 %token ENDVAR
+%token INTEGER
+%token FLOAT
+%token ID
+%token CONSTANTE_ENTERA
+%token CONSTANTE_REAL
+%token CONSTANTE_STRING
+%token COMA
 %token OP_ASIGNACION
 %token DOS_PUNTOS
 %token PARENTESIS_ABRE
@@ -37,25 +40,78 @@
 %%
 
 	start:
-	{
-		printf("SECUENCIA DE REGLAS INICIO\n");
-		printf("start\n");
-	} declaraciones programa {
-		printf("SECUENCIA DE REGLAS FIN\n");
-	}
-	;
+		{
+			printf("start\n");
+		} declaraciones programa 
+		;
+
+	declaraciones:	
+		{
+			printf("declaraciones\n");
+		} VAR sentencia_declaraciones ENDVAR
+		;
 
 	declaraciones:
-	{
-		printf("declaraciones\n");
-	}
-	;
+		{
+			printf("declaraciones\n");
+		}
+		;
+
+	sentencia_declaraciones:
+		{
+			printf("sentencia_declaraciones\n");
+		} CORCHETE_ABRE declaracion CORCHETE_CIERRA
+		;
+
+	sentencia_declaraciones:
+		{
+			printf("sentencia_declaraciones\n");
+		}
+		;
+
+	declaracion:
+		tipo_id CORCHETE_CIERRA DOS_PUNTOS CORCHETE_ABRE ID		
+		;
+
+	declaracion:
+		tipo_id COMA declaracion COMA ID
+		;
+
+	tipo_id:
+		{
+			printf("tipo_id-%s\n", yytext);
+		} INTEGER
+		;
+
+	tipo_id:
+		{
+			printf("tipo_id-%s\n", yytext);
+		} FLOAT
+		;
 
 	programa:
-	{
-		printf("programa\n");
-	}
-	;
+		{
+			printf("programa\n");
+		} sentencia
+		;
+
+	programa:
+		{
+			printf("programa\n");
+		} programa sentencia
+		;
+
+	programa:
+		{
+			printf("programa\n");
+		}
+		;
+
+	sentencia:
+		{
+			printf("sentencia\n");
+		} 
+		; 
 	
 %%
 
