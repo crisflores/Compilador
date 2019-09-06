@@ -78,40 +78,63 @@
 		;
 
 	tipo_id:
-		{
+		INTEGER {
 			printf("tipo_id-%s\n", yytext);
-		} INTEGER
+		} 
 		;
 
 	tipo_id:
-		{
+		FLOAT {
 			printf("tipo_id-%s\n", yytext);
-		} FLOAT
+		} 
 		;
 
 	programa:
-		{
-			printf("programa\n");
-		} sentencia
+		sentencia
 		;
 
 	programa:
-		{
-			printf("programa\n");
-		} programa sentencia
+		programa sentencia
 		;
 
 	programa:
+		;
+
+	sentencia: 
 		{
-			printf("programa\n");
+			printf("sentencia\n");
+		} asignacion
+		;
+	
+	asignacion:
+		{
+			printf("asignacion\n");
+		} ID OP_ASIGNACION operando_asignable
+		;
+
+	operando_asignable:
+		ID {
+			printf("operando_asignable-%s\n", yytext);
 		}
 		;
 
-	sentencia:
-		{
-			printf("sentencia\n");
-		} 
-		; 
+	operando_asignable:
+		CONSTANTE_STRING {
+			printf("operando_asignable-%s\n", yytext);
+		}
+		;
+
+	operando_asignable:
+		CONSTANTE_REAL {
+			printf("operando_asignable-%s\n", yytext);
+		}
+		;
+
+	operando_asignable:
+		CONSTANTE_ENTERA {
+			printf("operando_asignable-%s\n", yytext);
+		}
+		;
 	
 %%
 

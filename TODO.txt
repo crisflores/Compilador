@@ -21,3 +21,4 @@ SINTÁCTICO:
 
 FIXME:
 - en la sentencia "declaracion" no andan los printf
+- CONSTANTE_STRING no rompe si es más larga que 30

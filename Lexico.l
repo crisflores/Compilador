@@ -14,10 +14,11 @@
 
 DIGITO ([0-9])+
 LETRA [a-zA-Z]
+SIMBOLO [@|%]
 ID {LETRA}({LETRA}|{DIGITO}|_)*
 CONSTANTE_ENTERA ({DIGITO})+
 CONSTANTE_REAL (({DIGITO})+("."{1})({DIGITO})*)|(({DIGITO})*("."{1})({DIGITO})+)
-CONSTANTE_STRING ((")(({DIGITO}|{LETRA}| ){0,30})("))
+CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
 
 %%
 

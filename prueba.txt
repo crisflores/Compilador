@@ -1,3 +1,13 @@
 VAR
   [Integer, Float, Integer] : [a, b, c]
 ENDVAR
+
+a := b
+b := "asldkfhsjf"
+b := "as ldkf hsjf"
+b := "1234567890123456789012345678901234"
+b := "@sdADaSjfla%dfg"
+a := 99999.99
+a := 99.
+a := .9999
+a := 123456
