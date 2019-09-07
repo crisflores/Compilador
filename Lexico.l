@@ -28,6 +28,18 @@ CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
 "IF" {
 	return IF;
 }
+"ENDIF" {
+	return ENDIF;
+}
+"AND" {
+	return AND;
+}
+"OR" {
+	return OR;
+}
+"NOT" {
+	return NOT;
+}
 "PRINT" {
 	return PRINT;
 }
@@ -78,6 +90,30 @@ CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
 }
 "]" {
 	return CORCHETE_CIERRA;
+}
+"+" {
+	return SUMA;
+}
+"*" {
+	return MULTIPLICACION;
+}
+"==" {
+return IGUAL_A;
+}
+"<" {
+return MENOR_A;
+}
+"<=" {
+return MENOR_IGUAL_A;
+}
+">" {
+return MAYOR_A;
+}
+">=" {
+return MAYOR_IGUAL_A;
+}
+"!=" {
+return DISTINTA_A;
 }
 [" "\t\r\n] { 
 	/* ignorar espaciado */ 

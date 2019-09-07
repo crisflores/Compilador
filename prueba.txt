@@ -11,3 +11,26 @@ a := 99999.99
 a := 99.
 a := .9999
 a := 123456
+a := a + b + (c * 4)
+
+IF (a == b)
+ a := b
+ENDIF
+
+IF (NOT a < b)
+ a := b
+ENDIF
+
+IF (a <= b AND a > c)
+ a := b
+ENDIF
+
+IF (a >= b OR a != c)
+ a := b
+ENDIF
+
+IF (a == b)
+  IF (NOT a < b)
+    a := b
+  ENDIF
+ENDIF

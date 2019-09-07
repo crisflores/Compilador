@@ -21,6 +21,10 @@
 %start start
 %token REPEAT
 %token IF
+%token ENDIF
+%token AND
+%token OR
+%token NOT
 %token PRINT
 %token READ
 %token VAR
@@ -38,6 +42,14 @@
 %token PARENTESIS_CIERRA
 %token CORCHETE_ABRE
 %token CORCHETE_CIERRA
+%token SUMA
+%token MULTIPLICACION
+%token IGUAL_A
+%token MENOR_A
+%token MENOR_IGUAL_A
+%token MAYOR_A
+%token MAYOR_IGUAL_A
+%token DISTINTA_A
 
 %%
 
@@ -81,13 +93,13 @@
 
 	tipo_id:
 		INTEGER {
-			printf("tipo_id-%s\n", yytext);
+			printf("tipo_id %s\n", yytext);
 		} 
 		;
 
 	tipo_id:
 		FLOAT {
-			printf("tipo_id-%s\n", yytext);
+			printf("tipo_id %s\n", yytext);
 		} 
 		;
 
@@ -102,40 +114,146 @@
 	programa:
 		;
 
-	sentencia: 
+	sentencia:
 		{
 			printf("sentencia\n");
 		} asignacion
 		;
-	
-	asignacion:
+
+	sentencia:
 		{
-			printf("asignacion\n");
-		} ID OP_ASIGNACION operando_asignable
+			printf("sentencia\n");
+		} seleccion
 		;
 
-	operando_asignable:
-		ID {
-			printf("operando_asignable-%s\n", yytext);
+	seleccion:
+		{
+			printf("seleccion\n");
+		} IF PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDIF
+		;
+
+	condicion:
+		comparacion
+		;
+
+	condicion:
+		comparacion AND {
+			printf("condicion AND\n");
+		} comparacion
+		;
+
+	condicion:
+		comparacion OR {
+			printf("condicion OR\n");
+		} comparacion
+		;
+
+	condicion:
+		NOT {
+			printf("condicion NOT\n");
+		} comparacion
+		;
+
+	comparacion:
+		expresion IGUAL_A
+		{
+			printf("comparacion ==\n");
+		} expresion
+		;
+
+	comparacion:
+		expresion MENOR_A
+		{
+			printf("comparacion <\n");
+		} expresion
+		;
+
+	comparacion:
+		expresion MENOR_IGUAL_A
+		{
+			printf("comparacion <=\n");
+		} expresion
+		;
+
+	comparacion:
+		expresion MAYOR_A
+		{
+			printf("comparacion <\n");
+		} expresion
+		;
+
+	comparacion:
+		expresion MAYOR_IGUAL_A
+		{
+			printf("comparacion >=\n");
+		} expresion
+		;
+
+	comparacion:
+		expresion DISTINTA_A
+		{
+			printf("comparacion !=\n");
+		} expresion
+		;
+
+	asignacion:
+		{
+			printf("asignacion");
+		} ID {
+			printf(" ID %s\n", yytext);
+		} OP_ASIGNACION expresion
+		;
+
+	expresion:
+		expresion SUMA {
+			printf("expresion +\n");
+		} termino
+		;
+
+	expresion:
+		termino
+		;
+	
+	termino:
+		termino MULTIPLICACION {
+			printf("termino *\n");
+		} factor
+		;
+	
+	termino:
+		factor
+		;
+
+	factor:
+		PARENTESIS_ABRE {
+			printf("factor (\n");
+		} expresion PARENTESIS_CIERRA {
+			printf("factor )\n");
 		}
 		;
 
-	operando_asignable:
+	factor:
+		ID {
+			printf("factor %s\n", yytext);
+		}
+		;
+
+	factor:
 		CONSTANTE_STRING {
-			printf("operando_asignable-%s\n", yytext);
+			printf("factor %s\n", yytext);
 			validar_constante_string(yytext);
 		}
 		;
 
-	operando_asignable:
+	factor:
 		CONSTANTE_REAL {
-			printf("operando_asignable-%s\n", yytext);
+			printf("factor %s\n", yytext);
 		}
 		;
 
-	operando_asignable:
+	factor:
 		CONSTANTE_ENTERA {
-			printf("operando_asignable-%s\n", yytext);
+			printf("factor %s\n", yytext);
 		}
 		;
 	

@@ -12,10 +12,9 @@ SINTÁCTICO:
 - filter
 - inlist
 - iteraciones
-- decisiones
-- asignaciones (deben ser permitidas, solo en los casos en los que los tipos son compatibles, caso contrario deberá desplegarse un error)
+- asignaciones
+- validar asignaciones entre tipos compatibles
 - entradas-salidas
-- condiciones (hasta dos anidados)
 - variables
 
 FIXME:
