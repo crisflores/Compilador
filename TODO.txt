@@ -11,7 +11,8 @@ SINTÁCTICO:
 - filter
 - inlist
 - repeat
-- entradas-salidas
+- read (solo variables)
+- print (variables y constantes string)
 
 VALIDAR:
 - asignaciones entre tipos de datos compatibles
