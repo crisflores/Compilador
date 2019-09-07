@@ -2,17 +2,19 @@
 	#include <stdio.h>
 	#include <stdbool.h>
 	#include <string.h>
+	#include <stdarg.h>
 	#include "y.tab.h"
 
 	// funciones de Flex y Bison
 	// --------------------------------------------------------
 	extern void yyerror(const char *mensaje);
+	extern char error_mensaje[1000];
 	extern int yylex(void);
-
-	// variables de Flex y Bison
-	// --------------------------------------------------------
 	extern char * yytext;
+	extern long int yylineno;
 	FILE *yyin;
+	void validar_constante_string(char *constante_string);
+	const int MAX_STRING_LENGTH = 30;
 %}
 
 %locations
@@ -121,6 +123,7 @@
 	operando_asignable:
 		CONSTANTE_STRING {
 			printf("operando_asignable-%s\n", yytext);
+			validar_constante_string(yytext);
 		}
 		;
 
@@ -153,4 +156,16 @@ int main(int argc, char *argv[]) {
 	printf("analisis-finaliza\n");
 	printf("==============================================================\n");
 	return 0;
+}
+
+void validar_constante_string(char *constante_string) {
+	int length = 0;
+	while(constante_string[length] != '\0') {			
+		length++;
+	}
+	// mayor a 32 se pone porque las comillas de la constante no cuentan para su tamaño
+	if(length > MAX_STRING_LENGTH + 2) {
+		sprintf(error_mensaje, "la constante string %s supera los [%d] caracteres permitidos\n", constante_string, MAX_STRING_LENGTH);
+		yyerror(error_mensaje);
+	}
 }

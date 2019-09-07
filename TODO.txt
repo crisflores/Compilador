@@ -6,7 +6,6 @@ LEXICO:
 - tipo de datos:
   -> reales 32bit
   -> enteras 16bit
-  -> string hasta 30 caracteres
 
 SINTÁCTICO:
 - declaraciones
@@ -21,4 +20,3 @@ SINTÁCTICO:
 
 FIXME:
 - en la sentencia "declaracion" no andan los printf
-- CONSTANTE_STRING no rompe si es más larga que 30
