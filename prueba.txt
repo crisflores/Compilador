@@ -61,6 +61,10 @@ IF (INLIST (z; [2.3; 1.22]) OR INLIST (a; [2*b+7; 12; a+b*(34+d); 48]))
   PRINT "if con inlist y or"
 ENDIF
 
+IF (NOT INLIST (z; [2.3; 1.22]))
+  PRINT "if con not inlist"
+ENDIF
+
 REPEAT (INLIST (z; [2.3; 1.22]))
   PRINT "repeat con inlist"
 ENDREPEAT
