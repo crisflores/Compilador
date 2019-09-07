@@ -44,3 +44,8 @@ REPEAT (a < b + 100)
   PRINT "ciclo repeat sentencia 2"
   PRINT "ciclo repeat sentencia 3"
 ENDREPEAT
+
+FILTER (_ < a, [a])
+FILTER (_ > (4 + r) AND _ <= 6.5, [b])
+FILTER (_ > (4 + r) OR _ <= 6.5, [a, b, c, d, mi_variable])
+FILTER (NOT _ > 100, [a, b])

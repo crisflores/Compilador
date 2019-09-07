@@ -22,6 +22,12 @@ CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
 
 %%
 
+"FILTER" {
+	return FILTER;
+}
+"_" {
+	return OPERANDO_FILTER;
+}
 "REPEAT" {
 	return REPEAT;
 }

@@ -1,7 +1,6 @@
 LEXICO:
 - comentarios
 - comentarios anidados a un nivel
-- filter
 - inlist
 - tipo de datos:
   -> reales 32bit

@@ -19,6 +19,8 @@
 
 %locations
 %start start
+%token FILTER
+%token OPERANDO_FILTER
 %token REPEAT
 %token ENDREPEAT
 %token IF
@@ -149,9 +151,23 @@
 		} ciclo
 		;
 
+	sentencia:
+		{
+			printf("sentencia\n");
+		} filtro
+		;
+
+	filtro:
+		FILTER {
+			printf("filter\n");
+		} PARENTESIS_ABRE condicion_filter COMA CORCHETE_ABRE {
+			printf("lista_variables_filter\n");
+		} lista_variables_filter CORCHETE_CIERRA PARENTESIS_CIERRA
+		;
+
 	ciclo:
 		{
-			printf("REPEAT\n");
+			printf("repeat\n");
 		} REPEAT PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDREPEAT
 		;
 
@@ -243,6 +259,96 @@
 		{
 			printf("comparacion !=\n");
 		} expresion
+		;
+
+	condicion_filter:
+		comparacion_filter
+		;
+
+	condicion_filter:
+		comparacion_filter AND {
+			printf("condicion_filter AND\n");
+		} comparacion_filter
+		;
+
+	condicion_filter:
+		comparacion_filter OR {
+			printf("condicion_filter OR\n");
+		} comparacion_filter
+		;
+
+	condicion_filter:
+		NOT {
+			printf("condicion_filter NOT\n");
+		} comparacion_filter
+		;
+
+	comparacion_filter:
+		OPERANDO_FILTER {
+			printf("operando_filter\n");
+		} IGUAL_A
+		{
+			printf("comparacion_filter ==\n");
+		} expresion
+		;
+
+	comparacion_filter:
+		OPERANDO_FILTER {
+			printf("operando_filter\n");
+		}  MENOR_A
+		{
+			printf("comparacion_filter <\n");
+		} expresion
+		;
+
+	comparacion_filter:
+		OPERANDO_FILTER {
+			printf("operando_filter\n");
+		}  MENOR_IGUAL_A
+		{
+			printf("comparacion_filter <=\n");
+		} expresion
+		;
+
+	comparacion_filter:
+		OPERANDO_FILTER {
+			printf("operando_filter\n");
+		}  MAYOR_A
+		{
+			printf("comparacion_filter <\n");
+		} expresion
+		;
+
+	comparacion_filter:
+		OPERANDO_FILTER {
+			printf("operando_filter\n");
+		}  MAYOR_IGUAL_A
+		{
+			printf("comparacion_filter >=\n");
+		} expresion
+		;
+
+	comparacion_filter:
+		OPERANDO_FILTER {
+			printf("operando_filter\n");
+		}  DISTINTA_A
+		{
+			printf("comparacion_filter !=\n");
+		} expresion
+		;
+
+	lista_variables_filter:
+		variable_filter
+		;
+
+	lista_variables_filter:
+		variable_filter COMA lista_variables_filter
+		;
+
+	variable_filter:
+		ID { 
+			printf("ID %s\n", yytext);
+		} 
 		;
 
 	asignacion:
