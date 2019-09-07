@@ -35,6 +35,7 @@
 %token ENDVAR
 %token INTEGER
 %token FLOAT
+%token STRING
 %token ID
 %token CONSTANTE_ENTERA
 %token CONSTANTE_REAL
@@ -108,6 +109,12 @@
 
 	tipo_id:
 		FLOAT {
+			printf("tipo_id %s\n", yytext);
+		} 
+		;
+
+	tipo_id:
+		STRING {
 			printf("tipo_id %s\n", yytext);
 		} 
 		;

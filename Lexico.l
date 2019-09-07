@@ -70,6 +70,9 @@ CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
 "Float" {
 	return FLOAT;
 }
+"String" {
+	return STRING;
+}
 "READ" {
 return READ;
 }
