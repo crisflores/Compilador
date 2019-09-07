@@ -7,7 +7,6 @@ LEXICO:
   -> enteras 16bit
 
 SINTÁCTICO:
-- filter
 - inlist
 
 VALIDAR:
