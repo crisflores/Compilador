@@ -8,14 +8,16 @@ LEXICO:
   -> enteras 16bit
 
 SINTÁCTICO:
-- declaraciones
 - filter
 - inlist
-- iteraciones
-- asignaciones
-- validar asignaciones entre tipos compatibles
+- repeat
 - entradas-salidas
-- variables
+
+VALIDAR:
+- asignaciones entre tipos de datos compatibles
+
+TABLA DE SIMBOLOS:
+- guardar en txt
 
 FIXME:
 - en la sentencia "declaracion" no andan los printf
