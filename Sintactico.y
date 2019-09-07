@@ -84,11 +84,15 @@
 		;
 
 	declaracion:
-		tipo_id CORCHETE_CIERRA DOS_PUNTOS CORCHETE_ABRE ID		
+		tipo_id CORCHETE_CIERRA DOS_PUNTOS CORCHETE_ABRE ID	{
+			printf("declaracion %s\n", yytext);
+		} 	
 		;
 
 	declaracion:
-		tipo_id COMA declaracion COMA ID
+		tipo_id COMA declaracion COMA ID {
+			printf("declaracion %s\n", yytext);
+		}
 		;
 
 	tipo_id:
@@ -124,6 +128,38 @@
 		{
 			printf("sentencia\n");
 		} seleccion
+		;
+
+	sentencia:
+		{
+			printf("sentencia\n");
+		} entrada
+		;
+
+	sentencia:
+		{
+			printf("sentencia\n");
+		} salida
+		;
+
+	salida:
+		PRINT ID {
+			printf("print ID %s\n", yytext);
+		} 
+		;
+
+	salida:
+		PRINT CONSTANTE_STRING {
+			printf("print %s\n", yytext);
+		} 
+		;
+
+	entrada:
+		{
+			printf("read ");
+		} READ ID {
+			printf("ID %s\n", yytext);
+		} 
 		;
 
 	seleccion:

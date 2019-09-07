@@ -34,3 +34,7 @@ IF (a == b)
     a := b
   ENDIF
 ENDIF
+
+READ a
+PRINT a
+PRINT "hola mundo"

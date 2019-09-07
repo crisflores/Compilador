@@ -115,6 +115,12 @@ return MAYOR_IGUAL_A;
 "!=" {
 return DISTINTA_A;
 }
+"READ" {
+return READ;
+}
+"PRINT" {
+return PRINT;
+}
 [" "\t\r\n] { 
 	/* ignorar espaciado */ 
 }
