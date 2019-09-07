@@ -40,12 +40,31 @@ PRINT a
 PRINT "hola mundo"
 
 REPEAT (a < b + 100)
-  PRINT "ciclo repeat sentencia 1"
-  PRINT "ciclo repeat sentencia 2"
-  PRINT "ciclo repeat sentencia 3"
+  PRINT "repeat sentencia 1"
+  PRINT "repeat sentencia 2"
+  PRINT "repeat sentencia 3"
 ENDREPEAT
 
 FILTER (_ < a, [a])
 FILTER (_ > (4 + r) AND _ <= 6.5, [b])
 FILTER (_ > (4 + r) OR _ <= 6.5, [a, b, c, d, mi_variable])
 FILTER (NOT _ > 100, [a, b])
+
+INLIST (a; [2*b+7; 12; a+b*(34+d); 48])
+INLIST (z; [2.3; 1.22])
+
+IF (INLIST (z; [2.3; 1.22]))
+  PRINT "if con inlist"
+ENDIF
+
+IF (INLIST (z; [2.3; 1.22]) OR INLIST (a; [2*b+7; 12; a+b*(34+d); 48]))
+  PRINT "if con inlist y or"
+ENDIF
+
+REPEAT (INLIST (z; [2.3; 1.22]))
+  PRINT "repeat con inlist"
+ENDREPEAT
+
+REPEAT (INLIST (z; [2.3; 1.22]) OR INLIST (a; [2*b+7; 12; a+b*(34+d); 48]))
+  PRINT "repeat con inlist y or"
+ENDREPEAT

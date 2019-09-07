@@ -22,6 +22,9 @@ CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
 
 %%
 
+"INLIST" {
+	return INLIST;
+}
 "FILTER" {
 	return FILTER;
 }
@@ -93,6 +96,9 @@ return PRINT;
 }
 ":" {
 	return DOS_PUNTOS;
+}
+";" {
+	return PUNTO_Y_COMA;
 }
 "(" {
 	return PARENTESIS_ABRE;

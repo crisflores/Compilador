@@ -1,13 +1,12 @@
 LEXICO:
 - comentarios
 - comentarios anidados a un nivel
-- inlist
 - tipo de datos:
   -> reales 32bit
   -> enteras 16bit
 
 SINTÁCTICO:
-- inlist
+- 
 
 VALIDAR:
 - asignaciones entre tipos de datos compatibles

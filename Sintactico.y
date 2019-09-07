@@ -19,6 +19,7 @@
 
 %locations
 %start start
+%token INLIST
 %token FILTER
 %token OPERANDO_FILTER
 %token REPEAT
@@ -41,6 +42,7 @@
 %token COMA
 %token OP_ASIGNACION
 %token DOS_PUNTOS
+%token PUNTO_Y_COMA
 %token PARENTESIS_ABRE
 %token PARENTESIS_CIERRA
 %token CORCHETE_ABRE
@@ -157,6 +159,22 @@
 		} filtro
 		;
 
+	sentencia:
+		{
+			printf("sentencia\n");
+		} en_lista
+		;
+
+	en_lista:
+		INLIST {
+			printf("inlist\n");
+		} PARENTESIS_ABRE ID {
+			printf("ID %s\n", yytext);
+		} PUNTO_Y_COMA CORCHETE_ABRE {
+			printf("lista_expresiones_inlist\n");
+		} lista_expresiones_inlist CORCHETE_CIERRA PARENTESIS_CIERRA
+		;
+
 	filtro:
 		FILTER {
 			printf("filter\n");
@@ -192,9 +210,9 @@
 		;
 
 	seleccion:
-		{
+		IF {
 			printf("seleccion\n");
-		} IF PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDIF
+		} PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDIF
 		;
 
 	condicion:
@@ -217,6 +235,10 @@
 		NOT {
 			printf("condicion NOT\n");
 		} comparacion
+		;
+
+	comparacion: 
+		en_lista
 		;
 
 	comparacion:
@@ -349,6 +371,14 @@
 		ID { 
 			printf("ID %s\n", yytext);
 		} 
+		;
+
+	lista_expresiones_inlist:
+		expresion
+		;
+
+	lista_expresiones_inlist:
+		expresion PUNTO_Y_COMA lista_expresiones_inlist
 		;
 
 	asignacion:
