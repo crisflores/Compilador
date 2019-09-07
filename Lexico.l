@@ -25,6 +25,9 @@ CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
 "REPEAT" {
 	return REPEAT;
 }
+"ENDREPEAT" {
+	return ENDREPEAT;
+}
 "IF" {
 	return IF;
 }
@@ -57,6 +60,12 @@ CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
 }
 "Float" {
 	return FLOAT;
+}
+"READ" {
+return READ;
+}
+"PRINT" {
+return PRINT;
 }
 {ID} {
 	return ID;
@@ -114,12 +123,6 @@ return MAYOR_IGUAL_A;
 }
 "!=" {
 return DISTINTA_A;
-}
-"READ" {
-return READ;
-}
-"PRINT" {
-return PRINT;
 }
 [" "\t\r\n] { 
 	/* ignorar espaciado */ 

@@ -20,6 +20,7 @@
 %locations
 %start start
 %token REPEAT
+%token ENDREPEAT
 %token IF
 %token ENDIF
 %token AND
@@ -140,6 +141,18 @@
 		{
 			printf("sentencia\n");
 		} salida
+		;
+
+	sentencia:
+		{
+			printf("sentencia\n");
+		} ciclo
+		;
+
+	ciclo:
+		{
+			printf("REPEAT\n");
+		} REPEAT PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDREPEAT
 		;
 
 	salida:

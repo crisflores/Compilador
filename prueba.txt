@@ -14,27 +14,33 @@ a := 123456
 a := a + b + (c * 4)
 
 IF (a == b)
- a := b
+  PRINT "if simple"
 ENDIF
 
 IF (NOT a < b)
- a := b
+  PRINT "if con not"
 ENDIF
 
 IF (a <= b AND a > c)
- a := b
+  PRINT "if con and"
 ENDIF
 
 IF (a >= b OR a != c)
- a := b
+  PRINT "if con or"
 ENDIF
 
 IF (a == b)
   IF (NOT a < b)
-    a := b
+    PRINT "if anidado"
   ENDIF
 ENDIF
 
 READ a
 PRINT a
 PRINT "hola mundo"
+
+REPEAT (a < b + 100)
+  PRINT "ciclo repeat sentencia 1"
+  PRINT "ciclo repeat sentencia 2"
+  PRINT "ciclo repeat sentencia 3"
+ENDREPEAT
