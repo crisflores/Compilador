@@ -74,3 +74,13 @@ ENDREPEAT
 REPEAT (INLIST (z; [2.3; 1.22]) OR INLIST (a; [2*b+7; 12; a+b*(34+d); 48]))
   PRINT "repeat con inlist y or"
 ENDREPEAT
+
+--/ comentario simple /--
+--/ comentario anidado --/simple/-- /--
+--/ comentario --/anidado/-- --/doble/-- /--
+--/ --/comentario/-- --/anidado/-- --/triple/-- /--
+--/ codigo comentado
+  IF (a == b)
+    PRINT "if simple"
+  ENDIF
+/--

@@ -19,6 +19,11 @@ ID {LETRA}({LETRA}|{DIGITO}|_)*
 CONSTANTE_ENTERA ({DIGITO})+
 CONSTANTE_REAL (({DIGITO})+("."{1})({DIGITO})*)|(({DIGITO})*("."{1})({DIGITO})+)
 CONSTANTE_STRING (["])(({LETRA}|{DIGITO}|{SIMBOLO}|[ ]){0,30})(["])
+CARACTER ({DIGITO}|{LETRA}|{SIMBOLO}|.|_)+
+COMENTARIO_I "--/"
+COMENTARIO_F "/--"
+COMENTARIO_SIMPLE {COMENTARIO_I}({CARACTER}|[\r\n])*{COMENTARIO_F}
+COMENTARIO {COMENTARIO_I}({CARACTER}|{COMENTARIO_SIMPLE}|[\r\n])*{COMENTARIO_F}
 
 %%
 
@@ -145,6 +150,9 @@ return DISTINTA_A;
 . {
 	sprintf(error_mensaje, "no se esperaba encontrar la expresion [%s]", yytext);
 	yyerror(error_mensaje);
+}
+{COMENTARIO} {
+	/* Ignoramos comentarios */
 }
 
 %%
