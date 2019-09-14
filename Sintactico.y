@@ -575,25 +575,24 @@ int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int
 }
 
 int insertar_en_orden(lista_t *p, info_t *d) {
-    nodo_t*nue;
-    while(*p && comparar(&(*p)->info,d)>0)
-        p=&(*p)->sig;
+	nodo_t*nue;
+	while(*p && comparar(&(*p)->info,d)>0)
+			p=&(*p)->sig;
 
-    if(*p && (((*p)->info.clave)-(d->clave))==0)
-    {
-        (*p)->info=(*d);
-        return DATO_DUPLICADO;
-    }
+	if(*p && (((*p)->info.clave)-(d->clave))==0) {
+		(*p)->info=(*d);
+		return DATO_DUPLICADO;
+	}
 
-    nue=(nodo_t*)malloc(sizeof(nodo_t));
-    if(nue==NULL)
-        return SIN_MEMORIA;
+	nue=(nodo_t*)malloc(sizeof(nodo_t));
+	if(nue==NULL)
+			return SIN_MEMORIA;
 
-    nue->info=*d;
-    nue->sig=*p;
-    *p=nue;
+	nue->info=*d;
+	nue->sig=*p;
+	*p=nue;
 
-    return TODO_BIEN;
+	return TODO_BIEN;
 }
 
 int comparar(info_t *d1, info_t *d2) {
