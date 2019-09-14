@@ -3,12 +3,17 @@
 	#include <stdbool.h>
 	#include <string.h>
 	#include <stdarg.h>
+	#include <math.h>
+	#include <stdlib.h>
+	#include <errno.h>
 	#include "y.tab.h"
 
 	#define SIN_MEMORIA 0
 	#define DATO_DUPLICADO 0
 	#define TODO_BIEN 1
 	#define TAM 35
+	#define INTMAX 65535
+	#define INTMIN 0
 
 	// funciones de Flex y Bison
 	// --------------------------------------------------------
@@ -19,6 +24,8 @@
 	extern long int yylineno;
 	FILE *yyin;
 	void validar_constante_string(char *constante_string);
+	void validar_constante_entera(char *constante_entera);
+	void validar_constante_real(char *constante_real);
 	char *guion_cadena(char cad[TAM]);
 	char cadena[TAM+1];
 	const int MAX_STRING_LENGTH = 30;
@@ -44,6 +51,7 @@
 	int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int elimtodos);
 	void guardar_lista(lista_t *p, FILE *arch);
 	int comparar(info_t*d1, info_t*d2);
+	void clear_ts();
 	void crear_ts(lista_t *l_ts);
 	int insertar_en_ts(lista_t *l_ts, info_t *d);
 
@@ -478,6 +486,7 @@
 	factor:
 		CONSTANTE_REAL {
 			printf("factor %s\n", yytext);
+			validar_constante_real(yytext);
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
 			insertar_en_ts(&l_ts, &d);
@@ -487,6 +496,7 @@
 	factor:
 		CONSTANTE_ENTERA {
 			printf("factor %s\n", yytext);
+			validar_constante_entera(yytext);
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
 			insertar_en_ts(&l_ts, &d);
@@ -503,10 +513,10 @@ int main(int argc, char *argv[]) {
 	if ((yyin = fopen(argv[1], "rt")) == NULL) {
 		printf("ERROR: abriendo archivo [%s]\n", argv[1]);
 	} else {
+		clear_ts();
 		crear_lista(&l_ts);
 		yyparse();
 		fclose(yyin);
-		// crear ts.txt
 		crear_ts(&l_ts);
 	}
 	printf("==============================================================\n");
@@ -527,30 +537,41 @@ void validar_constante_string(char *constante_string) {
 	}
 }
 
+void validar_constante_entera(char *constante_entera) {
+	long entero = atoi(constante_entera);
+	if(entero > INTMAX || entero < INTMIN) {		
+		sprintf(error_mensaje, "constante entera %s fuera de rango [%d, %d]\n", constante_entera, INTMIN, INTMAX);
+		yyerror(error_mensaje);
+	}
+}
+
+void validar_constante_real(char *constante_real) {   
+	// sprintf(error_mensaje, "constante real %s fuera de rango\n", constante_real);
+	// yyerror(error_mensaje);
+}
+
 void crear_lista(lista_t *p) {
     *p=NULL;
 }
 
 int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int elimtodos) {
-    nodo_t*aux;
-    lista_t*q;
+	nodo_t*aux;
+	lista_t*q;
 
-    while(*p)
-    {
-        q=&(*p)->sig;
-        while(*p && *q)
-        {
-            if(cmp(&(*p)->info,&(*q)->info)==0)
-            {
-                aux=*q;
-                *q=aux->sig;
-                free(aux);
-            }else
-                q=&(*q)->sig;
-        }
-        p=&(*p)->sig;
-    }
-    return TODO_BIEN;
+	while(*p) {
+		q=&(*p)->sig;
+		while(*p && *q) {
+			if(cmp(&(*p)->info,&(*q)->info)==0) {
+				aux=*q;
+				*q=aux->sig;
+				free(aux);
+			} else
+				q=&(*q)->sig;
+		}
+		p=&(*p)->sig;
+	}
+
+	return TODO_BIEN;
 }
 
 int insertar_en_orden(lista_t *p, info_t *d) {
@@ -596,6 +617,12 @@ void guardar_lista(lista_t *p, FILE *arch) {
 	}
 }
 
+// limpiar una ts de una ejecución anterior
+void clear_ts() {
+	FILE *arch=fopen("ts.txt","w");
+	fclose(arch);
+}
+
 void crear_ts(lista_t *l_ts) {
 	info_t aux;
 	FILE *arch=fopen("ts.txt","w");
@@ -607,10 +634,10 @@ void crear_ts(lista_t *l_ts) {
 }
 
 int insertar_en_ts(lista_t *l_ts, info_t *d) {
-    insertar_en_orden(l_ts,d);
-    sacar_repetidos(l_ts,d,comparar,0);
-		strcpy(d->clave,"\0");
-		strcpy(d->tipodato,"\0");
-		strcpy(d->valor,"\0");
-		strcpy(d->longitud,"\0");
+	insertar_en_orden(l_ts,d);
+	sacar_repetidos(l_ts,d,comparar,0);
+	strcpy(d->clave,"\0");
+	strcpy(d->tipodato,"\0");
+	strcpy(d->valor,"\0");
+	strcpy(d->longitud,"\0");
 }

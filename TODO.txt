@@ -3,7 +3,6 @@ LEXICO:
 - comentarios anidados a un nivel
 - tipo de datos:
   -> reales 32bit
-  -> enteras 16bit
 
 SINTÁCTICO:
 -
