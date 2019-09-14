@@ -6,12 +6,13 @@ LEXICO:
   -> enteras 16bit
 
 SINTÁCTICO:
-- 
+-
 
 VALIDAR:
 - asignaciones entre tipos de datos compatibles
 
 TABLA DE SIMBOLOS:
+- guardar ID junto con el tipo de dato
 - guardar en txt
 
 FIXME:

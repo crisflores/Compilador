@@ -5,6 +5,11 @@
 	#include <stdarg.h>
 	#include "y.tab.h"
 
+	#define SIN_MEMORIA 0
+	#define DATO_DUPLICADO 0
+	#define TODO_BIEN 1
+	#define TAM 35
+
 	// funciones de Flex y Bison
 	// --------------------------------------------------------
 	extern void yyerror(const char *mensaje);
@@ -14,7 +19,36 @@
 	extern long int yylineno;
 	FILE *yyin;
 	void validar_constante_string(char *constante_string);
+	char *guion_cadena(char cad[TAM]);
+	char cadena[TAM+1];
 	const int MAX_STRING_LENGTH = 30;
+
+	typedef struct
+	{
+			char clave[TAM];
+			char tipodato[TAM];
+			char valor[TAM];
+			char longitud[TAM];
+	} info_t;
+
+	typedef struct sNodo
+	{
+			info_t info;
+			struct sNodo *sig;
+	} nodo_t;
+
+	typedef nodo_t* lista_t;
+
+	void crear_lista(lista_t *p);
+	int insertar_en_orden(lista_t *p, info_t *d);
+	int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int elimtodos);
+	void guardar_lista(lista_t *p, FILE *arch);
+	int comparar(info_t*d1, info_t*d2);
+	void crear_ts(lista_t *l_ts);
+	int insertar_en_ts(lista_t *l_ts, info_t *d);
+
+	lista_t l_ts;
+	info_t d;
 %}
 
 %locations
@@ -434,18 +468,28 @@
 		CONSTANTE_STRING {
 			printf("factor %s\n", yytext);
 			validar_constante_string(yytext);
+			strcpy(d.clave, guion_cadena(yytext));
+			strcpy(d.valor, yytext);
+			sprintf(d.longitud, "%d", strlen(yytext)-2);
+			insertar_en_ts(&l_ts, &d);
 		}
 		;
 
 	factor:
 		CONSTANTE_REAL {
 			printf("factor %s\n", yytext);
+			strcpy(d.clave, guion_cadena(yytext));
+			strcpy(d.valor, yytext);
+			insertar_en_ts(&l_ts, &d);
 		}
 		;
 
 	factor:
 		CONSTANTE_ENTERA {
 			printf("factor %s\n", yytext);
+			strcpy(d.clave, guion_cadena(yytext));
+			strcpy(d.valor, yytext);
+			insertar_en_ts(&l_ts, &d);
 		}
 		;
 	
@@ -459,8 +503,11 @@ int main(int argc, char *argv[]) {
 	if ((yyin = fopen(argv[1], "rt")) == NULL) {
 		printf("ERROR: abriendo archivo [%s]\n", argv[1]);
 	} else {
+		crear_lista(&l_ts);
 		yyparse();
 		fclose(yyin);
+		// crear ts.txt
+		crear_ts(&l_ts);
 	}
 	printf("==============================================================\n");
 	printf("analisis-finaliza\n");
@@ -478,4 +525,92 @@ void validar_constante_string(char *constante_string) {
 		sprintf(error_mensaje, "la constante string %s supera los [%d] caracteres permitidos\n", constante_string, MAX_STRING_LENGTH);
 		yyerror(error_mensaje);
 	}
+}
+
+void crear_lista(lista_t *p) {
+    *p=NULL;
+}
+
+int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int elimtodos) {
+    nodo_t*aux;
+    lista_t*q;
+
+    while(*p)
+    {
+        q=&(*p)->sig;
+        while(*p && *q)
+        {
+            if(cmp(&(*p)->info,&(*q)->info)==0)
+            {
+                aux=*q;
+                *q=aux->sig;
+                free(aux);
+            }else
+                q=&(*q)->sig;
+        }
+        p=&(*p)->sig;
+    }
+    return TODO_BIEN;
+}
+
+int insertar_en_orden(lista_t *p, info_t *d) {
+    nodo_t*nue;
+    while(*p && comparar(&(*p)->info,d)>0)
+        p=&(*p)->sig;
+
+    if(*p && (((*p)->info.clave)-(d->clave))==0)
+    {
+        (*p)->info=(*d);
+        return DATO_DUPLICADO;
+    }
+
+    nue=(nodo_t*)malloc(sizeof(nodo_t));
+    if(nue==NULL)
+        return SIN_MEMORIA;
+
+    nue->info=*d;
+    nue->sig=*p;
+    *p=nue;
+
+    return TODO_BIEN;
+}
+
+int comparar(info_t *d1, info_t *d2) {
+	return strcmp(d1->clave,d2->clave);
+}
+
+char *guion_cadena(char cad[TAM]) {
+	char guion[TAM+1]="_" ;
+	strcat(guion,cad);
+	strcpy(cadena,guion);
+	return cadena;
+}
+
+void guardar_lista(lista_t *p, FILE *arch) {
+	// titulos
+	fprintf(arch,"%-35s %-16s %-35s %-35s", "NOMBRE", "TIPO DE DATO", "VALOR", "LONGITUD");
+	// datos
+	while(*p) {
+		fprintf(arch,"\n%-35s %-16s %-35s %-35s", (*p)->info.clave, (*p)->info.tipodato, (*p)->info.valor, (*p)->info.longitud);
+		p=&(*p)->sig;
+	}
+}
+
+void crear_ts(lista_t *l_ts) {
+	info_t aux;
+	FILE *arch=fopen("ts.txt","w");
+	printf("\n");
+	printf("creando tabla de simbolos...\n");
+	guardar_lista(l_ts, arch);
+	fclose(arch);
+	printf("tabla de simbolos creada\n");
+}
+
+int insertar_en_ts(lista_t *l_ts, info_t *d) {
+    insertar_en_orden(l_ts,d);
+    sacar_repetidos(l_ts,d,comparar,0);
+		strcpy(d->clave,"\0");
+		strcpy(d->tipodato,"\0");
+		strcpy(d->valor,"\0");
+		strcpy(d->longitud,"\0");
 }
