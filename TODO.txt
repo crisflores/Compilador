@@ -9,8 +9,7 @@ VALIDAR:
 - asignaciones entre tipos de datos compatibles
 
 TABLA DE SIMBOLOS:
-- guardar ID junto con el tipo de dato
-- guardar en txt
+-
 
 FIXME:
 - en la sentencia "declaracion" no andan los printf

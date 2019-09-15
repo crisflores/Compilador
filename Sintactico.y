@@ -11,6 +11,8 @@
 	#define SIN_MEMORIA 0
 	#define DATO_DUPLICADO 0
 	#define TODO_BIEN 1
+	#define PILA_VACIA 0
+	#define COLA_VACIA 0
 	#define TAM 35
 	#define INTMAX 65535
 	#define INTMIN 0
@@ -23,12 +25,6 @@
 	extern char * yytext;
 	extern long int yylineno;
 	FILE *yyin;
-	void validar_constante_string(char *constante_string);
-	void validar_constante_entera(char *constante_entera);
-	void validar_constante_real(char *constante_real);
-	char *guion_cadena(char cad[TAM]);
-	char cadena[TAM+1];
-	const int MAX_STRING_LENGTH = 30;
 
 	typedef struct
 	{
@@ -44,8 +40,43 @@
 			struct sNodo *sig;
 	} nodo_t;
 
-	typedef nodo_t* lista_t;
+	typedef nodo_t *lista_t;
 
+	typedef struct
+	{
+		char descripcion[TAM];
+	} info_pila_t;
+
+	typedef struct sNodoPila
+	{
+		info_pila_t info;
+		struct sNodoPila *sig;
+	} nodo_pila_t;
+	
+	typedef nodo_pila_t *pila_t;
+
+	typedef struct
+	{
+		char descripcion[TAM];
+	} info_cola_t;
+
+	typedef struct sNodoCola
+	{
+		info_cola_t info;
+		struct sNodoCola *sig;
+	} nodo_cola_t;
+
+	typedef struct
+	{
+		nodo_cola_t *pri, *ult;
+	} cola_t;
+
+	void crear_cola(cola_t *c);
+	int poner_en_cola(cola_t *c, info_cola_t *d);
+	int sacar_de_cola(cola_t *c, info_cola_t *d);
+	void crear_pila(pila_t *p);
+	int poner_en_pila(pila_t *p, info_pila_t *d);
+	int sacar_de_pila(pila_t*p, info_pila_t *d);
 	void crear_lista(lista_t *p);
 	int insertar_en_orden(lista_t *p, info_t *d);
 	int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int elimtodos);
@@ -54,9 +85,17 @@
 	void clear_ts();
 	void crear_ts(lista_t *l_ts);
 	int insertar_en_ts(lista_t *l_ts, info_t *d);
+	void validar_constante_string(char *constante_string);
+	void validar_constante_entera(char *constante_entera);
+	void validar_constante_real(char *constante_real);
+	char *guion_cadena(char cad[TAM]);
 
 	lista_t l_ts;
 	info_t d;
+	cola_t cola_tipo_id;
+	info_cola_t info_tipo_id;
+	char cadena[TAM+1];
+	const int MAX_STRING_LENGTH = 30;
 %}
 
 %locations
@@ -134,30 +173,44 @@
 	declaracion:
 		tipo_id CORCHETE_CIERRA DOS_PUNTOS CORCHETE_ABRE ID	{
 			printf("declaracion %s\n", yytext);
+			sacar_de_cola(&cola_tipo_id, &info_tipo_id);
+			strcpy(d.clave, yytext);
+			strcpy(d.tipodato, info_tipo_id.descripcion);
+			insertar_en_ts(&l_ts, &d);
 		} 	
 		;
 
 	declaracion:
 		tipo_id COMA declaracion COMA ID {
 			printf("declaracion %s\n", yytext);
+			sacar_de_cola(&cola_tipo_id, &info_tipo_id);
+			strcpy(d.clave, yytext);
+			strcpy(d.tipodato, info_tipo_id.descripcion);
+			insertar_en_ts(&l_ts, &d);
 		}
 		;
 
 	tipo_id:
 		INTEGER {
 			printf("tipo_id %s\n", yytext);
+			strcpy(info_tipo_id.descripcion, yytext);
+			poner_en_cola(&cola_tipo_id, &info_tipo_id);
 		} 
 		;
 
 	tipo_id:
 		FLOAT {
 			printf("tipo_id %s\n", yytext);
+			strcpy(info_tipo_id.descripcion, yytext);
+			poner_en_cola(&cola_tipo_id, &info_tipo_id);
 		} 
 		;
 
 	tipo_id:
 		STRING {
 			printf("tipo_id %s\n", yytext);
+			strcpy(info_tipo_id.descripcion, yytext);
+			poner_en_cola(&cola_tipo_id, &info_tipo_id);
 		} 
 		;
 
@@ -515,6 +568,7 @@ int main(int argc, char *argv[]) {
 	} else {
 		clear_ts();
 		crear_lista(&l_ts);
+		crear_cola(&cola_tipo_id);
 		yyparse();
 		fclose(yyin);
 		crear_ts(&l_ts);
@@ -604,6 +658,78 @@ char *guion_cadena(char cad[TAM]) {
 	strcat(guion,cad);
 	strcpy(cadena,guion);
 	return cadena;
+}
+
+void crear_pila(pila_t *p) {
+	*p=NULL;
+}
+
+int poner_en_pila(pila_t *p, info_pila_t *d) {
+	nodo_pila_t *nue=(nodo_pila_t*)malloc(sizeof(nodo_pila_t));
+
+	if(nue==NULL)
+		return SIN_MEMORIA;
+
+	nue->info=*d;
+	nue->sig=*p;
+	*p=nue;
+
+	return TODO_BIEN;
+}
+
+
+int sacar_de_pila(pila_t *p, info_pila_t *d) {
+	nodo_pila_t *aux;
+
+	if(*p==NULL)
+		return PILA_VACIA;
+
+	aux=*p;
+	*d=aux->info;
+	*p=aux->sig;
+	free(aux);
+
+	return TODO_BIEN;
+}
+
+void crear_cola(cola_t *c) {
+	c->pri=NULL;
+	c->ult=NULL;
+}
+
+int poner_en_cola(cola_t *c, info_cola_t *d) {
+	nodo_cola_t *nue=(nodo_cola_t*)malloc(sizeof(nodo_cola_t));
+
+	if(nue==NULL)
+		return SIN_MEMORIA;
+
+	nue->info=*d;
+	nue->sig=NULL;
+	if(c->ult==NULL)
+		c->pri=nue;
+	else
+		c->ult->sig=nue;
+
+	c->ult=nue;
+
+	return TODO_BIEN;
+}
+
+int sacar_de_cola(cola_t *c, info_cola_t *d) {
+	nodo_cola_t *aux;
+
+	if(c->pri==NULL)
+		return COLA_VACIA;
+
+	aux=c->pri;
+	*d=aux->info;
+	c->pri=aux->sig;
+	free(aux);
+
+	if(c->pri==NULL)
+		c->ult=NULL;
+
+	return TODO_BIEN;
 }
 
 void guardar_lista(lista_t *p, FILE *arch) {

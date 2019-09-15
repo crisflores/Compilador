@@ -1,4 +1,8 @@
 NOMBRE                              TIPO DE DATO     VALOR                               LONGITUD                           
+d                                   String                                                                                  
+c                                   Integer                                                                                 
+b                                   Float                                                                                   
+a                                   Integer                                                                                 
 _999999999.999999999999                              999999999.999999999999                                                 
 _99.                                                 99.                                                                    
 _7                                                   7                                                                      
