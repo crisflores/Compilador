@@ -1,5 +1,5 @@
 VAR
-  [Integer, Float, Integer, String] : [a, b, c, d]
+  [Integer, Float, Integer, String, Float] : [a, b, c, d, hola_este_mi_insuperable_float]
 ENDVAR
 
 a := b

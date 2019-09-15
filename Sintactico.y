@@ -85,6 +85,7 @@
 	void clear_ts();
 	void crear_ts(lista_t *l_ts);
 	int insertar_en_ts(lista_t *l_ts, info_t *d);
+	void validar_id(char *id);
 	void validar_constante_string(char *constante_string);
 	void validar_constante_entera(char *constante_entera);
 	void validar_constante_real(char *constante_real);
@@ -173,6 +174,7 @@
 	declaracion:
 		tipo_id CORCHETE_CIERRA DOS_PUNTOS CORCHETE_ABRE ID	{
 			printf("declaracion %s\n", yytext);
+			validar_id(yytext);
 			sacar_de_cola(&cola_tipo_id, &info_tipo_id);
 			strcpy(d.clave, yytext);
 			strcpy(d.tipodato, info_tipo_id.descripcion);
@@ -183,6 +185,7 @@
 	declaracion:
 		tipo_id COMA declaracion COMA ID {
 			printf("declaracion %s\n", yytext);
+			validar_id(yytext);
 			sacar_de_cola(&cola_tipo_id, &info_tipo_id);
 			strcpy(d.clave, yytext);
 			strcpy(d.tipodato, info_tipo_id.descripcion);
@@ -577,6 +580,18 @@ int main(int argc, char *argv[]) {
 	printf("analisis-finaliza\n");
 	printf("==============================================================\n");
 	return 0;
+}
+
+void validar_id(char *id) {
+	int length = 0;
+	while(id[length] != '\0') {			
+		length++;
+	}
+	// mayor a 32 se pone porque las comillas de la constante no cuentan para su tamaño
+	if(length > MAX_STRING_LENGTH) {
+		sprintf(error_mensaje, "el identificador %s supera los [%d] caracteres permitidos\n", id, MAX_STRING_LENGTH);
+		yyerror(error_mensaje);
+	}
 }
 
 void validar_constante_string(char *constante_string) {
