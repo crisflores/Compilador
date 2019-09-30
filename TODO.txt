@@ -11,5 +11,5 @@ VALIDAR:
 - asignaciones entre tipos de datos compatibles
 
 TERCETOS:
-- asignaciones (faltan las expresiones)
+- asignaciones (faltan las expresiones con parentesis)
 - condiciones

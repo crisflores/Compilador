@@ -109,6 +109,8 @@
 	int numero_terceto = NUMERO_INICIAL_TERCETO;
 	cola_t cola_terceto;
 	info_cola_t terceto_info_asignacion;
+	info_cola_t terceto_info_expresion;
+	info_cola_t terceto_info_termino;
 	info_cola_t terceto_info_factor;
 	int terceto_asignacion;
 	int terceto_expresion;
@@ -416,8 +418,13 @@
 		;
 
 	expresion:
-		expresion SUMA termino {
-			// TODO: terceto
+		expresion {
+			strcpy(terceto_info_expresion.posicion_b, normalizarPunteroTerceto(terceto_expresion));
+		} SUMA {			
+			strcpy(terceto_info_expresion.posicion_a, yytext);
+		} termino {
+			strcpy(terceto_info_expresion.posicion_c, normalizarPunteroTerceto(terceto_termino));
+			terceto_expresion = crearTerceto(&terceto_info_expresion);
 		}
 		;
 
@@ -428,8 +435,13 @@
 		;
 	
 	termino:
-		termino MULTIPLICACION factor {
-			// TODO: terceto
+		termino {
+			strcpy(terceto_info_termino.posicion_b, normalizarPunteroTerceto(terceto_termino));
+		} MULTIPLICACION {
+			strcpy(terceto_info_termino.posicion_a, yytext);
+		} factor {
+			strcpy(terceto_info_termino.posicion_b, normalizarPunteroTerceto(terceto_factor));
+			terceto_termino = crearTerceto(&terceto_info_termino); 
 		}
 		;
 	
@@ -700,7 +712,8 @@ int insertar_en_ts(lista_t *l_ts, info_t *d) {
 
 int crearTerceto(info_cola_t *info_terceto) {
 	printf(
-		"crearTerceto(%s, %s, %s)\n",
+		"[%d] crearTerceto(%s, %s, %s)\n",
+		numero_terceto,
 		info_terceto->posicion_a, 
 		info_terceto->posicion_b, 
 		info_terceto->posicion_c);
