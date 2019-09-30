@@ -1,26 +1,29 @@
 NOMBRE                              TIPO DE DATO     VALOR                               LONGITUD                           
+miString                            String                                                                                  
+miInteger                           Integer                                                                                 
+miFloat                             Float                                                                                   
 hola_este_mi_insuperable_float      Float                                                                                   
 d                                   String                                                                                  
 c                                   Integer                                                                                 
 b                                   Float                                                                                   
 a                                   Integer                                                                                 
-_999999999.999999999999                              999999999.999999999999                                                 
-_99.                                                 99.                                                                    
-_7                                                   7                                                                      
-_65535                                               65535                                                                  
-_6.5                                                 6.5                                                                    
-_48                                                  48                                                                     
-_4                                                   4                                                                      
-_34                                                  34                                                                     
-_2.3                                                 2.3                                                                    
-_2                                                   2                                                                      
-_1237                                                1237                                                                   
-_12                                                  12                                                                     
-_100                                                 100                                                                    
-_1.22                                                1.22                                                                   
-_0                                                   0                                                                      
-_.9999                                               .9999                                                                  
-_"asldkfhsjf"                                        "asldkfhsjf"                        10                                 
-_"as ldkf hsjf"                                      "as ldkf hsjf"                      12                                 
-_"@sdADaSjfla%dfg"                                   "@sdADaSjfla%dfg"                   15                                 
-_"123456789012345678901234567890"                    "123456789012345678901234567890"    30                                 
+_999999999999999.999999999999       const Float      999999999999999.999999999999                                           
+_99.                                const Float      99.                                                                    
+_7                                  const Integer    7                                                                      
+_65535                              const Integer    65535                                                                  
+_6.5                                const Float      6.5                                                                    
+_48                                 const Integer    48                                                                     
+_4                                  const Integer    4                                                                      
+_34                                 const Integer    34                                                                     
+_2.3                                const Float      2.3                                                                    
+_2                                  const Integer    2                                                                      
+_1237                               const Integer    1237                                                                   
+_12                                 const Integer    12                                                                     
+_100                                const Integer    100                                                                    
+_1.22                               const Float      1.22                                                                   
+_0                                  const Integer    0                                                                      
+_.9999                              const Float      .9999                                                                  
+_"asldkfhsjf"                       const String     "asldkfhsjf"                        10                                 
+_"as ldkf hsjf"                     const String     "as ldkf hsjf"                      12                                 
+_"@sdADaSjfla%dfg"                  const String     "@sdADaSjfla%dfg"                   15                                 
+_"123456789012345678901234567890"   const String     "123456789012345678901234567890"    30                                 

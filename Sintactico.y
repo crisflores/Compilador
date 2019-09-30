@@ -14,8 +14,6 @@
 	#define PILA_VACIA 0
 	#define COLA_VACIA 0
 	#define TAM 35
-	#define INTMAX 65535
-	#define INTMIN 0
 
 	// funciones de Flex y Bison
 	// --------------------------------------------------------
@@ -86,9 +84,6 @@
 	void crear_ts(lista_t *l_ts);
 	int insertar_en_ts(lista_t *l_ts, info_t *d);
 	void validar_id(char *id);
-	void validar_constante_string(char *constante_string);
-	void validar_constante_entera(char *constante_entera);
-	void validar_constante_real(char *constante_real);
 	char *guion_cadena(char cad[TAM]);
 
 	lista_t l_ts;
@@ -96,7 +91,7 @@
 	cola_t cola_tipo_id;
 	info_cola_t info_tipo_id;
 	char cadena[TAM+1];
-	const int MAX_STRING_LENGTH = 30;
+ 	extern const int MAX_STRING_LENGTH;
 %}
 
 %locations
@@ -107,6 +102,7 @@
 %token REPEAT
 %token ENDREPEAT
 %token IF
+%token ELSE
 %token ENDIF
 %token AND
 %token OR
@@ -150,7 +146,7 @@
 	declaraciones:	
 		{
 			printf("declaraciones\n");
-		} VAR sentencia_declaraciones ENDVAR
+		} VAR setencias_de_declaraciones ENDVAR
 		;
 
 	declaraciones:
@@ -159,16 +155,16 @@
 		}
 		;
 
-	sentencia_declaraciones:
-		{
-			printf("sentencia_declaraciones\n");
-		} CORCHETE_ABRE declaracion CORCHETE_CIERRA
+	setencias_de_declaraciones:
+		setencia_declaracion
 		;
 
-	sentencia_declaraciones:
-		{
-			printf("sentencia_declaraciones\n");
-		}
+	setencias_de_declaraciones:
+		setencias_de_declaraciones setencia_declaracion
+		;
+
+	setencia_declaracion:
+		CORCHETE_ABRE declaracion CORCHETE_CIERRA
 		;
 
 	declaracion:
@@ -317,7 +313,15 @@
 	seleccion:
 		IF {
 			printf("seleccion\n");
-		} PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDIF
+		} PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa seleccion_con_else
+		;
+
+	seleccion_con_else:
+		ENDIF { /* es un if sin else */ }
+		;
+
+	seleccion_con_else:
+		ELSE programa ENDIF
 		;
 
 	condicion:
@@ -531,9 +535,9 @@
 	factor:
 		CONSTANTE_STRING {
 			printf("factor %s\n", yytext);
-			validar_constante_string(yytext);
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
+			strcpy(d.tipodato, "const String");
 			sprintf(d.longitud, "%d", strlen(yytext)-2);
 			insertar_en_ts(&l_ts, &d);
 		}
@@ -542,9 +546,9 @@
 	factor:
 		CONSTANTE_REAL {
 			printf("factor %s\n", yytext);
-			validar_constante_real(yytext);
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
+			strcpy(d.tipodato, "const Float");
 			insertar_en_ts(&l_ts, &d);
 		}
 		;
@@ -552,9 +556,9 @@
 	factor:
 		CONSTANTE_ENTERA {
 			printf("factor %s\n", yytext);
-			validar_constante_entera(yytext);
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
+			strcpy(d.tipodato, "const Integer");
 			insertar_en_ts(&l_ts, &d);
 		}
 		;
@@ -592,31 +596,6 @@ void validar_id(char *id) {
 		sprintf(error_mensaje, "el identificador %s supera los [%d] caracteres permitidos\n", id, MAX_STRING_LENGTH);
 		yyerror(error_mensaje);
 	}
-}
-
-void validar_constante_string(char *constante_string) {
-	int length = 0;
-	while(constante_string[length] != '\0') {			
-		length++;
-	}
-	// mayor a 32 se pone porque las comillas de la constante no cuentan para su tamaño
-	if(length > MAX_STRING_LENGTH + 2) {
-		sprintf(error_mensaje, "la constante string %s supera los [%d] caracteres permitidos\n", constante_string, MAX_STRING_LENGTH);
-		yyerror(error_mensaje);
-	}
-}
-
-void validar_constante_entera(char *constante_entera) {
-	long entero = atoi(constante_entera);
-	if(entero > INTMAX || entero < INTMIN) {		
-		sprintf(error_mensaje, "constante entera %s fuera de rango [%d, %d]\n", constante_entera, INTMIN, INTMAX);
-		yyerror(error_mensaje);
-	}
-}
-
-void validar_constante_real(char *constante_real) {   
-	// sprintf(error_mensaje, "constante real %s fuera de rango\n", constante_real);
-	// yyerror(error_mensaje);
 }
 
 void crear_lista(lista_t *p) {

@@ -1,15 +1,11 @@
 LEXICO:
-- tipo de datos:
-  -> reales 32bit
+- validar float
 
 SINTÁCTICO:
 -
 
-VALIDAR:
-- asignaciones entre tipos de datos compatibles
-
 TABLA DE SIMBOLOS:
 -
 
-FIXME:
-- en la sentencia "declaracion" no andan los printf
+VALIDAR:
+- asignaciones entre tipos de datos compatibles

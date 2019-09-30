@@ -1,5 +1,7 @@
 VAR
+  [Float] : [miFloat]
   [Integer, Float, Integer, String, Float] : [a, b, c, d, hola_este_mi_insuperable_float]
+  [String, Integer] : [miString, miInteger]
 ENDVAR
 
 a := b
@@ -7,7 +9,7 @@ b := "asldkfhsjf"
 b := "as ldkf hsjf"
 b := "123456789012345678901234567890"
 b := "@sdADaSjfla%dfg"
-a := 999999999.999999999999
+a := 999999999999999.999999999999
 a := 99.
 a := .9999
 a := 65535
@@ -31,10 +33,20 @@ IF (a >= b OR a != c)
   PRINT "if con or"
 ENDIF
 
+IF (a != b)
+  PRINT "if con else"
+ELSE
+  PRINT "este es el else"
+ENDIF
+
 IF (a == b)
   IF (NOT a < b)
-    PRINT "if anidado"
+    PRINT "if con else anidado"
+  ELSE
+    PRINT "parte else"
   ENDIF
+ELSE
+  PRINT "else del primer if"
 ENDIF
 
 READ a

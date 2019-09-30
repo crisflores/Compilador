@@ -1,12 +1,22 @@
 %{
 	#include <stdio.h>
 	#include <stdbool.h>
+	#include <stdlib.h>
 	#include <string.h>
 	#include <math.h>
+	#include <errno.h>
 	#include "y.tab.h"
 
 	void yyerror(const char *mensaje);
 	char error_mensaje[1000];
+
+	void validar_constante_string(char *constante_string);
+	void validar_constante_entera(char *constante_entera);
+	void validar_constante_real(char *constante_real);
+
+	const int MAX_STRING_LENGTH = 30;
+	const int INTMAX = 65535;
+	const int INTMIN = 0;
 %}
 
 %option noyywrap
@@ -44,6 +54,9 @@ COMENTARIO {COMENTARIO_I}({CARACTER}|{COMENTARIO_SIMPLE}|[\r\n])*{COMENTARIO_F}
 }
 "IF" {
 	return IF;
+}
+"ELSE" {
+	return ELSE;
 }
 "ENDIF" {
 	return ENDIF;
@@ -88,12 +101,15 @@ return PRINT;
 	return ID;
 }
 {CONSTANTE_ENTERA} {
+	validar_constante_entera(yytext);
 	return CONSTANTE_ENTERA;
 }
 {CONSTANTE_REAL} {
+	validar_constante_real(yytext);
 	return CONSTANTE_REAL;
 }
 {CONSTANTE_STRING} {
+	validar_constante_string(yytext);
 	return CONSTANTE_STRING;
 }
 "," {
@@ -169,9 +185,27 @@ void yyerror(const char *mensaje) {
 	exit(1);
 }
 
-// tabla de símbolos
-// --------------------------------------------------------
+void validar_constante_string(char *constante_string) {
+	int length = 0;
+	while(constante_string[length] != '\0') {			
+		length++;
+	}
+	// mayor a 32 se pone porque las comillas de la constante no cuentan para su tamaño
+	if(length > MAX_STRING_LENGTH + 2) {
+		sprintf(error_mensaje, "la constante string %s supera los [%d] caracteres permitidos\n", constante_string, MAX_STRING_LENGTH);
+		yyerror(error_mensaje);
+	}
+}
 
+void validar_constante_entera(char *constante_entera) {
+	long entero = atoi(constante_entera);
+	if(entero > INTMAX || entero < INTMIN) {		
+		sprintf(error_mensaje, "constante entera %s fuera de rango [%d, %d]\n", constante_entera, INTMIN, INTMAX);
+		yyerror(error_mensaje);
+	}
+}
 
-// declaraciones
-// --------------------------------------------------------
+void validar_constante_real(char *constante_real) {
+	// sprintf(error_mensaje, "constante real %s fuera de rango\n", constante_real);
+	// yyerror(error_mensaje);
+}
