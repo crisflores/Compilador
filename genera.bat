@@ -4,6 +4,7 @@ set SINTACTICO=Sintactico.y
 set TEST_TXT=prueba.txt
 set TABLA_DE_SIMBOLOS=ts.txt
 set PUNTO_EXE=Primera.exe
+set INTERMEDIA=intermedia.txt
 cd c:\GnuWin32\bin\
 flex %PATH%%LEXICO%
 bison -dyv %PATH%%SINTACTICO%
@@ -16,4 +17,5 @@ del c:\GnuWin32\bin\y.output
 del c:\GnuWin32\bin\y.tab.h
 move c:\GnuWin32\bin\%PUNTO_EXE% %PATH%%PUNTO_EXE% 
 move %TABLA_DE_SIMBOLOS% %PATH%%TABLA_DE_SIMBOLOS%
+move %INTERMEDIA% %PATH%%INTERMEDIA%
 cd %PATH%

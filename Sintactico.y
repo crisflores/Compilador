@@ -14,6 +14,7 @@
 	#define PILA_VACIA 0
 	#define COLA_VACIA 0
 	#define TAM 35
+	#define NUMERO_INICIAL_TERCETO 10
 
 	// funciones de Flex y Bison
 	// --------------------------------------------------------
@@ -56,6 +57,9 @@
 	typedef struct
 	{
 		char descripcion[TAM];
+		char posicion_a[TAM];
+		char posicion_b[TAM];
+		char posicion_c[TAM];
 	} info_cola_t;
 
 	typedef struct sNodoCola
@@ -85,6 +89,12 @@
 	int insertar_en_ts(lista_t *l_ts, info_t *d);
 	void validar_id(char *id);
 	char *guion_cadena(char cad[TAM]);
+	int crearTerceto(info_cola_t *info_terceto);
+	// le agrega los corchetes al número de terceto, osea entra 10 y sale [10]
+	char *normalizarPunteroTerceto(int terceto_puntero);
+	void clear_intermedia();
+	void crear_intermedia(cola_t *cola_intermedia);
+	void guardar_intermedia(cola_t *p, FILE *arch);
 
 	lista_t l_ts;
 	info_t d;
@@ -92,6 +102,18 @@
 	info_cola_t info_tipo_id;
 	char cadena[TAM+1];
  	extern const int MAX_STRING_LENGTH;
+
+	// forma del terceto
+	// [numero_terceto] = crearTerceto(terceto_a, terceto_b, terceto_c)
+	char char_puntero_terceto[TAM];
+	int numero_terceto = NUMERO_INICIAL_TERCETO;
+	cola_t cola_terceto;
+	info_cola_t terceto_info_asignacion;
+	info_cola_t terceto_info_factor;
+	int terceto_asignacion;
+	int terceto_expresion;
+	int terceto_termino;
+	int terceto_factor;
 %}
 
 %locations
@@ -138,21 +160,14 @@
 %%
 
 	start:
-		{
-			printf("start\n");
-		} declaraciones programa 
+		declaraciones programa 
 		;
 
 	declaraciones:	
-		{
-			printf("declaraciones\n");
-		} VAR setencias_de_declaraciones ENDVAR
+		VAR setencias_de_declaraciones ENDVAR
 		;
 
 	declaraciones:
-		{
-			printf("declaraciones\n");
-		}
 		;
 
 	setencias_de_declaraciones:
@@ -169,7 +184,6 @@
 
 	declaracion:
 		tipo_id CORCHETE_CIERRA DOS_PUNTOS CORCHETE_ABRE ID	{
-			printf("declaracion %s\n", yytext);
 			validar_id(yytext);
 			sacar_de_cola(&cola_tipo_id, &info_tipo_id);
 			strcpy(d.clave, yytext);
@@ -180,7 +194,6 @@
 
 	declaracion:
 		tipo_id COMA declaracion COMA ID {
-			printf("declaracion %s\n", yytext);
 			validar_id(yytext);
 			sacar_de_cola(&cola_tipo_id, &info_tipo_id);
 			strcpy(d.clave, yytext);
@@ -191,7 +204,6 @@
 
 	tipo_id:
 		INTEGER {
-			printf("tipo_id %s\n", yytext);
 			strcpy(info_tipo_id.descripcion, yytext);
 			poner_en_cola(&cola_tipo_id, &info_tipo_id);
 		} 
@@ -199,7 +211,6 @@
 
 	tipo_id:
 		FLOAT {
-			printf("tipo_id %s\n", yytext);
 			strcpy(info_tipo_id.descripcion, yytext);
 			poner_en_cola(&cola_tipo_id, &info_tipo_id);
 		} 
@@ -207,7 +218,6 @@
 
 	tipo_id:
 		STRING {
-			printf("tipo_id %s\n", yytext);
 			strcpy(info_tipo_id.descripcion, yytext);
 			poner_en_cola(&cola_tipo_id, &info_tipo_id);
 		} 
@@ -225,95 +235,59 @@
 		;
 
 	sentencia:
-		{
-			printf("sentencia\n");
-		} asignacion
+		asignacion
 		;
 
 	sentencia:
-		{
-			printf("sentencia\n");
-		} seleccion
+		seleccion
 		;
 
 	sentencia:
-		{
-			printf("sentencia\n");
-		} entrada
+		entrada
 		;
 
 	sentencia:
-		{
-			printf("sentencia\n");
-		} salida
+		salida
 		;
 
 	sentencia:
-		{
-			printf("sentencia\n");
-		} ciclo
+		ciclo
 		;
 
 	sentencia:
-		{
-			printf("sentencia\n");
-		} filtro
+		filtro
 		;
 
 	sentencia:
-		{
-			printf("sentencia\n");
-		} en_lista
+		en_lista
 		;
 
 	en_lista:
-		INLIST {
-			printf("inlist\n");
-		} PARENTESIS_ABRE ID {
-			printf("ID %s\n", yytext);
-		} PUNTO_Y_COMA CORCHETE_ABRE {
-			printf("lista_expresiones_inlist\n");
-		} lista_expresiones_inlist CORCHETE_CIERRA PARENTESIS_CIERRA
+		INLIST PARENTESIS_ABRE ID PUNTO_Y_COMA CORCHETE_ABRE lista_expresiones_inlist CORCHETE_CIERRA PARENTESIS_CIERRA
 		;
 
 	filtro:
-		FILTER {
-			printf("filter\n");
-		} PARENTESIS_ABRE condicion_filter COMA CORCHETE_ABRE {
-			printf("lista_variables_filter\n");
-		} lista_variables_filter CORCHETE_CIERRA PARENTESIS_CIERRA
+		FILTER PARENTESIS_ABRE condicion_filter COMA CORCHETE_ABRE lista_variables_filter CORCHETE_CIERRA PARENTESIS_CIERRA
 		;
 
 	ciclo:
-		{
-			printf("repeat\n");
-		} REPEAT PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDREPEAT
+		REPEAT PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDREPEAT
 		;
 
 	salida:
-		PRINT ID {
-			printf("print ID %s\n", yytext);
-		} 
+		PRINT ID 
 		;
 
 	salida:
-		PRINT CONSTANTE_STRING {
-			printf("print %s\n", yytext);
-		} 
+		PRINT CONSTANTE_STRING
 		;
 
 	entrada:
-		{
-			printf("read ");
-		} READ ID {
-			printf("ID %s\n", yytext);
-		} 
+		READ ID
 		;
 
 	seleccion:
-		IF {
-			printf("seleccion\n");
-		} PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa seleccion_con_else
+		IF PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa seleccion_con_else
 		;
 
 	seleccion_con_else:
@@ -329,21 +303,15 @@
 		;
 
 	condicion:
-		comparacion AND {
-			printf("condicion AND\n");
-		} comparacion
+		comparacion AND comparacion
 		;
 
 	condicion:
-		comparacion OR {
-			printf("condicion OR\n");
-		} comparacion
+		comparacion OR comparacion
 		;
 
 	condicion:
-		NOT {
-			printf("condicion NOT\n");
-		} comparacion
+		NOT comparacion
 		;
 
 	comparacion: 
@@ -351,45 +319,27 @@
 		;
 
 	comparacion:
-		expresion IGUAL_A
-		{
-			printf("comparacion ==\n");
-		} expresion
+		expresion IGUAL_A expresion
 		;
 
 	comparacion:
-		expresion MENOR_A
-		{
-			printf("comparacion <\n");
-		} expresion
+		expresion MENOR_A expresion
 		;
 
 	comparacion:
-		expresion MENOR_IGUAL_A
-		{
-			printf("comparacion <=\n");
-		} expresion
+		expresion MENOR_IGUAL_A expresion
 		;
 
 	comparacion:
-		expresion MAYOR_A
-		{
-			printf("comparacion <\n");
-		} expresion
+		expresion MAYOR_A expresion
 		;
 
 	comparacion:
-		expresion MAYOR_IGUAL_A
-		{
-			printf("comparacion >=\n");
-		} expresion
+		expresion MAYOR_IGUAL_A expresion
 		;
 
 	comparacion:
-		expresion DISTINTA_A
-		{
-			printf("comparacion !=\n");
-		} expresion
+		expresion DISTINTA_A expresion
 		;
 
 	condicion_filter:
@@ -397,75 +347,39 @@
 		;
 
 	condicion_filter:
-		comparacion_filter AND {
-			printf("condicion_filter AND\n");
-		} comparacion_filter
+		comparacion_filter AND comparacion_filter
 		;
 
 	condicion_filter:
-		comparacion_filter OR {
-			printf("condicion_filter OR\n");
-		} comparacion_filter
+		comparacion_filter OR comparacion_filter
 		;
 
 	condicion_filter:
-		NOT {
-			printf("condicion_filter NOT\n");
-		} comparacion_filter
+		NOT comparacion_filter
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER {
-			printf("operando_filter\n");
-		} IGUAL_A
-		{
-			printf("comparacion_filter ==\n");
-		} expresion
+		OPERANDO_FILTER IGUAL_A expresion
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER {
-			printf("operando_filter\n");
-		}  MENOR_A
-		{
-			printf("comparacion_filter <\n");
-		} expresion
+		OPERANDO_FILTER MENOR_A expresion
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER {
-			printf("operando_filter\n");
-		}  MENOR_IGUAL_A
-		{
-			printf("comparacion_filter <=\n");
-		} expresion
+		OPERANDO_FILTER MENOR_IGUAL_A expresion
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER {
-			printf("operando_filter\n");
-		}  MAYOR_A
-		{
-			printf("comparacion_filter <\n");
-		} expresion
+		OPERANDO_FILTER MAYOR_A expresion
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER {
-			printf("operando_filter\n");
-		}  MAYOR_IGUAL_A
-		{
-			printf("comparacion_filter >=\n");
-		} expresion
+		OPERANDO_FILTER MAYOR_IGUAL_A expresion
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER {
-			printf("operando_filter\n");
-		}  DISTINTA_A
-		{
-			printf("comparacion_filter !=\n");
-		} expresion
+		OPERANDO_FILTER DISTINTA_A expresion
 		;
 
 	lista_variables_filter:
@@ -477,9 +391,7 @@
 		;
 
 	variable_filter:
-		ID { 
-			printf("ID %s\n", yytext);
-		} 
+		ID
 		;
 
 	lista_expresiones_inlist:
@@ -491,50 +403,64 @@
 		;
 
 	asignacion:
-		{
-			printf("asignacion");
-		} ID {
-			printf(" ID %s\n", yytext);
-		} OP_ASIGNACION expresion
+		ID {
+			strcpy(terceto_info_asignacion.posicion_b, yytext);
+		} OP_ASIGNACION {
+			strcpy(terceto_info_asignacion.posicion_a, yytext);
+		} expresion {
+			strcpy(terceto_info_asignacion.posicion_c, normalizarPunteroTerceto(terceto_expresion));
+			// crea un terceto con la forma (":=", ID, [10])
+			// donde [10] es un ejemplo de terceto_expresion
+			crearTerceto(&terceto_info_asignacion);
+		}
 		;
 
 	expresion:
-		expresion SUMA {
-			printf("expresion +\n");
-		} termino
+		expresion SUMA termino {
+			// TODO: terceto
+		}
 		;
 
 	expresion:
-		termino
+		termino {
+			terceto_expresion = terceto_termino;
+		}
 		;
 	
 	termino:
-		termino MULTIPLICACION {
-			printf("termino *\n");
-		} factor
+		termino MULTIPLICACION factor {
+			// TODO: terceto
+		}
 		;
 	
 	termino:
-		factor
+		factor {
+			terceto_termino = terceto_factor;
+		}
 		;
 
 	factor:
-		PARENTESIS_ABRE {
-			printf("factor (\n");
-		} expresion PARENTESIS_CIERRA {
-			printf("factor )\n");
+		PARENTESIS_ABRE expresion PARENTESIS_CIERRA {
+			// TODO: terceto
 		}
 		;
 
 	factor:
 		ID {
-			printf("factor %s\n", yytext);
+			strcpy(terceto_info_factor.posicion_a, yytext);
+			strcpy(terceto_info_factor.posicion_b, "_");
+			strcpy(terceto_info_factor.posicion_c, "_");
+			terceto_factor = crearTerceto(&terceto_info_factor);
 		}
 		;
 
 	factor:
 		CONSTANTE_STRING {
-			printf("factor %s\n", yytext);
+			strcpy(terceto_info_factor.posicion_a, yytext);
+			strcpy(terceto_info_factor.posicion_b, "_");
+			strcpy(terceto_info_factor.posicion_c, "_");
+			terceto_factor = crearTerceto(&terceto_info_factor);
+
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
 			strcpy(d.tipodato, "const String");
@@ -545,7 +471,11 @@
 
 	factor:
 		CONSTANTE_REAL {
-			printf("factor %s\n", yytext);
+			strcpy(terceto_info_factor.posicion_a, yytext);
+			strcpy(terceto_info_factor.posicion_b, "_");
+			strcpy(terceto_info_factor.posicion_c, "_");
+			terceto_factor = crearTerceto(&terceto_info_factor);
+
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
 			strcpy(d.tipodato, "const Float");
@@ -555,7 +485,11 @@
 
 	factor:
 		CONSTANTE_ENTERA {
-			printf("factor %s\n", yytext);
+			strcpy(terceto_info_factor.posicion_a, yytext);
+			strcpy(terceto_info_factor.posicion_b, "_");
+			strcpy(terceto_info_factor.posicion_c, "_");
+			terceto_factor = crearTerceto(&terceto_info_factor);
+
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
 			strcpy(d.tipodato, "const Integer");
@@ -574,11 +508,14 @@ int main(int argc, char *argv[]) {
 		printf("ERROR: abriendo archivo [%s]\n", argv[1]);
 	} else {
 		clear_ts();
+		clear_intermedia();
 		crear_lista(&l_ts);
 		crear_cola(&cola_tipo_id);
+		crear_cola(&cola_terceto);
 		yyparse();
 		fclose(yyin);
 		crear_ts(&l_ts);
+		crear_intermedia(&cola_terceto);
 	}
 	printf("==============================================================\n");
 	printf("analisis-finaliza\n");
@@ -759,4 +696,52 @@ int insertar_en_ts(lista_t *l_ts, info_t *d) {
 	strcpy(d->tipodato,"\0");
 	strcpy(d->valor,"\0");
 	strcpy(d->longitud,"\0");
+}
+
+int crearTerceto(info_cola_t *info_terceto) {
+	printf(
+		"crearTerceto(%s, %s, %s)\n",
+		info_terceto->posicion_a, 
+		info_terceto->posicion_b, 
+		info_terceto->posicion_c);
+	poner_en_cola(&cola_terceto, info_terceto);
+	return numero_terceto++;
+}
+
+char *normalizarPunteroTerceto(int terceto_puntero) {
+	char_puntero_terceto[0] = '\0';
+	sprintf(char_puntero_terceto, "[%d]", terceto_puntero);
+	return char_puntero_terceto;
+}
+
+// limpiar una intermedia de una ejecución anterior
+void clear_intermedia() {
+	FILE *arch=fopen("intermedia.txt","w");
+	fclose(arch);
+}
+
+void crear_intermedia(cola_t *cola_intermedia) {
+	info_t aux;
+	FILE *arch=fopen("intermedia.txt","w");
+	printf("\n");
+	printf("creando intermedia...\n");
+	guardar_intermedia(cola_intermedia, arch);
+	fclose(arch);
+	printf("intermedia creada\n");
+}
+
+void guardar_intermedia(cola_t *p, FILE *arch) {
+	int numero = NUMERO_INICIAL_TERCETO;
+	info_cola_t info_terceto;
+	while(sacar_de_cola(&cola_terceto, &info_terceto) != COLA_VACIA) {
+		if(numero > NUMERO_INICIAL_TERCETO) {
+			fprintf(arch, "\n");
+		}
+		fprintf(arch,"[%d] (%s, %s, %s)", 
+			numero++, 
+			info_terceto.posicion_a,
+			info_terceto.posicion_b,
+			info_terceto.posicion_c
+		);
+	}
 }

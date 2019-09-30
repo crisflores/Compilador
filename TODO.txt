@@ -9,3 +9,7 @@ TABLA DE SIMBOLOS:
 
 VALIDAR:
 - asignaciones entre tipos de datos compatibles
+
+TERCETOS:
+- asignaciones (faltan las expresiones)
+- condiciones
