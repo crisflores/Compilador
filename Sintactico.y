@@ -44,6 +44,7 @@
 	typedef struct
 	{
 		char descripcion[TAM];
+		int numero_terceto;
 	} info_pila_t;
 
 	typedef struct sNodoPila
@@ -90,6 +91,8 @@
 	void validar_id(char *id);
 	char *guion_cadena(char cad[TAM]);
 	int crearTerceto(info_cola_t *info_terceto);
+	void leerTerceto(int numero_terceto, info_cola_t *info_terceto_output);
+	void modificarTerceto(int numero_terceto, info_cola_t *info_terceto_input);
 	// le agrega los corchetes al número de terceto, osea entra 10 y sale [10]
 	char *normalizarPunteroTerceto(int terceto_puntero);
 	void clear_intermedia();
@@ -112,10 +115,16 @@
 	info_cola_t terceto_info_expresion;
 	info_cola_t terceto_info_termino;
 	info_cola_t terceto_info_factor;
+	info_cola_t terceto_info_if;
+	info_cola_t terceto_info_comparacion;
+	info_cola_t	terceto_info_comparacion_operador_izquierdo;
 	int terceto_asignacion;
 	int terceto_expresion;
 	int terceto_termino;
 	int terceto_factor;
+	int terceto_seleccion_con_else;
+	pila_t pila_terceto_if;
+	info_pila_t terceto_if_condicion_false;
 %}
 
 %locations
@@ -167,6 +176,10 @@
 
 	declaraciones:	
 		VAR setencias_de_declaraciones ENDVAR
+		;
+
+	declaraciones:
+		VAR ENDVAR
 		;
 
 	declaraciones:
@@ -289,19 +302,48 @@
 		;
 
 	seleccion:
-		IF PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa seleccion_con_else
+		IF {
+			strcpy(terceto_info_if.posicion_a, yytext);
+			strcpy(terceto_info_if.posicion_b, "_");
+			strcpy(terceto_info_if.posicion_c, "_");
+			crearTerceto(&terceto_info_if);
+		} PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa seleccion_con_else
 		;
 
 	seleccion_con_else:
-		ENDIF { /* es un if sin else */ }
+		ENDIF {
+			info_cola_t terceto;
+			strcpy(terceto_info_if.posicion_a, yytext);
+			strcpy(terceto_info_if.posicion_b, "_");
+			strcpy(terceto_info_if.posicion_c, "_");
+			terceto_seleccion_con_else = crearTerceto(&terceto_info_if);
+
+			// desapilar y escribir la posición a la que se debe saltar si no se cumple la condición del if
+			sacar_de_pila(&pila_terceto_if, &terceto_if_condicion_false);
+			leerTerceto(terceto_if_condicion_false.numero_terceto, &terceto);
+			strcpy(terceto.posicion_b, normalizarPunteroTerceto(terceto_seleccion_con_else));
+			modificarTerceto(terceto_if_condicion_false.numero_terceto, &terceto);
+		}
 		;
 
 	seleccion_con_else:
-		ELSE programa ENDIF
+		ELSE programa ENDIF {
+			strcpy(terceto_info_if.posicion_a, yytext);
+			strcpy(terceto_info_if.posicion_b, "_");
+			strcpy(terceto_info_if.posicion_c, "_");
+			crearTerceto(&terceto_info_if);
+		}
 		;
 
 	condicion:
-		comparacion
+		comparacion {			
+			// crear terceto del operador de la comparación
+			strcpy(terceto_info_comparacion_operador_izquierdo.posicion_b, "_"); 
+			strcpy(terceto_info_comparacion_operador_izquierdo.posicion_c, "_");
+			terceto_if_condicion_false.numero_terceto = crearTerceto(&terceto_info_comparacion_operador_izquierdo);
+			// apilamos la posición del operador, para luego escribir a donde debe saltar
+			poner_en_pila(&pila_terceto_if, &terceto_if_condicion_false);
+		}
 		;
 
 	condicion:
@@ -321,7 +363,17 @@
 		;
 
 	comparacion:
-		expresion IGUAL_A expresion
+		expresion {
+			strcpy(terceto_info_comparacion.posicion_b, normalizarPunteroTerceto(terceto_expresion));
+		} IGUAL_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_info_comparacion_operador_izquierdo.posicion_a, "BNE");
+			strcpy(terceto_info_comparacion.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_info_comparacion.posicion_c, normalizarPunteroTerceto(terceto_expresion));
+			crearTerceto(&terceto_info_comparacion);
+		}
 		;
 
 	comparacion:
@@ -524,6 +576,7 @@ int main(int argc, char *argv[]) {
 		crear_lista(&l_ts);
 		crear_cola(&cola_tipo_id);
 		crear_cola(&cola_terceto);
+		crear_pila(&pila_terceto_if);
 		yyparse();
 		fclose(yyin);
 		crear_ts(&l_ts);
@@ -711,12 +764,6 @@ int insertar_en_ts(lista_t *l_ts, info_t *d) {
 }
 
 int crearTerceto(info_cola_t *info_terceto) {
-	printf(
-		"[%d] crearTerceto(%s, %s, %s)\n",
-		numero_terceto,
-		info_terceto->posicion_a, 
-		info_terceto->posicion_b, 
-		info_terceto->posicion_c);
 	poner_en_cola(&cola_terceto, info_terceto);
 	return numero_terceto++;
 }
@@ -750,11 +797,58 @@ void guardar_intermedia(cola_t *p, FILE *arch) {
 		if(numero > NUMERO_INICIAL_TERCETO) {
 			fprintf(arch, "\n");
 		}
+		printf("[%d] (%s, %s, %s)\n",
+			numero, 
+			info_terceto.posicion_a,
+			info_terceto.posicion_b,
+			info_terceto.posicion_c
+		);
 		fprintf(arch,"[%d] (%s, %s, %s)", 
 			numero++, 
 			info_terceto.posicion_a,
 			info_terceto.posicion_b,
 			info_terceto.posicion_c
 		);
+	}
+}
+
+// recibe un número de terceto y devuelve la info
+void leerTerceto(int numero_terceto, info_cola_t *info_terceto_output) {
+	int index = NUMERO_INICIAL_TERCETO;
+	cola_t aux;
+	info_cola_t info_aux;
+	
+	crear_cola(&aux);
+	while(sacar_de_cola(&cola_terceto, &info_aux) != COLA_VACIA) {
+		poner_en_cola(&aux, &info_aux);
+		if(index == numero_terceto) {
+			// encontramos el terceto buscado
+			strcpy(info_terceto_output->posicion_a, info_aux.posicion_a);
+			strcpy(info_terceto_output->posicion_b, info_aux.posicion_b);
+			strcpy(info_terceto_output->posicion_c, info_aux.posicion_c);
+		}
+		index++;
+	}
+	while(sacar_de_cola(&aux, &info_aux) != COLA_VACIA) {
+		poner_en_cola(&cola_terceto, &info_aux);
+	}
+}
+
+void modificarTerceto(int numero_terceto, info_cola_t *info_terceto_input) {
+	int index = NUMERO_INICIAL_TERCETO;
+	cola_t aux;
+	info_cola_t info_aux;
+	
+	crear_cola(&aux);
+	while(sacar_de_cola(&cola_terceto, &info_aux) != COLA_VACIA) {
+		if(index == numero_terceto) {
+			poner_en_cola(&aux, info_terceto_input);
+		} else {
+			poner_en_cola(&aux, &info_aux);
+		}
+		index++;
+	}
+	while(sacar_de_cola(&aux, &info_aux) != COLA_VACIA) {
+		poner_en_cola(&cola_terceto, &info_aux);
 	}
 }

@@ -1,0 +1,98 @@
+VAR
+  [Float] : [miFloat]
+  [Integer, Float, Integer, String, Float] : [a, b, c, d, hola_este_mi_insuperable_float]
+  [String, Integer] : [miString, miInteger]
+ENDVAR
+
+a := b
+b := "asldkfhsjf"
+c := "as ldkf hsjf"
+d := "123456789012345678901234567890"
+e := "@sdADaSjfla%dfg"
+f := 999999999999999.999999999999
+g := 99.
+h := .9999
+i := 65535
+j := 1237
+miInteger := 0
+a := a + b + (c * 4)
+
+IF (a == b)
+  PRINT "if simple"
+ENDIF
+
+IF (NOT a < b)
+  PRINT "if con not"
+ENDIF
+
+IF (a <= b AND a > c)
+  PRINT "if con and"
+ENDIF
+
+IF (a >= b OR a != c)
+  PRINT "if con or"
+ENDIF
+
+IF (a != b)
+  PRINT "if con else"
+ELSE
+  PRINT "este es el else"
+ENDIF
+
+IF (a == b)
+  IF (NOT a < b)
+    PRINT "if con else anidado"
+  ELSE
+    PRINT "parte else"
+  ENDIF
+ELSE
+  PRINT "else del primer if"
+ENDIF
+
+READ a
+PRINT a
+PRINT "hola mundo"
+
+REPEAT (a < b + 100)
+  PRINT "repeat sentencia 1"
+  PRINT "repeat sentencia 2"
+  PRINT "repeat sentencia 3"
+ENDREPEAT
+
+FILTER (_ < a, [a])
+FILTER (_ > (4 + r) AND _ <= 6.5, [b])
+FILTER (_ > (4 + r) OR _ <= 6.5, [a, b, c, d, mi_variable])
+FILTER (NOT _ > 100, [a, b])
+
+INLIST (a; [2*b+7; 12; a+b*(34+d); 48])
+INLIST (z; [2.3; 1.22])
+
+IF (INLIST (z; [2.3; 1.22]))
+  PRINT "if con inlist"
+ENDIF
+
+IF (INLIST (z; [2.3; 1.22]) OR INLIST (a; [2*b+7; 12; a+b*(34+d); 48]))
+  PRINT "if con inlist y or"
+ENDIF
+
+IF (NOT INLIST (z; [2.3; 1.22]))
+  PRINT "if con not inlist"
+ENDIF
+
+REPEAT (INLIST (z; [2.3; 1.22]))
+  PRINT "repeat con inlist"
+ENDREPEAT
+
+REPEAT (INLIST (z; [2.3; 1.22]) OR INLIST (a; [2*b+7; 12; a+b*(34+d); 48]))
+  PRINT "repeat con inlist y or"
+ENDREPEAT
+
+--/ comentario simple /--
+--/ comentario anidado --/simple/-- /--
+--/ comentario --/anidado/-- --/doble/-- /--
+--/ --/comentario/-- --/anidado/-- --/triple/-- /--
+--/ codigo comentado
+  IF (a == b)
+    PRINT "if simple"
+  ENDIF
+/--

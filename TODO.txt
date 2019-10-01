@@ -15,3 +15,5 @@ TERCETOS:
 - repeticiones
 - inlist
 - filter
+- read
+- print
