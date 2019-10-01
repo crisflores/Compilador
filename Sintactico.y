@@ -440,7 +440,7 @@
 		} MULTIPLICACION {
 			strcpy(terceto_info_termino.posicion_a, yytext);
 		} factor {
-			strcpy(terceto_info_termino.posicion_b, normalizarPunteroTerceto(terceto_factor));
+			strcpy(terceto_info_termino.posicion_c, normalizarPunteroTerceto(terceto_factor));
 			terceto_termino = crearTerceto(&terceto_info_termino); 
 		}
 		;
@@ -453,7 +453,7 @@
 
 	factor:
 		PARENTESIS_ABRE expresion PARENTESIS_CIERRA {
-			// TODO: terceto
+			terceto_factor = terceto_expresion;
 		}
 		;
 
