@@ -470,7 +470,9 @@
 		;
 
 	condicion:
-		NOT comparacion
+		NOT comparacion {
+			// TODO:
+		}
 		;
 
 	comparacion: 

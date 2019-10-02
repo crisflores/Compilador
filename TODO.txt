@@ -11,7 +11,7 @@ VALIDAR:
 - asignaciones entre tipos de datos compatibles
 
 TERCETOS:
-- condicionales IF con AND y OR
+- condicionales con NOT
 - repeticiones
 - inlist
 - filter
