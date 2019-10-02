@@ -471,12 +471,25 @@
 
 	condicion:
 		NOT comparacion {
-			// TODO:
+			// es igual que la comparación sin el NOT
+			// pero llamando a "invertirOperadorLogico"
+
+			// crear terceto con el "CMP"			
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			strcpy(terceto_operador_logico.posicion_a, invertirOperadorLogico(terceto_operador_logico.posicion_a));
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar el terceto por false
+			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones_if, &comparacion_if);
 		}
 		;
 
 	comparacion: 
-		en_lista
+		en_lista {
+			// TODO:
+		}
 		;
 
 	comparacion:
@@ -493,23 +506,68 @@
 		;
 
 	comparacion:
-		expresion MENOR_A expresion
+		expresion {
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
+		} MENOR_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BGE");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion:
-		expresion MENOR_IGUAL_A expresion
+		expresion {
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
+		} MENOR_IGUAL_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BGT");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion:
-		expresion MAYOR_A expresion
+		expresion {
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
+		} MAYOR_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BLE");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion:
-		expresion MAYOR_IGUAL_A expresion
+		expresion {
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
+		} MAYOR_IGUAL_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BLT");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion:
-		expresion DISTINTA_A expresion
+		expresion {
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
+		} DISTINTA_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BEQ");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	condicion_filter:

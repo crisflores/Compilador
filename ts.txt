@@ -1,5 +1,3 @@
 NOMBRE                              TIPO DE DATO     VALOR                               LONGITUD                           
-_3                                  const Integer    3                                                                      
-_2                                  const Integer    2                                                                      
 _1                                  const Integer    1                                                                      
 _0                                  const Integer    0                                                                      

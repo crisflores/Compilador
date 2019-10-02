@@ -1,11 +1,6 @@
 
-IF (a == b OR c == d)
+IF (NOT a == b)
   i := 0
-  IF(e == f AND g == h)
-    x := 2
-  ELSE
-    y := 3
-  ENDIF
 ELSE
   J := 1
 ENDIF
