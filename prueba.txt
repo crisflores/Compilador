@@ -1,4 +1,7 @@
 
-IF (a == b)
-  j := 0
+IF (a == b AND c == d)
+  i := 0
+  IF (e == f) 
+    j := 1
+  ENDIF
 ENDIF

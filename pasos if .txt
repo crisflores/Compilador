@@ -1,0 +1,3 @@
+
+condicion si_no_cumple salto_al_fin ejecuto_cuerpo_if fin
+condicion si_no_cumple salto_al_else ejecuto_cuerpo_if salto_al_fin posicion_else ejecuto_else fin
