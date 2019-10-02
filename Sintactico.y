@@ -122,12 +122,15 @@
 	int p_terceto_expresion;
 	int p_terceto_termino;
 	int p_terceto_factor;
-	int p_terceto_if_con_else;
+	int p_terceto_fin_then;
 	int p_terceto_if_then;
+	int p_terceto_endif;
 	pila_t comparaciones_if;
 	info_pila_t comparacion_if;
 	pila_t comparaciones_or;
 	info_pila_t comparacion_or;
+	pila_t saltos_incondicionales;
+	info_pila_t salto_incondicional;
 %}
 
 %locations
@@ -326,16 +329,17 @@
 				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_if_then));
 				modificarTerceto(comparacion_or.numero_terceto, &terceto);
 			}
-		} programa seleccion_con_else
+		} programa seleccion_fin_then
 		;
 
-	seleccion_con_else:
+	seleccion_fin_then:
 		ENDIF {
 			info_cola_t terceto;
+
 			strcpy(terceto_if.posicion_a, yytext);
 			strcpy(terceto_if.posicion_b, "_");
 			strcpy(terceto_if.posicion_c, "_");
-			p_terceto_if_con_else = crearTerceto(&terceto_if);
+			p_terceto_fin_then = crearTerceto(&terceto_if);
 
 			// por cada comparación que se haga en la condición
 			int compraciones_condicion = 1;
@@ -350,18 +354,57 @@
 					compraciones_condicion++;
 				}
 				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
-				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_if_con_else));
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_fin_then));
 				modificarTerceto(comparacion_if.numero_terceto, &terceto);				
 			}
 		}
 		;
 
-	seleccion_con_else:
-		ELSE programa ENDIF {
+	seleccion_fin_then:
+		ELSE {
+			info_cola_t terceto;
+
+			// al finalizar el "THEN" se salta incondicionalmente al ENDIF
+			strcpy(terceto_if.posicion_a, "BI");
+			strcpy(terceto_if.posicion_b, "_");
+			strcpy(terceto_if.posicion_c, "_");
+			salto_incondicional.numero_terceto = crearTerceto(&terceto_if);
+			poner_en_pila(&saltos_incondicionales, &salto_incondicional);
+
+			// agregar terceto con el "ELSE"
 			strcpy(terceto_if.posicion_a, yytext);
 			strcpy(terceto_if.posicion_b, "_");
 			strcpy(terceto_if.posicion_c, "_");
-			crearTerceto(&terceto_if);
+			p_terceto_fin_then = crearTerceto(&terceto_if);
+
+			// por cada comparación que se haga en la condición
+			int compraciones_condicion = 1;
+			while(compraciones_condicion) {
+				compraciones_condicion--;
+				// desapilar y escribir la posición a la que se debe saltar 
+				// si no se cumple la condición del if
+				sacar_de_pila(&comparaciones_if, &comparacion_if);
+				leerTerceto(comparacion_if.numero_terceto, &terceto);
+				if (strcmp(terceto.posicion_b, "AND") == 0) {
+					// si es una condición AND tiene más comparaciones para desapilar
+					compraciones_condicion++;
+				}
+				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_fin_then));
+				modificarTerceto(comparacion_if.numero_terceto, &terceto);				
+			}
+		} programa ENDIF {
+			info_cola_t terceto;
+
+			strcpy(terceto_if.posicion_a, yytext);
+			strcpy(terceto_if.posicion_b, "_");
+			strcpy(terceto_if.posicion_c, "_");
+		  p_terceto_endif =	crearTerceto(&terceto_if);
+
+			sacar_de_pila(&saltos_incondicionales, &salto_incondicional);
+			leerTerceto(salto_incondicional.numero_terceto, &terceto);
+			strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_endif));
+			modificarTerceto(salto_incondicional.numero_terceto, &terceto);
 		}
 		;
 
@@ -649,6 +692,7 @@ int main(int argc, char *argv[]) {
 		crear_cola(&cola_terceto);
 		crear_pila(&comparaciones_if);
 		crear_pila(&comparaciones_or);
+		crear_pila(&saltos_incondicionales);
 		yyparse();
 		fclose(yyin);
 		crear_ts(&l_ts);

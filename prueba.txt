@@ -1,7 +1,11 @@
 
 IF (a == b OR c == d)
   i := 0
-  IF (e == f AND g == h)
-    j := 1
+  IF(e == f AND g == h)
+    x := 2
+  ELSE
+    y := 3
   ENDIF
+ELSE
+  J := 1
 ENDIF
