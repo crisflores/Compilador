@@ -93,6 +93,7 @@
 	int crearTerceto(info_cola_t *info_terceto);
 	void leerTerceto(int numero_terceto, info_cola_t *info_terceto_output);
 	void modificarTerceto(int numero_terceto, info_cola_t *info_terceto_input);
+	char *invertirOperadorLogico(char *operador_logico);
 	// le agrega los corchetes al número de terceto, osea entra 10 y sale [10]
 	char *normalizarPunteroTerceto(int terceto_puntero);
 	void clear_intermedia();
@@ -111,20 +112,22 @@
 	char char_puntero_terceto[TAM];
 	int numero_terceto = NUMERO_INICIAL_TERCETO;
 	cola_t cola_terceto;
-	info_cola_t terceto_info_asignacion;
-	info_cola_t terceto_info_expresion;
-	info_cola_t terceto_info_termino;
-	info_cola_t terceto_info_factor;
-	info_cola_t terceto_info_if;
-	info_cola_t terceto_info_comparacion;
-	info_cola_t	terceto_info_comparacion_operador;
-	int terceto_asignacion;
-	int terceto_expresion;
-	int terceto_termino;
-	int terceto_factor;
-	int terceto_seleccion_con_else;
-	pila_t pila_terceto_if;
-	info_pila_t terceto_if_condicion_false;
+	info_cola_t terceto_asignacion;
+	info_cola_t terceto_expresion;
+	info_cola_t terceto_termino;
+	info_cola_t terceto_factor;
+	info_cola_t terceto_if;
+	info_cola_t terceto_cmp;
+	info_cola_t	terceto_operador_logico;
+	int p_terceto_expresion;
+	int p_terceto_termino;
+	int p_terceto_factor;
+	int p_terceto_if_con_else;
+	int p_terceto_if_then;
+	pila_t comparaciones_if;
+	info_pila_t comparacion_if;
+	pila_t comparaciones_or;
+	info_pila_t comparacion_or;
 %}
 
 %locations
@@ -303,85 +306,124 @@
 
 	seleccion:
 		IF {
-			strcpy(terceto_info_if.posicion_a, yytext);
-			strcpy(terceto_info_if.posicion_b, "_");
-			strcpy(terceto_info_if.posicion_c, "_");
-			crearTerceto(&terceto_info_if);
-		} PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa seleccion_con_else
+			strcpy(terceto_if.posicion_a, yytext);
+			strcpy(terceto_if.posicion_b, "_");
+			strcpy(terceto_if.posicion_c, "_");
+			crearTerceto(&terceto_if);
+		} PARENTESIS_ABRE condicion PARENTESIS_CIERRA {
+			info_cola_t terceto;
+
+			// inicio del programa del IF
+			strcpy(terceto_if.posicion_a, "THEN");
+			strcpy(terceto_if.posicion_b, "_");
+			strcpy(terceto_if.posicion_c, "_");
+			p_terceto_if_then = crearTerceto(&terceto_if);
+			// la primera condición de un OR, salta directo al THEN del IF, si es verdadera
+			// leer terceto con el salto de la comparacion del OR
+			if(sacar_de_pila(&comparaciones_or, &comparacion_or) != PILA_VACIA) {
+				leerTerceto(comparacion_or.numero_terceto, &terceto);
+				// asignar al operador lógico el terceto al que debe saltar
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_if_then));
+				modificarTerceto(comparacion_or.numero_terceto, &terceto);
+			}
+		} programa seleccion_con_else
 		;
 
 	seleccion_con_else:
 		ENDIF {
 			info_cola_t terceto;
-			strcpy(terceto_info_if.posicion_a, yytext);
-			strcpy(terceto_info_if.posicion_b, "_");
-			strcpy(terceto_info_if.posicion_c, "_");
-			terceto_seleccion_con_else = crearTerceto(&terceto_info_if);
+			strcpy(terceto_if.posicion_a, yytext);
+			strcpy(terceto_if.posicion_b, "_");
+			strcpy(terceto_if.posicion_c, "_");
+			p_terceto_if_con_else = crearTerceto(&terceto_if);
 
 			// por cada comparación que se haga en la condición
 			int compraciones_condicion = 1;
 			while(compraciones_condicion) {
 				compraciones_condicion--;
-				// desapilar y escribir la posición a la que se debe saltar si no se cumple la condición del if
-				sacar_de_pila(&pila_terceto_if, &terceto_if_condicion_false);
-				leerTerceto(terceto_if_condicion_false.numero_terceto, &terceto);
+				// desapilar y escribir la posición a la que se debe saltar 
+				// si no se cumple la condición del if
+				sacar_de_pila(&comparaciones_if, &comparacion_if);
+				leerTerceto(comparacion_if.numero_terceto, &terceto);
 				if (strcmp(terceto.posicion_b, "AND") == 0) {
 					// si es una condición AND tiene más comparaciones para desapilar
 					compraciones_condicion++;
 				}
-				strcpy(terceto.posicion_b, normalizarPunteroTerceto(terceto_seleccion_con_else));
-				modificarTerceto(terceto_if_condicion_false.numero_terceto, &terceto);				
-			}			
+				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_if_con_else));
+				modificarTerceto(comparacion_if.numero_terceto, &terceto);				
+			}
 		}
 		;
 
 	seleccion_con_else:
 		ELSE programa ENDIF {
-			strcpy(terceto_info_if.posicion_a, yytext);
-			strcpy(terceto_info_if.posicion_b, "_");
-			strcpy(terceto_info_if.posicion_c, "_");
-			crearTerceto(&terceto_info_if);
+			strcpy(terceto_if.posicion_a, yytext);
+			strcpy(terceto_if.posicion_b, "_");
+			strcpy(terceto_if.posicion_c, "_");
+			crearTerceto(&terceto_if);
 		}
 		;
 
 	condicion:
 		comparacion {			
 			// crear terceto con el "CMP"			
-			crearTerceto(&terceto_info_comparacion);
+			crearTerceto(&terceto_cmp);
 			// crear terceto del operador de la comparación
-			strcpy(terceto_info_comparacion_operador.posicion_b, "_"); 
-			strcpy(terceto_info_comparacion_operador.posicion_c, "_");
-			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
-			terceto_if_condicion_false.numero_terceto = crearTerceto(&terceto_info_comparacion_operador);
-			poner_en_pila(&pila_terceto_if, &terceto_if_condicion_false);
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar el terceto por false
+			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones_if, &comparacion_if);
 		}
 		;
 
 	condicion:
 		comparacion {			
 			// crear terceto con el "CMP"
-			crearTerceto(&terceto_info_comparacion);
+			crearTerceto(&terceto_cmp);
 			// crear terceto del operador de la comparación
-			strcpy(terceto_info_comparacion_operador.posicion_b, "_"); 
-			strcpy(terceto_info_comparacion_operador.posicion_c, "_");
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
 			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
-			terceto_if_condicion_false.numero_terceto = crearTerceto(&terceto_info_comparacion_operador);
-			poner_en_pila(&pila_terceto_if, &terceto_if_condicion_false);
-		} AND comparacion {			
+			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones_if, &comparacion_if);
+		} AND comparacion {
 			// crear terceto con el "CMP"
-			crearTerceto(&terceto_info_comparacion);
+			crearTerceto(&terceto_cmp);
 			// crear terceto del operador de la comparación
 			// si es un AND lo indicamos para saber que la condición tiene doble comparación
-			strcpy(terceto_info_comparacion_operador.posicion_b, "AND"); 
-			strcpy(terceto_info_comparacion_operador.posicion_c, "_");
+			strcpy(terceto_operador_logico.posicion_b, "AND"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
 			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
-			terceto_if_condicion_false.numero_terceto = crearTerceto(&terceto_info_comparacion_operador);
-			poner_en_pila(&pila_terceto_if, &terceto_if_condicion_false);
+			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones_if, &comparacion_if);
 		}
 		;
 
-	condicion:
-		comparacion OR comparacion
+	condicion: 
+		comparacion {			
+			// crear terceto con el "CMP"
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			// como es un OR debemos invertir el operador ya que por true, va directo al "THEN" del "IF"
+			// sin evaluar la segunda condición
+			strcpy(terceto_operador_logico.posicion_a, invertirOperadorLogico(terceto_operador_logico.posicion_a));
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
+			comparacion_or.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones_or, &comparacion_or);
+		} OR comparacion {			
+			// crear terceto con el "CMP"
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
+			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones_if, &comparacion_if);
+		}
 		;
 
 	condicion:
@@ -394,14 +436,14 @@
 
 	comparacion:
 		expresion {
-			strcpy(terceto_info_comparacion.posicion_b, normalizarPunteroTerceto(terceto_expresion));
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
 		} IGUAL_A {
 			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
-			strcpy(terceto_info_comparacion_operador.posicion_a, "BNE");
-			strcpy(terceto_info_comparacion.posicion_a, "CMP");
+			strcpy(terceto_operador_logico.posicion_a, "BNE");
+			strcpy(terceto_cmp.posicion_a, "CMP");
 		} expresion {
 			// terceto del "CMP"
-			strcpy(terceto_info_comparacion.posicion_c, normalizarPunteroTerceto(terceto_expresion));
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
 		}
 		;
 
@@ -487,72 +529,72 @@
 
 	asignacion:
 		ID {
-			strcpy(terceto_info_asignacion.posicion_b, yytext);
+			strcpy(terceto_asignacion.posicion_b, yytext);
 		} OP_ASIGNACION {
-			strcpy(terceto_info_asignacion.posicion_a, yytext);
+			strcpy(terceto_asignacion.posicion_a, yytext);
 		} expresion {
-			strcpy(terceto_info_asignacion.posicion_c, normalizarPunteroTerceto(terceto_expresion));
+			strcpy(terceto_asignacion.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
 			// crea un terceto con la forma (":=", ID, [10])
-			// donde [10] es un ejemplo de terceto_expresion
-			crearTerceto(&terceto_info_asignacion);
+			// donde [10] es un ejemplo de p_terceto_expresion
+			crearTerceto(&terceto_asignacion);
 		}
 		;
 
 	expresion:
 		expresion {
-			strcpy(terceto_info_expresion.posicion_b, normalizarPunteroTerceto(terceto_expresion));
+			strcpy(terceto_expresion.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
 		} SUMA {			
-			strcpy(terceto_info_expresion.posicion_a, yytext);
+			strcpy(terceto_expresion.posicion_a, yytext);
 		} termino {
-			strcpy(terceto_info_expresion.posicion_c, normalizarPunteroTerceto(terceto_termino));
-			terceto_expresion = crearTerceto(&terceto_info_expresion);
+			strcpy(terceto_expresion.posicion_c, normalizarPunteroTerceto(p_terceto_termino));
+			p_terceto_expresion = crearTerceto(&terceto_expresion);
 		}
 		;
 
 	expresion:
 		termino {
-			terceto_expresion = terceto_termino;
+			p_terceto_expresion = p_terceto_termino;
 		}
 		;
 	
 	termino:
 		termino {
-			strcpy(terceto_info_termino.posicion_b, normalizarPunteroTerceto(terceto_termino));
+			strcpy(terceto_termino.posicion_b, normalizarPunteroTerceto(p_terceto_termino));
 		} MULTIPLICACION {
-			strcpy(terceto_info_termino.posicion_a, yytext);
+			strcpy(terceto_termino.posicion_a, yytext);
 		} factor {
-			strcpy(terceto_info_termino.posicion_c, normalizarPunteroTerceto(terceto_factor));
-			terceto_termino = crearTerceto(&terceto_info_termino); 
+			strcpy(terceto_termino.posicion_c, normalizarPunteroTerceto(p_terceto_factor));
+			p_terceto_termino = crearTerceto(&terceto_termino); 
 		}
 		;
 	
 	termino:
 		factor {
-			terceto_termino = terceto_factor;
+			p_terceto_termino = p_terceto_factor;
 		}
 		;
 
 	factor:
 		PARENTESIS_ABRE expresion PARENTESIS_CIERRA {
-			terceto_factor = terceto_expresion;
+			p_terceto_factor = p_terceto_expresion;
 		}
 		;
 
 	factor:
 		ID {
-			strcpy(terceto_info_factor.posicion_a, yytext);
-			strcpy(terceto_info_factor.posicion_b, "_");
-			strcpy(terceto_info_factor.posicion_c, "_");
-			terceto_factor = crearTerceto(&terceto_info_factor);
+			strcpy(terceto_factor.posicion_a, yytext);
+			strcpy(terceto_factor.posicion_b, "_");
+			strcpy(terceto_factor.posicion_c, "_");
+			p_terceto_factor = crearTerceto(&terceto_factor);
 		}
 		;
 
 	factor:
 		CONSTANTE_STRING {
-			strcpy(terceto_info_factor.posicion_a, yytext);
-			strcpy(terceto_info_factor.posicion_b, "_");
-			strcpy(terceto_info_factor.posicion_c, "_");
-			terceto_factor = crearTerceto(&terceto_info_factor);
+			strcpy(terceto_factor.posicion_a, yytext);
+			strcpy(terceto_factor.posicion_b, "_");
+			strcpy(terceto_factor.posicion_c, "_");
+			p_terceto_factor = crearTerceto(&terceto_factor);
 
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
@@ -564,10 +606,10 @@
 
 	factor:
 		CONSTANTE_REAL {
-			strcpy(terceto_info_factor.posicion_a, yytext);
-			strcpy(terceto_info_factor.posicion_b, "_");
-			strcpy(terceto_info_factor.posicion_c, "_");
-			terceto_factor = crearTerceto(&terceto_info_factor);
+			strcpy(terceto_factor.posicion_a, yytext);
+			strcpy(terceto_factor.posicion_b, "_");
+			strcpy(terceto_factor.posicion_c, "_");
+			p_terceto_factor = crearTerceto(&terceto_factor);
 
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
@@ -578,10 +620,10 @@
 
 	factor:
 		CONSTANTE_ENTERA {
-			strcpy(terceto_info_factor.posicion_a, yytext);
-			strcpy(terceto_info_factor.posicion_b, "_");
-			strcpy(terceto_info_factor.posicion_c, "_");
-			terceto_factor = crearTerceto(&terceto_info_factor);
+			strcpy(terceto_factor.posicion_a, yytext);
+			strcpy(terceto_factor.posicion_b, "_");
+			strcpy(terceto_factor.posicion_c, "_");
+			p_terceto_factor = crearTerceto(&terceto_factor);
 
 			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
@@ -605,7 +647,8 @@ int main(int argc, char *argv[]) {
 		crear_lista(&l_ts);
 		crear_cola(&cola_tipo_id);
 		crear_cola(&cola_terceto);
-		crear_pila(&pila_terceto_if);
+		crear_pila(&comparaciones_if);
+		crear_pila(&comparaciones_or);
 		yyparse();
 		fclose(yyin);
 		crear_ts(&l_ts);
@@ -879,5 +922,26 @@ void modificarTerceto(int numero_terceto, info_cola_t *info_terceto_input) {
 	}
 	while(sacar_de_cola(&aux, &info_aux) != COLA_VACIA) {
 		poner_en_cola(&cola_terceto, &info_aux);
+	}
+}
+
+char *invertirOperadorLogico(char *operador_logico) {
+	if(strcmp(operador_logico, "BLT") == 0)  {
+		return "BGE";
+	}
+	if(strcmp(operador_logico, "BLE") == 0)  {
+		return "BGT";
+	}
+	if(strcmp(operador_logico, "BGT") == 0)  {
+		return "BLE";
+	}
+	if(strcmp(operador_logico, "BGE") == 0)  {
+		return "BLT";
+	}
+	if(strcmp(operador_logico, "BNE") == 0)  {
+		return "BEQ";
+	}
+	if(strcmp(operador_logico, "BEQ") == 0)  {
+		return "BNE";
 	}
 }

@@ -1,7 +1,7 @@
 
-IF (a == b AND c == d)
+IF (a == b OR c == d)
   i := 0
-  IF (e == f) 
+  IF (e == f AND g == h)
     j := 1
   ENDIF
 ENDIF
