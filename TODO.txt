@@ -11,9 +11,8 @@ VALIDAR:
 - asignaciones entre tipos de datos compatibles
 
 TERCETOS:
-- repeticiones
-- inlist
 - filter
+- inlist
 - condiciones con inlist
 - read
 - print

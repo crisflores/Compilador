@@ -119,18 +119,24 @@
 	info_cola_t terceto_if;
 	info_cola_t terceto_cmp;
 	info_cola_t	terceto_operador_logico;
+	info_cola_t	terceto_repeat;
 	int p_terceto_expresion;
 	int p_terceto_termino;
 	int p_terceto_factor;
 	int p_terceto_fin_then;
 	int p_terceto_if_then;
 	int p_terceto_endif;
-	pila_t comparaciones_if;
-	info_pila_t comparacion_if;
+	int p_terceto_repeat;
+	int p_terceto_repeat_then;
+	int p_terceto_endrepeat;
+	pila_t comparaciones;
+	info_pila_t comparador;
 	pila_t comparaciones_or;
 	info_pila_t comparacion_or;
 	pila_t saltos_incondicionales;
 	info_pila_t salto_incondicional;
+	pila_t repeats;
+	info_pila_t inicio_repeat;
 %}
 
 %locations
@@ -292,7 +298,67 @@
 		;
 
 	ciclo:
-		REPEAT PARENTESIS_ABRE condicion PARENTESIS_CIERRA programa ENDREPEAT
+		REPEAT {
+			// apilar el inicio repeat para poder saltar a esta posición
+			// cuando termina el bucle
+			// se apila porque pueden haber REPEAT anidados
+			strcpy(terceto_repeat.posicion_a, yytext);
+			strcpy(terceto_repeat.posicion_b, "_");
+			strcpy(terceto_repeat.posicion_c, "_");
+			inicio_repeat.numero_terceto = crearTerceto(&terceto_repeat);
+			poner_en_pila(&repeats, &inicio_repeat);
+		} PARENTESIS_ABRE condicion PARENTESIS_CIERRA {
+			// acá salta si se cumple la primer condición de un OR
+			info_cola_t terceto;
+
+			// inicio del programa del IF
+			strcpy(terceto_repeat.posicion_a, "THEN");
+			strcpy(terceto_repeat.posicion_b, "_");
+			strcpy(terceto_repeat.posicion_c, "_");
+			p_terceto_repeat_then = crearTerceto(&terceto_repeat);
+			// la primera condición de un OR, salta directo al THEN del IF, si es verdadera
+			// leer terceto con el salto de la comparacion del OR
+			if(sacar_de_pila(&comparaciones_or, &comparacion_or) != PILA_VACIA) {
+				leerTerceto(comparacion_or.numero_terceto, &terceto);
+				// asignar al operador lógico el terceto al que debe saltar
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_repeat_then));
+				modificarTerceto(comparacion_or.numero_terceto, &terceto);
+			}
+		} programa ENDREPEAT {
+			info_cola_t terceto;
+
+			// el ciclo vuelve a chekear la condición siempre que termina el programa del REPEAT
+			strcpy(terceto_repeat.posicion_a, "BI");
+			sacar_de_pila(&repeats, &inicio_repeat);
+			strcpy(terceto_repeat.posicion_b, normalizarPunteroTerceto(inicio_repeat.numero_terceto));
+			strcpy(terceto_repeat.posicion_c, "_");
+			crearTerceto(&terceto_repeat);
+
+			// acá salta si no se cumple cualquier condición de un AND
+			// o si no se cumple la segunda condición de un OR
+			// o si no se cumple una comparación simple (con o sin NOT)
+			strcpy(terceto_repeat.posicion_a, yytext);
+			strcpy(terceto_repeat.posicion_b, "_");
+			strcpy(terceto_repeat.posicion_c, "_");
+			p_terceto_endrepeat = crearTerceto(&terceto_repeat);
+
+			// por cada comparación que se haga en la condición
+			int compraciones_condicion = 1;
+			while(compraciones_condicion) {
+				compraciones_condicion--;
+				// desapilar y escribir la posición a la que se debe saltar 
+				// si no se cumple la condición del if
+				sacar_de_pila(&comparaciones, &comparador);
+				leerTerceto(comparador.numero_terceto, &terceto);
+				if (strcmp(terceto.posicion_b, "AND") == 0) {
+					// si es una condición AND tiene más comparaciones para desapilar
+					compraciones_condicion++;
+				}
+				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_endrepeat));
+				modificarTerceto(comparador.numero_terceto, &terceto);				
+			}
+		}
 		;
 
 	salida:
@@ -347,15 +413,15 @@
 				compraciones_condicion--;
 				// desapilar y escribir la posición a la que se debe saltar 
 				// si no se cumple la condición del if
-				sacar_de_pila(&comparaciones_if, &comparacion_if);
-				leerTerceto(comparacion_if.numero_terceto, &terceto);
+				sacar_de_pila(&comparaciones, &comparador);
+				leerTerceto(comparador.numero_terceto, &terceto);
 				if (strcmp(terceto.posicion_b, "AND") == 0) {
 					// si es una condición AND tiene más comparaciones para desapilar
 					compraciones_condicion++;
 				}
 				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
 				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_fin_then));
-				modificarTerceto(comparacion_if.numero_terceto, &terceto);				
+				modificarTerceto(comparador.numero_terceto, &terceto);				
 			}
 		}
 		;
@@ -383,15 +449,15 @@
 				compraciones_condicion--;
 				// desapilar y escribir la posición a la que se debe saltar 
 				// si no se cumple la condición del if
-				sacar_de_pila(&comparaciones_if, &comparacion_if);
-				leerTerceto(comparacion_if.numero_terceto, &terceto);
+				sacar_de_pila(&comparaciones, &comparador);
+				leerTerceto(comparador.numero_terceto, &terceto);
 				if (strcmp(terceto.posicion_b, "AND") == 0) {
 					// si es una condición AND tiene más comparaciones para desapilar
 					compraciones_condicion++;
 				}
 				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
 				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_fin_then));
-				modificarTerceto(comparacion_if.numero_terceto, &terceto);				
+				modificarTerceto(comparador.numero_terceto, &terceto);				
 			}
 		} programa ENDIF {
 			info_cola_t terceto;
@@ -416,8 +482,8 @@
 			strcpy(terceto_operador_logico.posicion_b, "_"); 
 			strcpy(terceto_operador_logico.posicion_c, "_");
 			// apilamos la posición del operador, para luego escribir a donde debe saltar el terceto por false
-			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
-			poner_en_pila(&comparaciones_if, &comparacion_if);
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
 		}
 		;
 
@@ -429,8 +495,8 @@
 			strcpy(terceto_operador_logico.posicion_b, "_"); 
 			strcpy(terceto_operador_logico.posicion_c, "_");
 			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
-			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
-			poner_en_pila(&comparaciones_if, &comparacion_if);
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
 		} AND comparacion {
 			// crear terceto con el "CMP"
 			crearTerceto(&terceto_cmp);
@@ -439,8 +505,8 @@
 			strcpy(terceto_operador_logico.posicion_b, "AND"); 
 			strcpy(terceto_operador_logico.posicion_c, "_");
 			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
-			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
-			poner_en_pila(&comparaciones_if, &comparacion_if);
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
 		}
 		;
 
@@ -464,8 +530,8 @@
 			strcpy(terceto_operador_logico.posicion_b, "_"); 
 			strcpy(terceto_operador_logico.posicion_c, "_");
 			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
-			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
-			poner_en_pila(&comparaciones_if, &comparacion_if);
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
 		}
 		;
 
@@ -481,8 +547,8 @@
 			strcpy(terceto_operador_logico.posicion_b, "_"); 
 			strcpy(terceto_operador_logico.posicion_c, "_");
 			// apilamos la posición del operador, para luego escribir a donde debe saltar el terceto por false
-			comparacion_if.numero_terceto = crearTerceto(&terceto_operador_logico);
-			poner_en_pila(&comparaciones_if, &comparacion_if);
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
 		}
 		;
 
@@ -750,9 +816,10 @@ int main(int argc, char *argv[]) {
 		crear_lista(&l_ts);
 		crear_cola(&cola_tipo_id);
 		crear_cola(&cola_terceto);
-		crear_pila(&comparaciones_if);
+		crear_pila(&comparaciones);
 		crear_pila(&comparaciones_or);
 		crear_pila(&saltos_incondicionales);
+		crear_pila(&repeats);
 		yyparse();
 		fclose(yyin);
 		crear_ts(&l_ts);
