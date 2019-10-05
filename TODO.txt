@@ -12,6 +12,9 @@ VALIDAR:
 
 TERCETOS:
 - filter
+- filter condiciones con AND
+- filter condiciones con OR
+- filter condiciones con NOT
 - inlist
 - condiciones con inlist
 - read

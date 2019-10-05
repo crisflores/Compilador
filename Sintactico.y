@@ -15,6 +15,8 @@
 	#define COLA_VACIA 0
 	#define TAM 35
 	#define NUMERO_INICIAL_TERCETO 10
+	#define __FILTER_INDEX "__FILTER_INDEX"
+	#define __FILTER_OPERANDO "__FILTER_OPERANDO"
 
 	// funciones de Flex y Bison
 	// --------------------------------------------------------
@@ -120,6 +122,7 @@
 	info_cola_t terceto_cmp;
 	info_cola_t	terceto_operador_logico;
 	info_cola_t	terceto_repeat;
+	info_cola_t	terceto_filter;
 	int p_terceto_expresion;
 	int p_terceto_termino;
 	int p_terceto_factor;
@@ -129,6 +132,14 @@
 	int p_terceto_repeat;
 	int p_terceto_repeat_then;
 	int p_terceto_endrepeat;
+	int p_terceto_filter_salto_lista;
+	int p_terceto_filter_index;
+	int p_terceto_filter_operando;
+	int p_terceto_filter_then;
+	int p_terceto_filter_lista;
+	int p_terceto_filter_cmp;
+	int p_terceto_filter_salto_id_siguiente;
+	int p_terceto_filter_fin;
 	pila_t comparaciones;
 	info_pila_t comparador;
 	pila_t comparaciones_or;
@@ -137,6 +148,7 @@
 	info_pila_t salto_incondicional;
 	pila_t repeats;
 	info_pila_t inicio_repeat;
+	int _filter_index; 
 %}
 
 %locations
@@ -294,7 +306,96 @@
 		;
 
 	filtro:
-		FILTER PARENTESIS_ABRE condicion_filter COMA CORCHETE_ABRE lista_variables_filter CORCHETE_CIERRA PARENTESIS_CIERRA
+		FILTER {
+			// TODO:
+			strcpy(terceto_filter.posicion_a, yytext);
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			crearTerceto(&terceto_filter);
+			
+			// variable de compilador __FILTER_INDEX
+			// la agregamos a la ts y al código intermedio
+			strcpy(d.clave, __FILTER_INDEX);
+			strcpy(d.tipodato, "Integer");
+			strcpy(d.valor, "0");
+			insertar_en_ts(&l_ts, &d);
+			// inicializar __FILTER_INDEX en cero
+			strcpy(terceto_filter.posicion_a, ":=");
+			strcpy(terceto_filter.posicion_b, __FILTER_INDEX);
+			strcpy(terceto_filter.posicion_c, "0");
+			crearTerceto(&terceto_filter);
+			// este branch salta a la primer variable del listado (apilamos la posición del terceto)
+			// y luego seteamos al terceto la posición a la que debe saltar
+			strcpy(terceto_filter.posicion_a, "BRA");
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_salto_lista = crearTerceto(&terceto_filter);
+
+			strcpy(terceto_filter.posicion_a, "THEN");
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_then = crearTerceto(&terceto_filter);
+
+			// cada vez que entra al THEN, aumentamos el indice en uno
+			strcpy(terceto_filter.posicion_a, "+");
+			strcpy(terceto_filter.posicion_b, __FILTER_INDEX);
+			strcpy(terceto_filter.posicion_c, "1");
+			p_terceto_filter_index = crearTerceto(&terceto_filter);
+			strcpy(terceto_filter.posicion_a, ":=");
+			strcpy(terceto_filter.posicion_b, __FILTER_INDEX);
+			strcpy(terceto_filter.posicion_c, normalizarPunteroTerceto(p_terceto_filter_index));
+			crearTerceto(&terceto_filter);
+
+		} PARENTESIS_ABRE condicion_filter COMA CORCHETE_ABRE {
+			info_cola_t terceto;
+
+			// agregar terceto inicio de lista de variables
+			strcpy(terceto_filter.posicion_a, "LISTA");
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_lista = crearTerceto(&terceto_filter);			
+			// modificar el terceto que salta a la lista de variables
+			// ya que ahora sabemos la posición que empieza la lista
+			leerTerceto(p_terceto_filter_salto_lista, &terceto);
+			strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_filter_lista));
+			modificarTerceto(p_terceto_filter_salto_lista, &terceto);
+
+			// empezamos a agregar ID al código intermedio
+			// desde el listado de variables de la sentencia filter 
+			_filter_index = 0;
+			// inicializar puntero a comparación de variables
+			p_terceto_filter_salto_id_siguiente = -1;
+		} lista_variables_filter CORCHETE_CIERRA PARENTESIS_CIERRA {
+			info_cola_t terceto;
+
+			strcpy(terceto_filter.posicion_a, "ENDFILTER");
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_fin = crearTerceto(&terceto_filter);
+
+			// acá salta si ya evaluamos todas las variables y ninguna cumple la condición
+			leerTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
+			strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_filter_fin));
+			modificarTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
+
+			// acá se salta si evaluamos una variable y cumple la condición
+			// por cada comparación que se haga en la condición
+			int compraciones_condicion = 1;
+			while(compraciones_condicion) {
+				compraciones_condicion--;
+				// desapilar y escribir la posición a la que se debe saltar 
+				// si no se cumple la condición del if
+				sacar_de_pila(&comparaciones, &comparador);
+				leerTerceto(comparador.numero_terceto, &terceto);
+				if (strcmp(terceto.posicion_b, "AND") == 0) {
+					// si es una condición AND tiene más comparaciones para desapilar
+					compraciones_condicion++;
+				}
+				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_filter_fin));
+				modificarTerceto(comparador.numero_terceto, &terceto);				
+			}
+		}
 		;
 
 	ciclo:
@@ -328,7 +429,7 @@
 			info_cola_t terceto;
 
 			// el ciclo vuelve a chekear la condición siempre que termina el programa del REPEAT
-			strcpy(terceto_repeat.posicion_a, "BI");
+			strcpy(terceto_repeat.posicion_a, "BRA");
 			sacar_de_pila(&repeats, &inicio_repeat);
 			strcpy(terceto_repeat.posicion_b, normalizarPunteroTerceto(inicio_repeat.numero_terceto));
 			strcpy(terceto_repeat.posicion_c, "_");
@@ -431,7 +532,7 @@
 			info_cola_t terceto;
 
 			// al finalizar el "THEN" se salta incondicionalmente al ENDIF
-			strcpy(terceto_if.posicion_a, "BI");
+			strcpy(terceto_if.posicion_a, "BRA");
 			strcpy(terceto_if.posicion_b, "_");
 			strcpy(terceto_if.posicion_c, "_");
 			salto_incondicional.numero_terceto = crearTerceto(&terceto_if);
@@ -637,7 +738,20 @@
 		;
 
 	condicion_filter:
-		comparacion_filter
+		comparacion_filter {			
+			// agregar el operador filter a la ts
+			strcpy(d.clave, __FILTER_OPERANDO);
+			insertar_en_ts(&l_ts, &d);					
+			// crear terceto con el "CMP"			
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			strcpy(terceto_operador_logico.posicion_a, invertirOperadorLogico(terceto_operador_logico.posicion_a));
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar el terceto por false
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
+		}
 		;
 
 	condicion_filter:
@@ -653,7 +767,22 @@
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER IGUAL_A expresion
+		OPERANDO_FILTER {
+			// reemplazar el "_" de la sentencia filter, por una variable del compilador
+			strcpy(terceto_filter.posicion_a, __FILTER_OPERANDO);
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_operando = crearTerceto(&terceto_filter);
+			// agregar operando al código intermedio
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_filter_operando));
+		} IGUAL_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BNE");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion_filter:
@@ -677,11 +806,73 @@
 		;
 
 	lista_variables_filter:
-		variable_filter
+		variable_filter {
+			info_cola_t terceto;
+			char str_filter_index[12];
+			sprintf(str_filter_index, "%d", 	_filter_index++);
+
+			// la última variable salta al FIN del FILTER por falso
+			strcpy(terceto_filter.posicion_a, "CMP");
+			strcpy(terceto_filter.posicion_b, __FILTER_INDEX);
+			strcpy(terceto_filter.posicion_c, str_filter_index);
+			p_terceto_filter_cmp = crearTerceto(&terceto_filter);
+			if(p_terceto_filter_salto_id_siguiente != -1) {
+				leerTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_filter_cmp));
+				modificarTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
+			}
+			strcpy(terceto_filter.posicion_a, "BNE");
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_salto_id_siguiente = crearTerceto(&terceto_filter);
+			// asignamos al operando del filter (osea el "_") el valor de 
+			// la variable que vamos a evalular con la condición del filter
+			strcpy(terceto_filter.posicion_a, ":=");
+			strcpy(terceto_filter.posicion_b, __FILTER_OPERANDO);
+			strcpy(terceto_filter.posicion_c, yytext);
+			crearTerceto(&terceto_filter);
+			// vamos a la sentencia de la condición para evaluarla
+			strcpy(terceto_filter.posicion_a, "BRA");
+			strcpy(terceto_filter.posicion_b, normalizarPunteroTerceto(p_terceto_filter_then));
+			strcpy(terceto_filter.posicion_c, "_");
+			crearTerceto(&terceto_filter);
+		}
 		;
 
 	lista_variables_filter:
-		variable_filter COMA lista_variables_filter
+		lista_variables_filter COMA	variable_filter {
+			info_cola_t terceto;
+			char str_filter_index[12];
+			sprintf(str_filter_index, "%d", 	_filter_index++);
+
+			// preguntamos si hay que evaluar esta variable en la condición del filter
+			// para esto nos valemos del valor que tiene el "_filter_index"
+			strcpy(terceto_filter.posicion_a, "CMP");
+			strcpy(terceto_filter.posicion_b, __FILTER_INDEX);
+			strcpy(terceto_filter.posicion_c, str_filter_index);
+			p_terceto_filter_cmp = crearTerceto(&terceto_filter);
+			if(p_terceto_filter_salto_id_siguiente != -1) {
+				// si la comparación falsa, quiere decir que tengo que analizar el siguiente ID
+				leerTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_filter_cmp));
+				modificarTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
+			}
+			strcpy(terceto_filter.posicion_a, "BNE");
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_salto_id_siguiente = crearTerceto(&terceto_filter);
+			// asignamos al operando del filter (osea el "_") el valor de 
+			// la variable que vamos a evalular con la condición del filter
+			strcpy(terceto_filter.posicion_a, ":=");
+			strcpy(terceto_filter.posicion_b, __FILTER_OPERANDO);
+			strcpy(terceto_filter.posicion_c, yytext);
+			crearTerceto(&terceto_filter);
+			// vamos a la sentencia de la condición para evaluarla
+			strcpy(terceto_filter.posicion_a, "BRA");
+			strcpy(terceto_filter.posicion_b, normalizarPunteroTerceto(p_terceto_filter_then));
+			strcpy(terceto_filter.posicion_c, "_");
+			crearTerceto(&terceto_filter);
+		}
 		;
 
 	variable_filter:

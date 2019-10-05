@@ -1,9 +1,2 @@
 
-REPEAT (a == b OR c == d)
-  i := 0
-  IF (e == f OR g == h)
-    j := 1
-  ELSE
-    k := 2
-  ENDIF
-ENDREPEAT
+FILTER (_ == a, [b,c,d])
