@@ -794,7 +794,11 @@
 		;
 
 	condicion_filter:
-		comparacion_filter {
+		comparacion_filter {			
+			// agregar el operador filter a la ts
+			strcpy(d.clave, __FILTER_OPERANDO);
+			insertar_en_ts(&l_ts, &d);
+
 			// crear terceto con el "CMP"
 			crearTerceto(&terceto_cmp);
 			// crear terceto del operador de la comparación
