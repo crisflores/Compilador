@@ -144,6 +144,8 @@
 	info_pila_t comparador;
 	pila_t comparaciones_or;
 	info_pila_t comparacion_or;
+	pila_t comparaciones_and;
+	info_pila_t comparacion_and;
 	pila_t saltos_incondicionales;
 	info_pila_t salto_incondicional;
 	pila_t repeats;
@@ -307,7 +309,6 @@
 
 	filtro:
 		FILTER {
-			// TODO:
 			strcpy(terceto_filter.posicion_a, yytext);
 			strcpy(terceto_filter.posicion_b, "_");
 			strcpy(terceto_filter.posicion_c, "_");
@@ -353,7 +354,17 @@
 			strcpy(terceto_filter.posicion_a, "LISTA");
 			strcpy(terceto_filter.posicion_b, "_");
 			strcpy(terceto_filter.posicion_c, "_");
-			p_terceto_filter_lista = crearTerceto(&terceto_filter);			
+			p_terceto_filter_lista = crearTerceto(&terceto_filter);	
+
+			// la primera condición de un AND, salta directo a la LISTA del FILTER, si es falsa
+			// leer terceto con el salto de la comparacion del AND
+			if(sacar_de_pila(&comparaciones_and, &comparacion_and) != PILA_VACIA) {
+				leerTerceto(comparacion_and.numero_terceto, &terceto);
+				// asignar al operador lógico el terceto al que debe saltar
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_filter_lista));
+				modificarTerceto(comparacion_and.numero_terceto, &terceto);
+			}
+
 			// modificar el terceto que salta a la lista de variables
 			// ya que ahora sabemos la posición que empieza la lista
 			leerTerceto(p_terceto_filter_salto_lista, &terceto);
@@ -387,8 +398,8 @@
 				// si no se cumple la condición del if
 				sacar_de_pila(&comparaciones, &comparador);
 				leerTerceto(comparador.numero_terceto, &terceto);
-				if (strcmp(terceto.posicion_b, "AND") == 0) {
-					// si es una condición AND tiene más comparaciones para desapilar
+				if (strcmp(terceto.posicion_b, "OR") == 0) {
+					// si es una condición OR tiene más comparaciones para desapilar
 					compraciones_condicion++;
 				}
 				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
@@ -755,15 +766,75 @@
 		;
 
 	condicion_filter:
-		comparacion_filter AND comparacion_filter
+		comparacion_filter {
+			// agregar el operador filter a la ts
+			strcpy(d.clave, __FILTER_OPERANDO);
+			insertar_en_ts(&l_ts, &d);
+			
+			// crear terceto con el "CMP"
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
+			comparacion_and.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones_and, &comparacion_and);
+		} AND comparacion_filter {
+			// crear terceto con el "CMP"
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			// si es un AND lo indicamos para saber que la condición tiene doble comparación
+			strcpy(terceto_operador_logico.posicion_a, invertirOperadorLogico(terceto_operador_logico.posicion_a));
+			strcpy(terceto_operador_logico.posicion_b, "AND"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
+		}
 		;
 
 	condicion_filter:
-		comparacion_filter OR comparacion_filter
+		comparacion_filter {
+			// crear terceto con el "CMP"
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			strcpy(terceto_operador_logico.posicion_a, invertirOperadorLogico(terceto_operador_logico.posicion_a));
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
+		} OR comparacion_filter {
+			// crear terceto con el "CMP"
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			strcpy(terceto_operador_logico.posicion_a, invertirOperadorLogico(terceto_operador_logico.posicion_a));
+			strcpy(terceto_operador_logico.posicion_b, "OR"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar por false
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
+		}
 		;
 
 	condicion_filter:
-		NOT comparacion_filter
+		NOT comparacion_filter {
+			// es igual que la comparación sin el NOT
+			// pero sin llamar a "invertirOperadorLogico"
+
+			// agregar el operador filter a la ts
+			strcpy(d.clave, __FILTER_OPERANDO);
+			insertar_en_ts(&l_ts, &d);					
+			// crear terceto con el "CMP"			
+			crearTerceto(&terceto_cmp);
+			// crear terceto del operador de la comparación
+			strcpy(terceto_operador_logico.posicion_a, terceto_operador_logico.posicion_a);
+			strcpy(terceto_operador_logico.posicion_b, "_"); 
+			strcpy(terceto_operador_logico.posicion_c, "_");
+			// apilamos la posición del operador, para luego escribir a donde debe saltar el terceto por false
+			comparador.numero_terceto = crearTerceto(&terceto_operador_logico);
+			poner_en_pila(&comparaciones, &comparador);
+		}
 		;
 
 	comparacion_filter:
@@ -786,23 +857,98 @@
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER MENOR_A expresion
+		OPERANDO_FILTER {
+			// reemplazar el "_" de la sentencia filter, por una variable del compilador
+			strcpy(terceto_filter.posicion_a, __FILTER_OPERANDO);
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_operando = crearTerceto(&terceto_filter);
+			// agregar operando al código intermedio
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_filter_operando));
+		} MENOR_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BGE");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER MENOR_IGUAL_A expresion
+		OPERANDO_FILTER {
+			// reemplazar el "_" de la sentencia filter, por una variable del compilador
+			strcpy(terceto_filter.posicion_a, __FILTER_OPERANDO);
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_operando = crearTerceto(&terceto_filter);
+			// agregar operando al código intermedio
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_filter_operando));
+		} MENOR_IGUAL_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BGT");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER MAYOR_A expresion
+		OPERANDO_FILTER {
+			// reemplazar el "_" de la sentencia filter, por una variable del compilador
+			strcpy(terceto_filter.posicion_a, __FILTER_OPERANDO);
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_operando = crearTerceto(&terceto_filter);
+			// agregar operando al código intermedio
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_filter_operando));
+		} MAYOR_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BLE");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER MAYOR_IGUAL_A expresion
+		OPERANDO_FILTER {
+			// reemplazar el "_" de la sentencia filter, por una variable del compilador
+			strcpy(terceto_filter.posicion_a, __FILTER_OPERANDO);
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_operando = crearTerceto(&terceto_filter);
+			// agregar operando al código intermedio
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_filter_operando));
+		} MAYOR_IGUAL_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BLT");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	comparacion_filter:
-		OPERANDO_FILTER DISTINTA_A expresion
+		OPERANDO_FILTER {
+			// reemplazar el "_" de la sentencia filter, por una variable del compilador
+			strcpy(terceto_filter.posicion_a, __FILTER_OPERANDO);
+			strcpy(terceto_filter.posicion_b, "_");
+			strcpy(terceto_filter.posicion_c, "_");
+			p_terceto_filter_operando = crearTerceto(&terceto_filter);
+			// agregar operando al código intermedio
+			strcpy(terceto_cmp.posicion_b, normalizarPunteroTerceto(p_terceto_filter_operando));
+		} DISTINTA_A {
+			// guardamos el operador para incertarlo luego de crear el terceto del "CMP"
+			strcpy(terceto_operador_logico.posicion_a, "BEQ");
+			strcpy(terceto_cmp.posicion_a, "CMP");
+		} expresion {
+			// terceto del "CMP"
+			strcpy(terceto_cmp.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+		}
 		;
 
 	lista_variables_filter:
@@ -1009,6 +1155,7 @@ int main(int argc, char *argv[]) {
 		crear_cola(&cola_terceto);
 		crear_pila(&comparaciones);
 		crear_pila(&comparaciones_or);
+		crear_pila(&comparaciones_and);
 		crear_pila(&saltos_incondicionales);
 		crear_pila(&repeats);
 		yyparse();

@@ -1,2 +1,2 @@
 
-FILTER (_ == a, [b,c,d])
+FILTER (_ > (4 + r) OR _ <= 6.5, [a, b, c, d, mi_variable])

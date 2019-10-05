@@ -11,10 +11,6 @@ VALIDAR:
 - asignaciones entre tipos de datos compatibles
 
 TERCETOS:
-- filter
-- filter condiciones con AND
-- filter condiciones con OR
-- filter condiciones con NOT
 - inlist
 - condiciones con inlist
 - read
