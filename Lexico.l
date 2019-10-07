@@ -17,6 +17,8 @@
 	const int MAX_STRING_LENGTH = 30;
 	const int INTMAX = 65535;
 	const int INTMIN = 0;
+	const double FLOATMAX = 4294967295;
+	const double FLOATMIN = 0;
 %}
 
 %option noyywrap
@@ -206,6 +208,19 @@ void validar_constante_entera(char *constante_entera) {
 }
 
 void validar_constante_real(char *constante_real) {
-	// sprintf(error_mensaje, "constante real %s fuera de rango\n", constante_real);
-	// yyerror(error_mensaje);
+	double flotante = atof(constante_real);
+
+	// no más de 30 números
+	int length = 0;
+	while(constante_real[length] != '\0') {			
+		length++;
+	}
+	if(length > MAX_STRING_LENGTH) {
+		sprintf(error_mensaje, "la constante real %s supera los [%d] caracteres permitidos\n", constante_real, MAX_STRING_LENGTH);
+		yyerror(error_mensaje);
+	}
+	if(flotante > FLOATMAX || flotante < FLOATMIN) {		
+		sprintf(error_mensaje, "constante real %s fuera de rango\n", constante_real);
+		yyerror(error_mensaje);
+	}
 }
