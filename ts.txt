@@ -8,7 +8,7 @@ c                                   Integer
 b                                   Float                                                                                   
 a                                   Integer                                                                                 
 __INLIST_RETURN                     Integer          0                                                                      
-__FILTER_OPERANDO                                                                                                           
+__FILTER_OPERANDO                   Undefined                                                                               
 __FILTER_INDEX                      Integer          0                                                                      
 _99.                                const Float      99.                                                                    
 _7                                  const Integer    7                                                                      

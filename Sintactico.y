@@ -832,6 +832,7 @@
 		comparacion_filter {			
 			// agregar el operador filter a la ts
 			strcpy(d.clave, __FILTER_OPERANDO);
+			strcpy(d.tipodato, "Undefined");
 			insertar_en_ts(&l_ts, &d);					
 			// crear terceto con el "CMP"			
 			crearTerceto(&terceto_cmp);
@@ -849,6 +850,7 @@
 		comparacion_filter {
 			// agregar el operador filter a la ts
 			strcpy(d.clave, __FILTER_OPERANDO);
+			strcpy(d.tipodato, "Undefined");
 			insertar_en_ts(&l_ts, &d);
 			
 			// crear terceto con el "CMP"
@@ -877,6 +879,7 @@
 		comparacion_filter {			
 			// agregar el operador filter a la ts
 			strcpy(d.clave, __FILTER_OPERANDO);
+			strcpy(d.tipodato, "Undefined");
 			insertar_en_ts(&l_ts, &d);
 
 			// crear terceto con el "CMP"
@@ -908,6 +911,7 @@
 
 			// agregar el operador filter a la ts
 			strcpy(d.clave, __FILTER_OPERANDO);
+			strcpy(d.tipodato, "Undefined");
 			insertar_en_ts(&l_ts, &d);					
 			// crear terceto con el "CMP"			
 			crearTerceto(&terceto_cmp);
