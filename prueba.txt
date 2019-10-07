@@ -1,2 +1,6 @@
 
-INLIST (z; [2.4; 1.22])
+IF (INLIST (a; [1; 2]))
+  hola := mundo
+ELSE
+  casa := burro
+ENDIF

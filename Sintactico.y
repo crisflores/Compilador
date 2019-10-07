@@ -582,15 +582,16 @@
 				compraciones_condicion--;
 				// desapilar y escribir la posición a la que se debe saltar 
 				// si no se cumple la condición del if
-				sacar_de_pila(&comparaciones, &comparador);
-				leerTerceto(comparador.numero_terceto, &terceto);
-				if (strcmp(terceto.posicion_b, "AND") == 0) {
-					// si es una condición AND tiene más comparaciones para desapilar
-					compraciones_condicion++;
-				}
-				// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
-				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_fin_then));
-				modificarTerceto(comparador.numero_terceto, &terceto);				
+				if(sacar_de_pila(&comparaciones, &comparador) != PILA_VACIA) {
+					leerTerceto(comparador.numero_terceto, &terceto);
+					if (strcmp(terceto.posicion_b, "AND") == 0) {
+						// si es una condición AND tiene más comparaciones para desapilar
+						compraciones_condicion++;
+					}
+					// asignar al operador (por ejemplo un "BNE") el terceto al que debe saltar
+					strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_fin_then));
+					modificarTerceto(comparador.numero_terceto, &terceto);
+				}				
 			}
 		}
 		;
@@ -723,7 +724,12 @@
 
 	comparacion: 
 		en_lista {
-			// TODO:
+			// al finalizar la lista, tiene que comprar la variable de compilador con el 
+			// return del INLIST osea __INLIST_RETURN con 1, si son distintos sale del IF
+			strcpy(terceto_cmp.posicion_a, "CMP");
+			strcpy(terceto_cmp.posicion_b, __INLIST_RETURN);
+			strcpy(terceto_cmp.posicion_c, "1");
+			strcpy(terceto_operador_logico.posicion_a, "BNE");
 		}
 		;
 
