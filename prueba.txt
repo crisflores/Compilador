@@ -1,2 +1,2 @@
 
-FILTER (_ > (4 + r) OR _ <= 6.5, [a, b, c, d, mi_variable])
+INLIST (z; [2.4; 1.22])

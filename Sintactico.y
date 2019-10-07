@@ -17,6 +17,7 @@
 	#define NUMERO_INICIAL_TERCETO 10
 	#define __FILTER_INDEX "__FILTER_INDEX"
 	#define __FILTER_OPERANDO "__FILTER_OPERANDO"
+	#define __INLIST_RETURN "__INLIST_RETURN"
 
 	// funciones de Flex y Bison
 	// --------------------------------------------------------
@@ -123,6 +124,7 @@
 	info_cola_t	terceto_operador_logico;
 	info_cola_t	terceto_repeat;
 	info_cola_t	terceto_filter;
+	info_cola_t	terceto_inlist;
 	int p_terceto_expresion;
 	int p_terceto_termino;
 	int p_terceto_factor;
@@ -140,6 +142,10 @@
 	int p_terceto_filter_cmp;
 	int p_terceto_filter_salto_id_siguiente;
 	int p_terceto_filter_fin;
+	int p_terceto_inlist_id;
+	int p_terceto_inlist_salto_a_fin;
+	int p_terceto_inlist_fin;
+	int p_terceto_inlist_iguales;
 	pila_t comparaciones;
 	info_pila_t comparador;
 	pila_t comparaciones_or;
@@ -150,6 +156,8 @@
 	info_pila_t salto_incondicional;
 	pila_t repeats;
 	info_pila_t inicio_repeat;
+	pila_t inlist_comparaciones;
+	info_pila_t inlist_comparacion;
 	int _filter_index; 
 %}
 
@@ -304,7 +312,56 @@
 		;
 
 	en_lista:
-		INLIST PARENTESIS_ABRE ID PUNTO_Y_COMA CORCHETE_ABRE lista_expresiones_inlist CORCHETE_CIERRA PARENTESIS_CIERRA
+		INLIST {
+			strcpy(terceto_inlist.posicion_a, yytext);
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			crearTerceto(&terceto_inlist);
+
+			// si el ID está en las lista "__INLIST_RETURN" vale 1, si no vale 0
+			strcpy(d.clave, __INLIST_RETURN);
+			strcpy(d.tipodato, "Integer");
+			strcpy(d.valor, "0");
+			insertar_en_ts(&l_ts, &d);
+
+			// inicializar __INLIST_RETURN en cero
+			strcpy(terceto_inlist.posicion_a, ":=");
+			strcpy(terceto_inlist.posicion_b, __INLIST_RETURN);
+			strcpy(terceto_inlist.posicion_c, "0");
+			crearTerceto(&terceto_inlist);
+		} PARENTESIS_ABRE ID {
+			strcpy(terceto_inlist.posicion_a, yytext);
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			p_terceto_inlist_id = crearTerceto(&terceto_inlist);
+		} PUNTO_Y_COMA CORCHETE_ABRE lista_expresiones_inlist CORCHETE_CIERRA PARENTESIS_CIERRA {
+			info_cola_t terceto;
+
+			// terminó todas las comparaciones, salta al fin del INLIST
+			strcpy(terceto_inlist.posicion_a, "BRA");
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			p_terceto_inlist_salto_a_fin = crearTerceto(&terceto_inlist);
+
+			// acá salta si una comparación dió que son iguales
+			strcpy(terceto_inlist.posicion_a, ":=");
+			strcpy(terceto_inlist.posicion_b, __INLIST_RETURN);
+			strcpy(terceto_inlist.posicion_c, "1");
+			p_terceto_inlist_iguales = crearTerceto(&terceto_inlist);
+			while(sacar_de_pila(&inlist_comparaciones, &inlist_comparacion) != PILA_VACIA) {
+				leerTerceto(inlist_comparacion.numero_terceto, &terceto);
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_inlist_iguales));
+				modificarTerceto(inlist_comparacion.numero_terceto, &terceto);
+			}
+
+			strcpy(terceto_inlist.posicion_a, "ENDINLIST");
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			p_terceto_inlist_fin = crearTerceto(&terceto_inlist);
+			leerTerceto(p_terceto_inlist_salto_a_fin, &terceto);
+			strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_inlist_fin));
+			modificarTerceto(p_terceto_inlist_salto_a_fin, &terceto);
+		}
 		;
 
 	filtro:
@@ -1030,11 +1087,35 @@
 		;
 
 	lista_expresiones_inlist:
-		expresion
+		expresion {
+			// comprar el puntero a expresión con el del ID
+			strcpy(terceto_inlist.posicion_a, "CMP");
+			strcpy(terceto_inlist.posicion_b, normalizarPunteroTerceto(p_terceto_inlist_id));
+			strcpy(terceto_inlist.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+			crearTerceto(&terceto_inlist);
+			strcpy(terceto_inlist.posicion_a, "BEQ");
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			// apilar posición, cuando se a donde salta por iguales, desapilo todas
+			inlist_comparacion.numero_terceto = crearTerceto(&terceto_inlist);
+			poner_en_pila(&inlist_comparaciones, &inlist_comparacion);
+		}
 		;
 
 	lista_expresiones_inlist:
-		expresion PUNTO_Y_COMA lista_expresiones_inlist
+		lista_expresiones_inlist PUNTO_Y_COMA expresion {
+			// comprar el puntero a expresión con el del ID
+			strcpy(terceto_inlist.posicion_a, "CMP");
+			strcpy(terceto_inlist.posicion_b, normalizarPunteroTerceto(p_terceto_inlist_id));
+			strcpy(terceto_inlist.posicion_c, normalizarPunteroTerceto(p_terceto_expresion));
+			crearTerceto(&terceto_inlist);
+			strcpy(terceto_inlist.posicion_a, "BEQ");
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			// apilar posición, cuando se a donde salta por iguales, desapilo todas
+			inlist_comparacion.numero_terceto = crearTerceto(&terceto_inlist);
+			poner_en_pila(&inlist_comparaciones, &inlist_comparacion);
+		}
 		;
 
 	asignacion:
@@ -1162,6 +1243,7 @@ int main(int argc, char *argv[]) {
 		crear_pila(&comparaciones_and);
 		crear_pila(&saltos_incondicionales);
 		crear_pila(&repeats);
+		crear_pila(&inlist_comparaciones);
 		yyparse();
 		fclose(yyin);
 		crear_ts(&l_ts);

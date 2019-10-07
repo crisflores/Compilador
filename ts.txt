@@ -1,5 +1,4 @@
 NOMBRE                              TIPO DE DATO     VALOR                               LONGITUD                           
-__FILTER_OPERANDO                                                                                                           
-__FILTER_INDEX                      Integer          0                                                                      
-_6.5                                const Float      6.5                                                                    
-_4                                  const Integer    4                                                                      
+__INLIST_RETURN                     Integer          0                                                                      
+_2.4                                const Float      2.4                                                                    
+_1.22                               const Float      1.22                                                                   
