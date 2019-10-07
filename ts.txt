@@ -1,4 +1,1 @@
 NOMBRE                              TIPO DE DATO     VALOR                               LONGITUD                           
-__INLIST_RETURN                     Integer          0                                                                      
-_2                                  const Integer    2                                                                      
-_1                                  const Integer    1                                                                      

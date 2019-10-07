@@ -11,5 +11,4 @@ VALIDAR:
 - asignaciones entre tipos de datos compatibles
 
 TERCETOS:
-- read
-- print
+- 

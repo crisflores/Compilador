@@ -125,6 +125,8 @@
 	info_cola_t	terceto_repeat;
 	info_cola_t	terceto_filter;
 	info_cola_t	terceto_inlist;
+	info_cola_t	terceto_print;
+	info_cola_t	terceto_read;
 	int p_terceto_expresion;
 	int p_terceto_termino;
 	int p_terceto_factor;
@@ -531,15 +533,30 @@
 		;
 
 	salida:
-		PRINT ID 
+		PRINT ID {
+			strcpy(terceto_print.posicion_a, "PRINT");
+			strcpy(terceto_print.posicion_b, yytext);
+			strcpy(terceto_print.posicion_c, "_");
+			crearTerceto(&terceto_print);
+		}
 		;
 
 	salida:
-		PRINT CONSTANTE_STRING
+		PRINT CONSTANTE_STRING {
+			strcpy(terceto_print.posicion_a, "PRINT");
+			strcpy(terceto_print.posicion_b, yytext);
+			strcpy(terceto_print.posicion_c, "_");
+			crearTerceto(&terceto_print);
+		}
 		;
 
 	entrada:
-		READ ID
+		READ ID {
+			strcpy(terceto_print.posicion_a, "READ");
+			strcpy(terceto_print.posicion_b, yytext);
+			strcpy(terceto_print.posicion_c, "_");
+			crearTerceto(&terceto_print);
+		}
 		;
 
 	seleccion:

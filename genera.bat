@@ -3,7 +3,7 @@ set LEXICO=Lexico.l
 set SINTACTICO=Sintactico.y
 set TEST_TXT=prueba.txt
 set TABLA_DE_SIMBOLOS=ts.txt
-set PUNTO_EXE=Primera.exe
+set PUNTO_EXE=Segunda.exe
 set INTERMEDIA=intermedia.txt
 cd c:\GnuWin32\bin\
 flex %PATH%%LEXICO%

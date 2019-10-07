@@ -1,6 +1,4 @@
 
-IF (INLIST (a; [1; 2]))
-  hola := mundo
-ELSE
-  casa := burro
-ENDIF
+PRINT "hola mundo"
+PRINT pepe
+READ juan
