@@ -66,6 +66,23 @@
 		char posicion_c[TAM];
 	} info_cola_t;
 
+	typedef struct
+	{
+		char numero[TAM];
+		char posicion_a[TAM];
+		char posicion_b[TAM];
+		char posicion_c[TAM];
+		char posicion_aux[TAM];
+	} info_intermedia_t;
+
+	typedef struct sNodointermedia
+	{
+		info_intermedia_t info;
+		struct sNodointermedia *sig;
+	} nodo_intermedia_t;
+
+	typedef t_lista_intermedia *nodo_intermedia_t;
+
 	typedef struct sNodoCola
 	{
 		info_cola_t info;
@@ -77,6 +94,7 @@
 		nodo_cola_t *pri, *ult;
 	} cola_t;
 
+	void crear_assembler(lista_t *l_ts);
 	void crear_cola(cola_t *c);
 	int poner_en_cola(cola_t *c, info_cola_t *d);
 	int sacar_de_cola(cola_t *c, info_cola_t *d);
@@ -84,7 +102,8 @@
 	int poner_en_pila(pila_t *p, info_pila_t *d);
 	int sacar_de_pila(pila_t*p, info_pila_t *d);
 	void crear_lista(lista_t *p);
-	int insertar_en_orden(lista_t *p, info_t *d);
+	int insertar_en_orden(t_lista_intermedia *p, info_t *d);
+	int insertar_en_orden_intermedia(lista_t *p, info_intermedia_t *d);
 	int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int elimtodos);
 	void guardar_lista(lista_t *p, FILE *arch);
 	int comparar(info_t*d1, info_t*d2);
@@ -114,6 +133,7 @@
 	// [numero_terceto] = crearTerceto(terceto_a, terceto_b, terceto_c)
 	char char_puntero_terceto[TAM];
 	int numero_terceto = NUMERO_INICIAL_TERCETO;
+	int cant_total_tercetos=0;
 	cola_t cola_terceto;
 	info_cola_t terceto_asignacion;
 	info_cola_t terceto_expresion;
@@ -207,7 +227,7 @@
 %%
 
 	start:
-		declaraciones programa 
+		declaraciones programa
 		;
 
 	declaraciones:	
@@ -1275,6 +1295,7 @@ int main(int argc, char *argv[]) {
 		fclose(yyin);
 		crear_ts(&l_ts);
 		crear_intermedia(&cola_terceto);
+		crear_assembler(&l_ts);
 	}
 	printf("==============================================================\n");
 	printf("analisis-finaliza\n");
@@ -1329,6 +1350,26 @@ int insertar_en_orden(lista_t *p, info_t *d) {
 	}
 
 	nue=(nodo_t*)malloc(sizeof(nodo_t));
+	if(nue==NULL)
+			return SIN_MEMORIA;
+
+	nue->info=*d;
+	nue->sig=*p;
+	*p=nue;
+
+	return TODO_BIEN;
+}
+int insertar_en_orden_intermedia(lista_t *p, info_intermedia_t *d) {
+	info_intermedia_t*nue;
+	while(*p && comparar(&(*p)->info,d)>0)
+			p=&(*p)->sig;
+
+	if(*p && (((*p)->info.clave)-(d->clave))==0) {
+		(*p)->info=(*d);
+		return DATO_DUPLICADO;
+	}
+
+	nue=(info_intermedia_t*)malloc(sizeof(info_intermedia_t));
 	if(nue==NULL)
 			return SIN_MEMORIA;
 
@@ -1488,24 +1529,53 @@ void guardar_intermedia(cola_t *p, FILE *arch) {
 	int numero = NUMERO_INICIAL_TERCETO;
 	info_cola_t info_terceto;
 	while(sacar_de_cola(&cola_terceto, &info_terceto) != COLA_VACIA) {
-		if(numero > NUMERO_INICIAL_TERCETO) {
-			fprintf(arch, "\n");
-		}
-		printf("[%d] (%s, %s, %s)\n",
-			numero, 
-			info_terceto.posicion_a,
-			info_terceto.posicion_b,
-			info_terceto.posicion_c
-		);
-		fprintf(arch,"[%d] (%s, %s, %s)", 
-			numero++, 
-			info_terceto.posicion_a,
-			info_terceto.posicion_b,
-			info_terceto.posicion_c
-		);
+		//if(numero > NUMERO_INICIAL_TERCETO) {
+		//	fprintf(arch, "\n");
+		//}
+		printf("[%d](%s,%s,%s)\n", numero,info_terceto.posicion_a ,info_terceto.posicion_b ,info_terceto.posicion_c);
+		fprintf(arch,"[%d](%s,%s,%s)\n", numero++, info_terceto.posicion_a ,info_terceto.posicion_b ,info_terceto.posicion_c);
 	}
+	cant_total_tercetos=numero;
 }
 
+void crear_assembler(lista_t *l_ts){
+	// ----------------------------------------------------------------
+	// Lee el archivo intermedia en una lista
+	// ----------------------------------------------------------------
+	char numero[5];
+	t_lista_intermedia listaintermedia;
+	crear_lista(&listaintermedia);
+	int i = 0;
+	char * pt;
+	char linea[100];
+	FILE *arch = fopen("intermedia.txt","r");
+	if(!arch)
+	{
+		printf("cris capo");
+		exit(1);
+	}
+	while(fgets(linea,sizeof(linea),arch)) {
+		info_intermedia_t info_terceto;
+		pt = strchr(linea,'\n');
+		*pt = '\0';
+		pt = strchr(linea,')');
+		*pt = '\0';
+		pt = strrchr(linea,',');
+		strcpy(info_terceto.posicion_c,pt+1);
+		*pt = '\0';
+		pt = strrchr(linea,',');
+		strcpy(info_terceto.posicion_b,pt+1);
+		*pt = '\0';
+		pt = strrchr(linea,'(');
+		strcpy(info_terceto.posicion_a,pt+1);
+		*pt = '\0';
+		pt = strrchr(linea,']');
+		*pt = '\0';
+		pt = strrchr(linea,'[');
+		strcpy(info_terceto.numero,pt+1);
+		insertar_en_orden_intermedia(&listaintermedia,&info_terceto);
+	}
+}
 // recibe un número de terceto y devuelve la info
 void leerTerceto(int numero_terceto, info_cola_t *info_terceto_output) {
 	int index = NUMERO_INICIAL_TERCETO;
@@ -1566,4 +1636,5 @@ char *invertirOperadorLogico(char *operador_logico) {
 	if(strcmp(operador_logico, "BEQ") == 0)  {
 		return "BNE";
 	}
+
 }
