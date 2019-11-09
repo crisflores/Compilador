@@ -30,3 +30,28 @@ _"asldkfhsjf"                       const String     "asldkfhsjf"               
 _"as ldkf hsjf"                     const String     "as ldkf hsjf"                      12                                 
 _"@sdADaSjfla%dfg"                  const String     "@sdADaSjfla%dfg"                   15                                 
 _"123456789012345678901234567890"   const String     "123456789012345678901234567890"    30                                 
+@aux9                               Float                                                                                   
+@aux8                               Float                                                                                   
+@aux7                               Float                                                                                   
+@aux6                               Float                                                                                   
+@aux5                               Float                                                                                   
+@aux4                               Float                                                                                   
+@aux3                               Float                                                                                   
+@aux24                              Float                                                                                   
+@aux23                              Float                                                                                   
+@aux22                              Float                                                                                   
+@aux21                              Float                                                                                   
+@aux20                              Float                                                                                   
+@aux2                               Float                                                                                   
+@aux19                              Float                                                                                   
+@aux18                              Float                                                                                   
+@aux17                              Float                                                                                   
+@aux16                              Float                                                                                   
+@aux15                              Float                                                                                   
+@aux14                              Float                                                                                   
+@aux13                              Float                                                                                   
+@aux12                              Float                                                                                   
+@aux11                              Float                                                                                   
+@aux10                              Float                                                                                   
+@aux1                               Float                                                                                   
+@aux0                               Float                                                                                   

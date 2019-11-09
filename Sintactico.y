@@ -81,7 +81,7 @@
 		struct sNodointermedia *sig;
 	} nodo_intermedia_t;
 
-	typedef t_lista_intermedia *nodo_intermedia_t;
+	typedef nodo_intermedia_t* t_lista_intermedia;
 
 	typedef struct sNodoCola
 	{
@@ -102,8 +102,9 @@
 	int poner_en_pila(pila_t *p, info_pila_t *d);
 	int sacar_de_pila(pila_t*p, info_pila_t *d);
 	void crear_lista(lista_t *p);
-	int insertar_en_orden(t_lista_intermedia *p, info_t *d);
-	int insertar_en_orden_intermedia(lista_t *p, info_intermedia_t *d);
+	void crear_lista_intermedia(t_lista_intermedia *p) ;
+	int insertar_en_orden(lista_t *p, info_t *d);
+	int insertar_en_orden_intermedia(t_lista_intermedia *p, info_intermedia_t *d);
 	int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int elimtodos);
 	void guardar_lista(lista_t *p, FILE *arch);
 	int comparar(info_t*d1, info_t*d2);
@@ -1318,6 +1319,9 @@ void validar_id(char *id) {
 void crear_lista(lista_t *p) {
     *p=NULL;
 }
+void crear_lista_intermedia(t_lista_intermedia *p) {
+    *p=NULL;
+}
 
 int sacar_repetidos(lista_t *p, info_t *d, int (*cmp)(info_t*d1, info_t*d2), int elimtodos) {
 	nodo_t*aux;
@@ -1359,17 +1363,17 @@ int insertar_en_orden(lista_t *p, info_t *d) {
 
 	return TODO_BIEN;
 }
-int insertar_en_orden_intermedia(lista_t *p, info_intermedia_t *d) {
-	info_intermedia_t*nue;
-	while(*p && comparar(&(*p)->info,d)>0)
-			p=&(*p)->sig;
+int insertar_en_orden_intermedia(t_lista_intermedia *p, info_intermedia_t *d) {
+	nodo_intermedia_t* nue;
+	//while(*p && comparar_intermedia(&(*p)->info,d)>0)
+	//		p=&(*p)->sig;
 
-	if(*p && (((*p)->info.clave)-(d->clave))==0) {
-		(*p)->info=(*d);
-		return DATO_DUPLICADO;
-	}
+	//if(*p && (((*p)->info.clave)-(d->clave))==0) {
+	//	(*p)->info=(*d);
+	//	return DATO_DUPLICADO;
+	//}
 
-	nue=(info_intermedia_t*)malloc(sizeof(info_intermedia_t));
+	nue=(nodo_intermedia_t*)malloc(sizeof(nodo_intermedia_t));
 	if(nue==NULL)
 			return SIN_MEMORIA;
 
@@ -1481,11 +1485,11 @@ void clear_ts() {
 
 void crear_ts(lista_t *l_ts) {
 	info_t aux;
-	FILE *arch=fopen("ts.txt","w");
+	//FILE *arch=fopen("ts.txt","w");
 	printf("\n");
 	printf("creando tabla de simbolos...\n");
-	guardar_lista(l_ts, arch);
-	fclose(arch);
+	//guardar_lista(l_ts, arch);
+	//fclose(arch);
 	printf("tabla de simbolos creada\n");
 }
 
@@ -1544,7 +1548,7 @@ void crear_assembler(lista_t *l_ts){
 	// ----------------------------------------------------------------
 	char numero[5];
 	t_lista_intermedia listaintermedia;
-	crear_lista(&listaintermedia);
+	crear_lista_intermedia(&listaintermedia);
 	int i = 0;
 	char * pt;
 	char linea[100];
@@ -1556,6 +1560,9 @@ void crear_assembler(lista_t *l_ts){
 	}
 	while(fgets(linea,sizeof(linea),arch)) {
 		info_intermedia_t info_terceto;
+		printf("Esto es linea: %s",linea);
+		info_t aux_ts;
+		char buffer[20];
 		pt = strchr(linea,'\n');
 		*pt = '\0';
 		pt = strchr(linea,')');
@@ -1573,8 +1580,43 @@ void crear_assembler(lista_t *l_ts){
 		*pt = '\0';
 		pt = strrchr(linea,'[');
 		strcpy(info_terceto.numero,pt+1);
+		printf("%s,%s,%s,%s\n",info_terceto.numero,info_terceto.posicion_a,info_terceto.posicion_b,info_terceto.posicion_c);
+		if(strcmp(info_terceto.posicion_a,"-")==0 ||strcmp(info_terceto.posicion_a,"*")==0 ||strcmp(info_terceto.posicion_a,"+")==0 ||strcmp(info_terceto.posicion_a,"/")==0)
+		{
+			printf("entro en el print\n");
+			strcpy(info_terceto.posicion_aux,"\0");
+			strcat(info_terceto.posicion_aux,"\0");
+			printf("1\n");
+			strcat(info_terceto.posicion_aux,"@aux");
+			printf("2\n");
+			strcat(info_terceto.posicion_aux,itoa(i,buffer,10));
+			printf("3\n");
+			i++;
+			printf("%s\n",info_terceto.posicion_aux);
+			strcpy(aux_ts.clave,info_terceto.posicion_aux);
+			printf("4\n");
+			strcpy(aux_ts.tipodato,"Float");
+			printf("5\n");
+			strcpy(aux_ts.valor,"\0");
+			printf("6\n");
+			strcpy(aux_ts.longitud,"\0");
+			printf("7\n");
+			insertar_en_orden(l_ts,&aux_ts);
+			printf("salio del if en el print\n");
+		} else 
+		{
+			strcat(info_terceto.posicion_aux,"\0");
+		}
+		//clave
+		//tipodato
+		//valor
+		//longitud
 		insertar_en_orden_intermedia(&listaintermedia,&info_terceto);
 	}
+	FILE *arch2=fopen("ts.txt","w");
+	guardar_lista(l_ts, arch2);
+	fclose(arch2);
+	fclose(arch);
 }
 // recibe un número de terceto y devuelve la info
 void leerTerceto(int numero_terceto, info_cola_t *info_terceto_output) {
