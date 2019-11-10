@@ -102,7 +102,7 @@
 	int poner_en_pila(pila_t *p, info_pila_t *d);
 	int sacar_de_pila(pila_t*p, info_pila_t *d);
 	info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_buscar);
-	void recorrer_intermedia(t_lista_intermedia *p);
+	void recorrer_intermedia(FILE *arch, t_lista_intermedia *p);
 	void crear_lista(lista_t *p);
 	void crear_lista_intermedia(t_lista_intermedia *p) ;
 	int insertar_en_orden(lista_t *p, info_t *d);
@@ -124,6 +124,9 @@
 	void clear_intermedia();
 	void crear_intermedia(cola_t *cola_intermedia);
 	void guardar_intermedia(cola_t *p, FILE *arch);
+	void generarHeaderAssembler(FILE* asmFile);
+	void generarDataAssembler(FILE* asmFile, lista_t *l_ts);
+	void generarFooterAssembler(FILE* asmFile);
 	
 
 	lista_t l_ts;
@@ -1637,12 +1640,72 @@ void crear_assembler(lista_t *l_ts){
 		insertar_en_orden_intermedia(&listaintermedia, &info_terceto);
 
 	}
-	recorrer_intermedia(&listaintermedia);
+
+	FILE *asmFile = fopen("Final.asm", "wt");
+	if (!asmFile) 
+		exit(-1);
+	
+	generarHeaderAssembler(asmFile);
+	generarDataAssembler(asmFile, l_ts);
+	recorrer_intermedia(asmFile, &listaintermedia);
+	generarFooterAssembler(asmFile);
+
 	FILE *arch2=fopen("ts.txt","w");
 	guardar_lista(l_ts, arch2);
 	fclose(arch2);
 	fclose(arch);
+	fclose(asmFile);
 }
+
+void generarHeaderAssembler(FILE* asmFile) {
+	fprintf(asmFile,"include macros2.asm\n");
+	fprintf(asmFile,"include number.asm\n\n");
+	fprintf(asmFile,"include numbers.asm\n\n");
+	fprintf(asmFile,".MODEL LARGE\n.STACK 200h\n.386\n.387\n\n");
+}
+
+void generarDataAssembler(FILE* asmFile, lista_t *p) {
+		fprintf(asmFile,".DATA\n\nMAXTEXTSIZE equ 50\n\n");
+
+	while(*p) {
+		fprintf(asmFile,"%-35s ", (*p)->info.clave);
+
+		// Variables
+		if (strcmp((*p)->info.tipodato, "Integer") == 0)
+			fprintf(asmFile,"%-3s \n", "DT");
+		if (strcmp((*p)->info.tipodato, "Float") == 0)
+			fprintf(asmFile,"%-3s \n", "DD");
+		if (strcmp((*p)->info.tipodato, "String") == 0)
+			fprintf(asmFile,"%-3s, MAXTEXTSIZE dup (?)\n", "DB"); //
+		if (strcmp((*p)->info.tipodato, "Undefined") == 0)
+			fprintf(asmFile,"%-3s (?)\n", "DD");
+		
+		// Constantes
+		if (strcmp((*p)->info.tipodato, "const Integer") == 0)
+			fprintf(asmFile,"%-3s %-10s\n", "DD", (*p)->info.valor);
+		if (strcmp((*p)->info.tipodato, "const Float") == 0)
+			fprintf(asmFile,"%-3s %-10s\n", "DB", (*p)->info.valor);
+		if (strcmp((*p)->info.tipodato, "const String") == 0)
+			fprintf(asmFile,"%-3s %-10s, %s dup (?)\n", "DB", (*p)->info.valor, (*p)->info.longitud);
+
+		p=&(*p)->sig;
+	}
+	fprintf(asmFile,"\n");
+}
+
+void generarFooterAssembler(FILE* asmFile) {
+
+	/*
+	FINAL:
+    mov ah, 1 ; pausa, espera que oprima una tecla
+    int 21h ; AH=1 es el servicio de lectura
+    MOV AX, 4C00h ; Sale del Dos
+    INT 21h ; Enviamos la interripcion 21h
+	END START ; final del archivo.
+	*/
+	fprintf(asmFile,"FINAL:\nmov ah, 1\nint 21h\nMOV AX, 4C00h\nINT 21h\nEND START");
+}
+
 // recibe un número de terceto y devuelve la info
 void leerTerceto(int numero_terceto, info_cola_t *info_terceto_output) {
 	int index = NUMERO_INICIAL_TERCETO;
@@ -1676,12 +1739,12 @@ info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_
 	return NULL;
 }
 
-void recorrer_intermedia(t_lista_intermedia *p){
-	FILE * arch;
-	arch = fopen("Final.asm","wt");
+void recorrer_intermedia(FILE *arch, t_lista_intermedia *p){
 	char * pt;
 	info_intermedia_t *terceto_encontrado;
-	while(*p ) {
+	fprintf(arch,".CODE\n\nSTART:\nMOV AX, @DATA\nMOV DS,AX\nFINIT\nFFREE\n\n");
+
+	while(*p) {
 		if(strcmp((*p)->info.posicion_a,"READ")==0)
 		{
 			fprintf(arch,"GetInteger _%s\n",(*p)->info.posicion_b);
@@ -1763,7 +1826,8 @@ void recorrer_intermedia(t_lista_intermedia *p){
 		}
 		p=&(*p)->sig;
 	}
-	fclose(arch);
+
+	fprintf(arch, "\n");
 	return;
 }
 

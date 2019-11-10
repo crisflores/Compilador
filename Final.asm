@@ -1,3 +1,82 @@
+include macros2.asm
+include number.asm
+
+include numbers.asm
+
+.MODEL LARGE
+.STACK 200h
+.386
+.387
+
+.DATA
+
+MAXTEXTSIZE equ 50
+
+miString                            DB , MAXTEXTSIZE dup (?)
+miInteger                           DT  
+miFloat                             DD  
+hola_este_mi_insuperable_float      DD  
+d                                   DB , MAXTEXTSIZE dup (?)
+c                                   DT  
+b                                   DD  
+a                                   DT  
+__INLIST_RETURN                     DT  
+__FILTER_OPERANDO                   DD  (?)
+__FILTER_INDEX                      DT  
+_99.                                DB  99.       
+_7                                  DD  7         
+_65535                              DD  65535     
+_6.5                                DB  6.5       
+_48                                 DD  48        
+_4294967295.0                       DB  4294967295.0
+_4                                  DD  4         
+_34                                 DD  34        
+_2.3                                DB  2.3       
+_2                                  DD  2         
+_1237                               DD  1237      
+_12                                 DD  12        
+_100                                DD  100       
+_1.22                               DB  1.22      
+_0                                  DD  0         
+_.9999                              DB  .9999     
+_"asldkfhsjf"                       DB  "asldkfhsjf", 10 dup (?)
+_"as ldkf hsjf"                     DB  "as ldkf hsjf", 12 dup (?)
+_"@sdADaSjfla%dfg"                  DB  "@sdADaSjfla%dfg", 15 dup (?)
+_"123456789012345678901234567890"   DB  "123456789012345678901234567890", 30 dup (?)
+@aux9                               DD  
+@aux8                               DD  
+@aux7                               DD  
+@aux6                               DD  
+@aux5                               DD  
+@aux4                               DD  
+@aux3                               DD  
+@aux24                              DD  
+@aux23                              DD  
+@aux22                              DD  
+@aux21                              DD  
+@aux20                              DD  
+@aux2                               DD  
+@aux19                              DD  
+@aux18                              DD  
+@aux17                              DD  
+@aux16                              DD  
+@aux15                              DD  
+@aux14                              DD  
+@aux13                              DD  
+@aux12                              DD  
+@aux11                              DD  
+@aux10                              DD  
+@aux1                               DD  
+@aux0                               DD  
+
+.CODE
+
+START:
+MOV AX, @DATA
+MOV DS,AX
+FINIT
+FFREE
+
 fild _b
 fistp _a
 fild _"asldkfhsjf"
@@ -685,3 +764,10 @@ THEN:
 DisplayString _"repeat con inlist y or"
 JMP REPEAT
 ENDREPEAT:
+
+FINAL:
+mov ah, 1
+int 21h
+MOV AX, 4C00h
+INT 21h
+END START
