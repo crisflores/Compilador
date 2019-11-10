@@ -1535,9 +1535,6 @@ void guardar_intermedia(cola_t *p, FILE *arch) {
 	int numero = NUMERO_INICIAL_TERCETO;
 	info_cola_t info_terceto;
 	while(sacar_de_cola(&cola_terceto, &info_terceto) != COLA_VACIA) {
-		//if(numero > NUMERO_INICIAL_TERCETO) {
-		//	fprintf(arch, "\n");
-		//}
 		printf("[%d](%s,%s,%s)\n", numero,info_terceto.posicion_a ,info_terceto.posicion_b ,info_terceto.posicion_c);
 		fprintf(arch,"[%d](%s,%s,%s)\n", numero++, info_terceto.posicion_a ,info_terceto.posicion_b ,info_terceto.posicion_c);
 	}
@@ -1558,7 +1555,6 @@ void crear_assembler(lista_t *l_ts){
 	FILE *arch = fopen("intermedia.txt","r");
 	if(!arch)
 	{
-		printf("cris capo");
 		exit(1);
 	}
 	while(fgets(linea,sizeof(linea),arch)) {
@@ -1583,10 +1579,9 @@ void crear_assembler(lista_t *l_ts){
 		*pt = '\0';
 		pt = strrchr(linea,'[');
 		strcpy(info_terceto.numero,pt+1);
+		strcpy(info_terceto.posicion_aux,"\0");
 		if(strcmp(info_terceto.posicion_a,"-")==0 ||strcmp(info_terceto.posicion_a,"*")==0 ||strcmp(info_terceto.posicion_a,"+")==0 ||strcmp(info_terceto.posicion_a,"/")==0)
 		{
-			strcpy(info_terceto.posicion_aux,"\0");
-			strcat(info_terceto.posicion_aux,"\0");
 			strcat(info_terceto.posicion_aux,"@aux");
 			strcat(info_terceto.posicion_aux,itoa(i,buffer,10));
 			i++;
@@ -1595,18 +1590,20 @@ void crear_assembler(lista_t *l_ts){
 			strcpy(aux_ts.valor,"\0");
 			strcpy(aux_ts.longitud,"\0");
 			insertar_en_orden(l_ts,&aux_ts);
-		} //else 
-		//{
-			pt = strrchr(info_terceto.posicion_b,'[');
-			if (pt)
+		} 
+
+		pt = strrchr(info_terceto.posicion_b,']');
+		if (pt)
+		{
+			strcpy(buffer,info_terceto.posicion_b);
+			pt = strchr(buffer,']');
+			*pt = '\0';
+			pt = strrchr(buffer,'[');
+			*pt = '\0';
+			strcpy(numero_buscar,pt+1);
+			terceto_encontrado=buscar_lista_intermedia(&listaintermedia,numero_buscar);
+			if(terceto_encontrado)
 			{
-				strcpy(buffer,info_terceto.posicion_b);
-				pt = strchr(buffer,']');
-				*pt = '\0';
-				pt = strrchr(buffer,'[');
-				*pt = '\0';
-				strcpy(numero_buscar,pt+1);
-				terceto_encontrado=buscar_lista_intermedia(&listaintermedia,numero_buscar);
 				if(strcmp(terceto_encontrado->posicion_a,"-")==0 ||strcmp(terceto_encontrado->posicion_a,"*")==0 ||strcmp(terceto_encontrado->posicion_a,"+")==0 ||strcmp(terceto_encontrado->posicion_a,"/")==0)
 				{
 					strcpy(info_terceto.posicion_b,terceto_encontrado->posicion_aux);
@@ -1616,16 +1613,19 @@ void crear_assembler(lista_t *l_ts){
 					strcpy(terceto_encontrado->posicion_aux,"BORRADO");
 				}
 			}
-			pt = strrchr(info_terceto.posicion_c,'[');
-			if (pt)
+		}
+		pt = strrchr(info_terceto.posicion_c,']');
+		if (pt)
+		{
+			strcpy(buffer,info_terceto.posicion_c);
+			pt = strrchr(buffer,']');
+			*pt = '\0';
+			pt = strrchr(buffer,'[');
+			*pt = '\0';
+			strcpy(numero_buscar,pt+1);
+			terceto_encontrado=buscar_lista_intermedia(&listaintermedia,numero_buscar);
+			if(terceto_encontrado)
 			{
-				strcpy(buffer,info_terceto.posicion_c);
-				pt = strrchr(buffer,']');
-				*pt = '\0';
-				pt = strrchr(buffer,'[');
-				*pt = '\0';
-				strcpy(numero_buscar,pt+1);
-				terceto_encontrado=buscar_lista_intermedia(&listaintermedia,numero_buscar);
 				if(strcmp(terceto_encontrado->posicion_a,"-")==0 ||strcmp(terceto_encontrado->posicion_a,"*")==0 ||strcmp(terceto_encontrado->posicion_a,"+")==0 ||strcmp(terceto_encontrado->posicion_a,"/")==0)
 				{
 					strcpy(info_terceto.posicion_c,terceto_encontrado->posicion_aux);
@@ -1635,10 +1635,14 @@ void crear_assembler(lista_t *l_ts){
 					strcpy(terceto_encontrado->posicion_aux,"BORRADO");
 				}
 			}
-			strcat(info_terceto.posicion_aux,"\0");
-		//}
+		}
+		strcat(info_terceto.posicion_aux,"\0");
 		
-		if (strcmp(info_terceto.posicion_a,"IF")==0 || strcmp(info_terceto.posicion_a,"THEN")==0){insertar_en_orden_intermedia(&listaintermedia,&info_terceto);}
+		if (strcmp(info_terceto.posicion_a,"IF")==0)
+		{
+			strcpy(info_terceto.posicion_aux,"BORRADO");
+		}
+		insertar_en_orden_intermedia(&listaintermedia, &info_terceto);
 
 	}
 	recorrer_intermedia(&listaintermedia);
@@ -1675,17 +1679,22 @@ info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_
 	while(*p && strcmp((*p)->info.numero,numero_buscar)!=0) {
 		p=&(*p)->sig;
 	}
-	if (strcmp((*p)->info.numero,numero_buscar)==0) {
+	if (p) {
 		return &((*p)->info);
 	}
 	return NULL;
 }
 
 void recorrer_intermedia(t_lista_intermedia *p){
-	while(*p) {
-		printf("Esto contiene un registro de la lista: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+	FILE * arch;
+	arch = fopen("intermedia_mod.txt","wt");
+	while(*p ) {
+		if(strcmp((*p)->info.posicion_aux,"BORRADO")){
+			fprintf(arch,"[%s](%s,%s,%s){%s}\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
 		p=&(*p)->sig;
 	}
+	fclose(arch);
 	return;
 }
 
