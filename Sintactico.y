@@ -94,6 +94,7 @@
 		nodo_cola_t *pri, *ult;
 	} cola_t;
 
+	int buscar_en_ts(char * cad ,lista_t *l_ts);
 	void crear_assembler(lista_t *l_ts);
 	void crear_cola(cola_t *c);
 	int poner_en_cola(cola_t *c, info_cola_t *d);
@@ -102,7 +103,7 @@
 	int poner_en_pila(pila_t *p, info_pila_t *d);
 	int sacar_de_pila(pila_t*p, info_pila_t *d);
 	info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_buscar);
-	void recorrer_intermedia(FILE *arch, t_lista_intermedia *p);
+	void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts);
 	void crear_lista(lista_t *p);
 	void crear_lista_intermedia(t_lista_intermedia *p) ;
 	int insertar_en_orden(lista_t *p, info_t *d);
@@ -1647,7 +1648,7 @@ void crear_assembler(lista_t *l_ts){
 	
 	generarHeaderAssembler(asmFile);
 	generarDataAssembler(asmFile, l_ts);
-	recorrer_intermedia(asmFile, &listaintermedia);
+	recorrer_intermedia(asmFile, &listaintermedia, l_ts);
 	generarFooterAssembler(asmFile);
 
 	FILE *arch2=fopen("ts.txt","w");
@@ -1750,8 +1751,18 @@ info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_
 	}
 	return NULL;
 }
+int buscar_en_ts(char * cad ,lista_t *l_ts)
+{
+	while(*l_ts && strcmp((*l_ts)->info.clave,cad)!=0) {
+		l_ts=&(*l_ts)->sig;
+	}
+	if (l_ts) {
+		return 0;
+	}
+	return 1;
+}
 
-void recorrer_intermedia(FILE *arch, t_lista_intermedia *p){
+void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 	char * pt;
 	info_intermedia_t *terceto_encontrado;
 	fprintf(arch,".CODE\n\nSTART:\nMOV AX, @DATA\nMOV DS,AX\nFINIT\nFFREE\n\n");
@@ -1759,35 +1770,35 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p){
 	while(*p) {
 		if(strcmp((*p)->info.posicion_a,"READ")==0)
 		{
-			fprintf(arch,"GetInteger _%s\n",(*p)->info.posicion_b);
+			fprintf(arch,"GetInteger %s\n",buscar_en_ts((*p)->info.posicion_b,l_ts)?(*p)->info.posicion_b:strcat("_",(*p)->info.posicion_b));
 		}
 		if(strcmp((*p)->info.posicion_a,"PRINT")==0)
 		{
-			fprintf(arch,"DisplayString _%s\n",(*p)->info.posicion_b);
+			fprintf(arch,"DisplayString %s\n",(*p)->info.posicion_b);
 		}
 		if(strcmp((*p)->info.posicion_a,":=")==0)
 		{
-			fprintf(arch,"fild _%s\nfistp _%s\n",(*p)->info.posicion_c,(*p)->info.posicion_b);
+			fprintf(arch,"fild %s\nfistp %s\n",(*p)->info.posicion_c,(*p)->info.posicion_b);
 		}
 		if(strcmp((*p)->info.posicion_a,"*")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfmul\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			fprintf(arch,"fild %s\nfild %s\nfmul\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 		}
 		if(strcmp((*p)->info.posicion_a,"+")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfadd\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			fprintf(arch,"fild %s\nfild %s\nfadd\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 		}
 		if(strcmp((*p)->info.posicion_a,"/")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfdiv\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			fprintf(arch,"fild %s\nfild %s\nfdiv\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 		}
 		if(strcmp((*p)->info.posicion_a,"-")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfsub\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			fprintf(arch,"fild %s\nfild %s\nfsub\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 		}
 		if(strcmp((*p)->info.posicion_a,"CMP")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfxch\nfcom\nfstsw ax\nsahf\n",(*p)->info.posicion_b,(*p)->info.posicion_c);
+			fprintf(arch,"fild %s\nfild %s\nfxch\nfcom\nfstsw ax\nsahf\n",(*p)->info.posicion_b,(*p)->info.posicion_c);
 		}
 		if(strcmp((*p)->info.posicion_a,"THEN")==0 || strcmp((*p)->info.posicion_a,"ELSE")==0 || strcmp((*p)->info.posicion_a,"ENDIF")==0 || strcmp((*p)->info.posicion_a,"REPEAT")==0 || strcmp((*p)->info.posicion_a,"LISTA")==0 || strcmp((*p)->info.posicion_a,"ENDFILTER")==0 || strcmp((*p)->info.posicion_a,"ENDREPEAT")==0 || strcmp((*p)->info.posicion_a,"ENDINLIST")==0)
 		{
