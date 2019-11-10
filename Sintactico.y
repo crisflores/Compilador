@@ -124,6 +124,7 @@
 	void clear_intermedia();
 	void crear_intermedia(cola_t *cola_intermedia);
 	void guardar_intermedia(cola_t *p, FILE *arch);
+	
 
 	lista_t l_ts;
 	info_t d;
@@ -1367,22 +1368,13 @@ int insertar_en_orden(lista_t *p, info_t *d) {
 }
 int insertar_en_orden_intermedia(t_lista_intermedia *p, info_intermedia_t *d) {
 	nodo_intermedia_t* nue;
-	//while(*p && comparar_intermedia(&(*p)->info,d)>0)
-	//		p=&(*p)->sig;
-
-	//if(*p && (((*p)->info.clave)-(d->clave))==0) {
-	//	(*p)->info=(*d);
-	//	return DATO_DUPLICADO;
-	//}
-
-	nue=(nodo_intermedia_t*)malloc(sizeof(nodo_intermedia_t));
-	if(nue==NULL)
+	while(*p)
+			p=&(*p)->sig;
+	*p=(nodo_intermedia_t*)malloc(sizeof(nodo_intermedia_t));
+	if(*p==NULL)
 			return SIN_MEMORIA;
-
-	nue->info=*d;
-	nue->sig=*p;
-	*p=nue;
-
+	(*p)->info=*d;
+	(*p)->sig=NULL;
 	return TODO_BIEN;
 }
 
@@ -1638,7 +1630,7 @@ void crear_assembler(lista_t *l_ts){
 		}
 		strcat(info_terceto.posicion_aux,"\0");
 		
-		if (strcmp(info_terceto.posicion_a,"IF")==0)
+		if (strcmp(info_terceto.posicion_a,"IF")==0 || strcmp(info_terceto.posicion_a,"FILTER")==0 || strcmp(info_terceto.posicion_a,"INLIST")==0)
 		{
 			strcpy(info_terceto.posicion_aux,"BORRADO");
 		}
@@ -1675,7 +1667,6 @@ void leerTerceto(int numero_terceto, info_cola_t *info_terceto_output) {
 
 info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_buscar)
 {
-	printf("esto contiene numero a buscar: %s\n",numero_buscar);
 	while(*p && strcmp((*p)->info.numero,numero_buscar)!=0) {
 		p=&(*p)->sig;
 	}
@@ -1687,10 +1678,88 @@ info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_
 
 void recorrer_intermedia(t_lista_intermedia *p){
 	FILE * arch;
-	arch = fopen("intermedia_mod.txt","wt");
+	arch = fopen("Final.asm","wt");
+	char * pt;
+	info_intermedia_t *terceto_encontrado;
 	while(*p ) {
-		if(strcmp((*p)->info.posicion_aux,"BORRADO")){
-			fprintf(arch,"[%s](%s,%s,%s){%s}\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		if(strcmp((*p)->info.posicion_a,"READ")==0)
+		{
+			fprintf(arch,"GetInteger _%s\n",(*p)->info.posicion_b);
+		}
+		if(strcmp((*p)->info.posicion_a,"PRINT")==0)
+		{
+			fprintf(arch,"DisplayString _%s\n",(*p)->info.posicion_b);
+		}
+		if(strcmp((*p)->info.posicion_a,":=")==0)
+		{
+			fprintf(arch,"fild _%s\nfistp _%s\n",(*p)->info.posicion_c,(*p)->info.posicion_b);
+		}
+		if(strcmp((*p)->info.posicion_a,"*")==0)
+		{
+			fprintf(arch,"fild _%s\nfild _%s\nfmul\nfistp _%s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
+		if(strcmp((*p)->info.posicion_a,"+")==0)
+		{
+			fprintf(arch,"fild _%s\nfild _%s\nfadd\nfistp _%s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
+		if(strcmp((*p)->info.posicion_a,"/")==0)
+		{
+			fprintf(arch,"fild _%s\nfild _%s\nfdiv\nfistp _%s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
+		if(strcmp((*p)->info.posicion_a,"-")==0)
+		{
+			fprintf(arch,"fild _%s\nfild _%s\nfsub\nfistp _%s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
+		if(strcmp((*p)->info.posicion_a,"CMP")==0)
+		{
+			fprintf(arch,"fild _%s\nfild _%s\nfxch\nfcom\nfstsw ax\nsahf\n",(*p)->info.posicion_b,(*p)->info.posicion_c);
+		}
+		if(strcmp((*p)->info.posicion_a,"THEN")==0 || strcmp((*p)->info.posicion_a,"ELSE")==0 || strcmp((*p)->info.posicion_a,"ENDIF")==0 || strcmp((*p)->info.posicion_a,"REPEAT")==0 || strcmp((*p)->info.posicion_a,"LISTA")==0 || strcmp((*p)->info.posicion_a,"ENDFILTER")==0 || strcmp((*p)->info.posicion_a,"ENDREPEAT")==0 || strcmp((*p)->info.posicion_a,"ENDINLIST")==0)
+		{
+			fprintf(arch,"%s:\n",(*p)->info.posicion_a);
+		}
+		if ((strcmp((*p)->info.posicion_a,"BNE")==0)||(strcmp((*p)->info.posicion_a,"BLT")==0)||(strcmp((*p)->info.posicion_a,"BGE")==0)||(strcmp((*p)->info.posicion_a,"BEQ")==0)||(strcmp((*p)->info.posicion_a,"BGT")==0)||(strcmp((*p)->info.posicion_a,"BRA")==0)||(strcmp((*p)->info.posicion_a,"BLE")==0))
+		{
+			if ((strcmp((*p)->info.posicion_a,"BNE")==0))
+			{
+				strcpy((*p)->info.posicion_a,"JNE");
+			}
+			if ((strcmp((*p)->info.posicion_a,"BLT")==0))
+			{
+				strcpy((*p)->info.posicion_a,"JL");
+			}
+			if ((strcmp((*p)->info.posicion_a,"BGE")==0))
+			{
+				strcpy((*p)->info.posicion_a,"JGE");
+			}
+			if ((strcmp((*p)->info.posicion_a,"BEQ")==0))
+			{
+				strcpy((*p)->info.posicion_a,"JE");
+			}
+			if ((strcmp((*p)->info.posicion_a,"BGT")==0))
+			{
+				strcpy((*p)->info.posicion_a,"JG");
+			}
+			if ((strcmp((*p)->info.posicion_a,"BRA")==0))
+			{
+				strcpy((*p)->info.posicion_a,"JMP");
+			}
+			if ((strcmp((*p)->info.posicion_a,"BLE")==0))
+			{
+				strcpy((*p)->info.posicion_a,"JLE");
+			}
+			pt = strrchr((*p)->info.posicion_b,']');
+			if(!pt)
+			{
+				fprintf(arch,"%s %s\n",(*p)->info.posicion_a,(*p)->info.posicion_b);
+			} else 
+			{
+				*pt='\0';
+				pt = strrchr((*p)->info.posicion_b,'[');
+				*pt = '\0';
+				terceto_encontrado=buscar_lista_intermedia(p,pt+1);
+				fprintf(arch,"%s %s\n",(*p)->info.posicion_a,terceto_encontrado->posicion_a);
+			}
 		}
 		p=&(*p)->sig;
 	}
@@ -1736,5 +1805,4 @@ char *invertirOperadorLogico(char *operador_logico) {
 	if(strcmp(operador_logico, "BEQ") == 0)  {
 		return "BNE";
 	}
-
 }
