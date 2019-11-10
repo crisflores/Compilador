@@ -12,62 +12,62 @@ include numbers.asm
 
 MAXTEXTSIZE equ 50
 
-miString                            DB , MAXTEXTSIZE dup (?)
-miInteger                           DT  
-miFloat                             DD  
-hola_este_mi_insuperable_float      DD  
-d                                   DB , MAXTEXTSIZE dup (?)
-c                                   DT  
-b                                   DD  
-a                                   DT  
-__INLIST_RETURN                     DT  
-__FILTER_OPERANDO                   DD  (?)
-__FILTER_INDEX                      DT  
-_99.                                DB  99.       
-_7                                  DD  7         
-_65535                              DD  65535     
-_6.5                                DB  6.5       
-_48                                 DD  48        
-_4294967295.0                       DB  4294967295.0
-_4                                  DD  4         
-_34                                 DD  34        
-_2.3                                DB  2.3       
-_2                                  DD  2         
-_1237                               DD  1237      
-_12                                 DD  12        
-_100                                DD  100       
-_1.22                               DB  1.22      
-_0                                  DD  0         
-_.9999                              DB  .9999     
-_"asldkfhsjf"                       DB  "asldkfhsjf", 10 dup (?)
-_"as ldkf hsjf"                     DB  "as ldkf hsjf", 12 dup (?)
-_"@sdADaSjfla%dfg"                  DB  "@sdADaSjfla%dfg", 15 dup (?)
-_"123456789012345678901234567890"   DB  "123456789012345678901234567890", 30 dup (?)
-@aux9                               DD  
-@aux8                               DD  
-@aux7                               DD  
-@aux6                               DD  
-@aux5                               DD  
-@aux4                               DD  
-@aux3                               DD  
-@aux24                              DD  
-@aux23                              DD  
-@aux22                              DD  
-@aux21                              DD  
-@aux20                              DD  
-@aux2                               DD  
-@aux19                              DD  
-@aux18                              DD  
-@aux17                              DD  
-@aux16                              DD  
-@aux15                              DD  
-@aux14                              DD  
-@aux13                              DD  
-@aux12                              DD  
-@aux11                              DD  
-@aux10                              DD  
-@aux1                               DD  
-@aux0                               DD  
+_miString                            DB MAXTEXTSIZE dup (?)
+_miInteger                           DD (?)
+_miFloat                             DD (?)
+_hola_este_mi_insuperable_float      DD (?)
+_d                                   DB MAXTEXTSIZE dup (?)
+_c                                   DD (?)
+_b                                   DD (?)
+_a                                   DD (?)
+__INLIST_RETURN                     DD (?)
+__FILTER_OPERANDO                   DD (?)
+__FILTER_INDEX                      DD (?)
+_@aux9                              DD (?)
+_@aux8                              DD (?)
+_@aux7                              DD (?)
+_@aux6                              DD (?)
+_@aux5                              DD (?)
+_@aux4                              DD (?)
+_@aux3                              DD (?)
+_@aux24                             DD (?)
+_@aux23                             DD (?)
+_@aux22                             DD (?)
+_@aux21                             DD (?)
+_@aux20                             DD (?)
+_@aux2                              DD (?)
+_@aux19                             DD (?)
+_@aux18                             DD (?)
+_@aux17                             DD (?)
+_@aux16                             DD (?)
+_@aux15                             DD (?)
+_@aux14                             DD (?)
+_@aux13                             DD (?)
+_@aux12                             DD (?)
+_@aux11                             DD (?)
+_@aux10                             DD (?)
+_@aux1                              DD (?)
+_@aux0                              DD (?)
+_99.                                DD 99.       
+_7                                  DD 7         
+_65535                              DD 65535     
+_6.5                                DD 6.5       
+_48                                 DD 48        
+_4294967295.0                       DD 4294967295.0
+_4                                  DD 4         
+_34                                 DD 34        
+_2.3                                DD 2.3       
+_2                                  DD 2         
+_1237                               DD 1237      
+_12                                 DD 12        
+_100                                DD 100       
+_1.22                               DD 1.22      
+_0                                  DD 0         
+_.9999                              DD .9999     
+_asldkfhsjf                          DB "asldkfhsjf", 10 dup (?)
+_as ldkf hsjf                        DB "as ldkf hsjf", 12 dup (?)
+_@sdADaSjfla%dfg                     DB "@sdADaSjfla%dfg", 15 dup (?)
+_123456789012345678901234567890      DB "123456789012345678901234567890", 30 dup (?)
 
 .CODE
 
@@ -107,11 +107,11 @@ fild _c
 fild _4
 fmul
 fistp _@aux1
-fild _@aux0
-fild _@aux1
+fild __@aux0
+fild __@aux1
 fadd
 fistp _@aux2
-fild _@aux2
+fild __@aux2
 fistp _a
 fild _a
 fild _b
@@ -214,7 +214,7 @@ fild _100
 fadd
 fistp _@aux3
 fild _a
-fild _@aux3
+fild __@aux3
 fxch
 fcom
 fstsw ax
@@ -234,7 +234,7 @@ fild ___FILTER_INDEX
 fild _1
 fadd
 fistp _@aux4
-fild _@aux4
+fild __@aux4
 fistp ___FILTER_INDEX
 fild ___FILTER_OPERANDO
 fild _a
@@ -263,14 +263,14 @@ fild ___FILTER_INDEX
 fild _1
 fadd
 fistp _@aux5
-fild _@aux5
+fild __@aux5
 fistp ___FILTER_INDEX
 fild _4
 fild _r
 fadd
 fistp _@aux6
 fild ___FILTER_OPERANDO
-fild _@aux6
+fild __@aux6
 fxch
 fcom
 fstsw ax
@@ -303,14 +303,14 @@ fild ___FILTER_INDEX
 fild _1
 fadd
 fistp _@aux7
-fild _@aux7
+fild __@aux7
 fistp ___FILTER_INDEX
 fild _4
 fild _r
 fadd
 fistp _@aux8
 fild ___FILTER_OPERANDO
-fild _@aux8
+fild __@aux8
 fxch
 fcom
 fstsw ax
@@ -383,7 +383,7 @@ fild ___FILTER_INDEX
 fild _1
 fadd
 fistp _@aux9
-fild _@aux9
+fild __@aux9
 fistp ___FILTER_INDEX
 fild ___FILTER_OPERANDO
 fild _100
@@ -420,12 +420,12 @@ fild _2
 fild _b
 fmul
 fistp _@aux10
-fild _@aux10
+fild __@aux10
 fild _7
 fadd
 fistp _@aux11
 fild _a
-fild _@aux11
+fild __@aux11
 fxch
 fcom
 fstsw ax
@@ -443,15 +443,15 @@ fild _d
 fadd
 fistp _@aux12
 fild _b
-fild _@aux12
+fild __@aux12
 fmul
 fistp _@aux13
 fild _34
-fild _@aux13
+fild __@aux13
 fadd
 fistp _@aux14
 fild _a
-fild _@aux14
+fild __@aux14
 fxch
 fcom
 fstsw ax
@@ -551,12 +551,12 @@ fild _2
 fild _b
 fmul
 fistp _@aux15
-fild _@aux15
+fild __@aux15
 fild _7
 fadd
 fistp _@aux16
 fild _a
-fild _@aux16
+fild __@aux16
 fxch
 fcom
 fstsw ax
@@ -574,15 +574,15 @@ fild _d
 fadd
 fistp _@aux17
 fild _b
-fild _@aux17
+fild __@aux17
 fmul
 fistp _@aux18
 fild _34
-fild _@aux18
+fild __@aux18
 fadd
 fistp _@aux19
 fild _a
-fild _@aux19
+fild __@aux19
 fxch
 fcom
 fstsw ax
@@ -705,12 +705,12 @@ fild _2
 fild _b
 fmul
 fistp _@aux20
-fild _@aux20
+fild __@aux20
 fild _7
 fadd
 fistp _@aux21
 fild _a
-fild _@aux21
+fild __@aux21
 fxch
 fcom
 fstsw ax
@@ -728,15 +728,15 @@ fild _d
 fadd
 fistp _@aux22
 fild _b
-fild _@aux22
+fild __@aux22
 fmul
 fistp _@aux23
 fild _34
-fild _@aux23
+fild __@aux23
 fadd
 fistp _@aux24
 fild _a
-fild _@aux24
+fild __@aux24
 fxch
 fcom
 fstsw ax

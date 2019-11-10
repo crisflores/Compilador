@@ -1577,7 +1577,7 @@ void crear_assembler(lista_t *l_ts){
 		strcpy(info_terceto.posicion_aux,"\0");
 		if(strcmp(info_terceto.posicion_a,"-")==0 ||strcmp(info_terceto.posicion_a,"*")==0 ||strcmp(info_terceto.posicion_a,"+")==0 ||strcmp(info_terceto.posicion_a,"/")==0)
 		{
-			strcat(info_terceto.posicion_aux,"@aux");
+			strcat(info_terceto.posicion_aux,"_@aux");
 			strcat(info_terceto.posicion_aux,itoa(i,buffer,10));
 			i++;
 			strcpy(aux_ts.clave,info_terceto.posicion_aux);
@@ -1667,26 +1667,38 @@ void generarHeaderAssembler(FILE* asmFile) {
 void generarDataAssembler(FILE* asmFile, lista_t *p) {
 		fprintf(asmFile,".DATA\n\nMAXTEXTSIZE equ 50\n\n");
 
-	while(*p) {
-		fprintf(asmFile,"%-35s ", (*p)->info.clave);
+	if (strcmp((*p)->info.clave, "__INLIST_RETURN") != 0 && strcmp((*p)->info.clave, "__FILTER_INDEX") != 0 )
 
+	while(*p) {
 		// Variables
-		if (strcmp((*p)->info.tipodato, "Integer") == 0)
-			fprintf(asmFile,"%-3s \n", "DT");
-		if (strcmp((*p)->info.tipodato, "Float") == 0)
-			fprintf(asmFile,"%-3s \n", "DD");
+		if (strcmp((*p)->info.tipodato, "Integer") == 0) {
+			if (strcmp((*p)->info.clave, "__INLIST_RETURN") == 0 || strcmp((*p)->info.clave, "__FILTER_INDEX") == 0 )
+				fprintf(asmFile, "%-35s DD (?)\n", (*p)->info.clave);
+			else 
+			fprintf(asmFile,"_%-35s DD (?)\n", (*p)->info.clave);
+		}
+		if (strcmp((*p)->info.tipodato, "Float") == 0) {
+			if (strncmp("_@aux", (*p)->info.clave, 5) == 0)
+				fprintf(asmFile, "%-35s DD (?)\n", (*p)->info.clave);		
+			else
+				fprintf(asmFile,"_%-35s DD (?)\n", (*p)->info.clave);		
+		}
 		if (strcmp((*p)->info.tipodato, "String") == 0)
-			fprintf(asmFile,"%-3s, MAXTEXTSIZE dup (?)\n", "DB"); //
+			fprintf(asmFile,"_%-35s DB MAXTEXTSIZE dup (?)\n", (*p)->info.clave);
 		if (strcmp((*p)->info.tipodato, "Undefined") == 0)
-			fprintf(asmFile,"%-3s (?)\n", "DD");
+			fprintf(asmFile,"%-35s DD (?)\n", (*p)->info.clave);
 		
 		// Constantes
 		if (strcmp((*p)->info.tipodato, "const Integer") == 0)
-			fprintf(asmFile,"%-3s %-10s\n", "DD", (*p)->info.valor);
+			fprintf(asmFile,"%-35s DD %-10s\n", (*p)->info.clave, (*p)->info.valor);
 		if (strcmp((*p)->info.tipodato, "const Float") == 0)
-			fprintf(asmFile,"%-3s %-10s\n", "DB", (*p)->info.valor);
-		if (strcmp((*p)->info.tipodato, "const String") == 0)
-			fprintf(asmFile,"%-3s %-10s, %s dup (?)\n", "DB", (*p)->info.valor, (*p)->info.longitud);
+			fprintf(asmFile,"%-35s DD %-10s\n", (*p)->info.clave, (*p)->info.valor);
+		if (strcmp((*p)->info.tipodato, "const String") == 0) {
+			char aux[TAM];
+			strncpy(aux, ((*p)->info.valor) + 1, strlen((*p)->info.valor) - 2);
+			aux[strlen((*p)->info.valor)-2] = '\0';
+			fprintf(asmFile,"_%-35s DB %-10s, %s dup (?)\n", aux, (*p)->info.valor, (*p)->info.longitud);
+		}
 
 		p=&(*p)->sig;
 	}
@@ -1759,19 +1771,19 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p){
 		}
 		if(strcmp((*p)->info.posicion_a,"*")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfmul\nfistp _%s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			fprintf(arch,"fild _%s\nfild _%s\nfmul\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 		}
 		if(strcmp((*p)->info.posicion_a,"+")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfadd\nfistp _%s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			fprintf(arch,"fild _%s\nfild _%s\nfadd\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 		}
 		if(strcmp((*p)->info.posicion_a,"/")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfdiv\nfistp _%s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			fprintf(arch,"fild _%s\nfild _%s\nfdiv\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 		}
 		if(strcmp((*p)->info.posicion_a,"-")==0)
 		{
-			fprintf(arch,"fild _%s\nfild _%s\nfsub\nfistp _%s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			fprintf(arch,"fild _%s\nfild _%s\nfsub\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 		}
 		if(strcmp((*p)->info.posicion_a,"CMP")==0)
 		{
