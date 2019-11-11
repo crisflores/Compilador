@@ -120,7 +120,9 @@ fcom
 fstsw ax
 sahf
 JNE ENDIF_47
-DisplayString _"if simple"
+THEN_45:
+DisplayString "if simple"
+ENDIF_47:
 fild _a
 fild _b
 fxch
@@ -128,7 +130,9 @@ fcom
 fstsw ax
 sahf
 JL ENDIF_55
-DisplayString _"if con not"
+THEN_53:
+DisplayString "if con not"
+ENDIF_55:
 fild _a
 fild _b
 fxch
@@ -143,7 +147,9 @@ fcom
 fstsw ax
 sahf
 JLE ENDIF_67
-DisplayString _"if con and"
+THEN_65:
+DisplayString "if con and"
+ENDIF_67:
 fild _a
 fild _b
 fxch
@@ -158,7 +164,9 @@ fcom
 fstsw ax
 sahf
 JE ENDIF_79
-DisplayString _"if con or"
+THEN_77:
+DisplayString "if con or"
+ENDIF_79:
 fild _a
 fild _b
 fxch
@@ -166,9 +174,12 @@ fcom
 fstsw ax
 sahf
 JE ELSE_88
-DisplayString _"if con else"
+THEN_85:
+DisplayString "if con else"
 JMP ENDIF_90
-DisplayString _"este es el else"
+ELSE_88:
+DisplayString "este es el else"
+ENDIF_90:
 fild _a
 fild _b
 fxch
@@ -176,6 +187,7 @@ fcom
 fstsw ax
 sahf
 JNE ELSE_109
+THEN_96:
 fild _a
 fild _b
 fxch
@@ -183,14 +195,19 @@ fcom
 fstsw ax
 sahf
 JL ELSE_105
-DisplayString _"if con else anidado"
+THEN_102:
+DisplayString "if con else anidado"
 JMP ENDIF_107
-DisplayString _"parte else"
+ELSE_105:
+DisplayString "parte else"
+ENDIF_107:
 JMP ENDIF_111
-DisplayString _"else del primer if"
+ELSE_109:
+DisplayString "else del primer if"
+ENDIF_111:
 GetInteger _a
-DisplayString _a
-DisplayString _"hola mundo"
+DisplayString a
+DisplayString "hola mundo"
 fild _b
 fild _100
 fadd
@@ -202,10 +219,12 @@ fcom
 fstsw ax
 sahf
 JGE ENDREPEAT_127
-DisplayString _"repeat sentencia 1"
-DisplayString _"repeat sentencia 2"
-DisplayString _"repeat sentencia 3"
-JMP _REPEAT_115
+THEN_122:
+DisplayString "repeat sentencia 1"
+DisplayString "repeat sentencia 2"
+DisplayString "repeat sentencia 3"
+JMP REPEAT_115
+ENDREPEAT_127:
 fild _0
 fistp __FILTER_INDEX
 JMP LISTA_138
@@ -222,6 +241,7 @@ fcom
 fstsw ax
 sahf
 JL ENDFILTER_143
+LISTA_138:
 fild __FILTER_INDEX
 fild _0
 fxch
@@ -231,7 +251,8 @@ sahf
 JNE ENDFILTER_143
 fild _a
 fistp __FILTER_OPERANDO
-JMP _THEN_131
+JMP THEN_131
+ENDFILTER_143:
 fild _0
 fistp __FILTER_INDEX
 JMP LISTA_160
@@ -259,6 +280,7 @@ fcom
 fstsw ax
 sahf
 JLE ENDFILTER_165
+LISTA_160:
 fild __FILTER_INDEX
 fild _0
 fxch
@@ -268,7 +290,8 @@ sahf
 JNE ENDFILTER_165
 fild _b
 fistp __FILTER_OPERANDO
-JMP _THEN_147
+JMP THEN_147
+ENDFILTER_165:
 fild _0
 fistp __FILTER_INDEX
 JMP LISTA_182
@@ -296,6 +319,7 @@ fcom
 fstsw ax
 sahf
 JLE ENDFILTER_203
+LISTA_182:
 fild __FILTER_INDEX
 fild _0
 fxch
@@ -305,7 +329,7 @@ sahf
 JNE CMP
 fild _a
 fistp __FILTER_OPERANDO
-JMP _THEN_169
+JMP THEN_169
 fild __FILTER_INDEX
 fild _1
 fxch
@@ -315,7 +339,7 @@ sahf
 JNE CMP
 fild _b
 fistp __FILTER_OPERANDO
-JMP _THEN_169
+JMP THEN_169
 fild __FILTER_INDEX
 fild _2
 fxch
@@ -325,7 +349,7 @@ sahf
 JNE CMP
 fild _c
 fistp __FILTER_OPERANDO
-JMP _THEN_169
+JMP THEN_169
 fild __FILTER_INDEX
 fild _3
 fxch
@@ -335,7 +359,7 @@ sahf
 JNE CMP
 fild _d
 fistp __FILTER_OPERANDO
-JMP _THEN_169
+JMP THEN_169
 fild __FILTER_INDEX
 fild _4
 fxch
@@ -345,7 +369,8 @@ sahf
 JNE ENDFILTER_203
 fild _mi_variable
 fistp __FILTER_OPERANDO
-JMP _THEN_169
+JMP THEN_169
+ENDFILTER_203:
 fild _0
 fistp __FILTER_INDEX
 JMP LISTA_214
@@ -362,6 +387,7 @@ fcom
 fstsw ax
 sahf
 JLE ENDFILTER_223
+LISTA_214:
 fild __FILTER_INDEX
 fild _0
 fxch
@@ -371,7 +397,7 @@ sahf
 JNE CMP
 fild _a
 fistp __FILTER_OPERANDO
-JMP _THEN_207
+JMP THEN_207
 fild __FILTER_INDEX
 fild _1
 fxch
@@ -381,7 +407,8 @@ sahf
 JNE ENDFILTER_223
 fild _b
 fistp __FILTER_OPERANDO
-JMP _THEN_207
+JMP THEN_207
+ENDFILTER_223:
 fild _0
 fistp __INLIST_RETURN
 fild _2
@@ -435,6 +462,7 @@ JE :=
 JMP ENDINLIST_251
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_251:
 fild _0
 fistp __INLIST_RETURN
 fild _z
@@ -454,6 +482,7 @@ JE :=
 JMP ENDINLIST_263
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_263:
 fild _0
 fistp __INLIST_RETURN
 fild _z
@@ -473,6 +502,7 @@ JE :=
 JMP ENDINLIST_276
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_276:
 fild __INLIST_RETURN
 fild _1
 fxch
@@ -480,7 +510,9 @@ fcom
 fstsw ax
 sahf
 JNE ENDIF_281
-DisplayString _"if con inlist"
+THEN_279:
+DisplayString "if con inlist"
+ENDIF_281:
 fild _0
 fistp __INLIST_RETURN
 fild _z
@@ -500,6 +532,7 @@ JE :=
 JMP ENDINLIST_294
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_294:
 fild __INLIST_RETURN
 fild _1
 fxch
@@ -560,6 +593,7 @@ JE :=
 JMP ENDINLIST_324
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_324:
 fild __INLIST_RETURN
 fild _1
 fxch
@@ -567,7 +601,9 @@ fcom
 fstsw ax
 sahf
 JNE ENDIF_329
-DisplayString _"if con inlist y or"
+THEN_327:
+DisplayString "if con inlist y or"
+ENDIF_329:
 fild _0
 fistp __INLIST_RETURN
 fild _z
@@ -587,6 +623,7 @@ JE :=
 JMP ENDINLIST_342
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_342:
 fild __INLIST_RETURN
 fild _1
 fxch
@@ -594,7 +631,9 @@ fcom
 fstsw ax
 sahf
 JE ENDIF_347
-DisplayString _"if con not inlist"
+THEN_345:
+DisplayString "if con not inlist"
+ENDIF_347:
 fild _0
 fistp __INLIST_RETURN
 fild _z
@@ -614,6 +653,7 @@ JE :=
 JMP ENDINLIST_360
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_360:
 fild __INLIST_RETURN
 fild _1
 fxch
@@ -621,8 +661,10 @@ fcom
 fstsw ax
 sahf
 JNE ENDREPEAT_366
-DisplayString _"repeat con inlist"
-JMP _REPEAT_348
+THEN_363:
+DisplayString "repeat con inlist"
+JMP REPEAT_348
+ENDREPEAT_366:
 fild _0
 fistp __INLIST_RETURN
 fild _z
@@ -642,6 +684,7 @@ JE :=
 JMP ENDINLIST_379
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_379:
 fild __INLIST_RETURN
 fild _1
 fxch
@@ -702,6 +745,7 @@ JE :=
 JMP ENDINLIST_409
 fild _1
 fistp __INLIST_RETURN
+ENDINLIST_409:
 fild __INLIST_RETURN
 fild _1
 fxch
@@ -709,8 +753,10 @@ fcom
 fstsw ax
 sahf
 JNE ENDREPEAT_415
-DisplayString _"repeat con inlist y or"
-JMP _REPEAT_367
+THEN_412:
+DisplayString "repeat con inlist y or"
+JMP REPEAT_367
+ENDREPEAT_415:
 
 FINAL:
 mov ah, 1

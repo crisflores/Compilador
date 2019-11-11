@@ -1797,56 +1797,11 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 		{	
 			p=&(*p)->sig;
 		}	
-		
-		if(buscar_en_ts((*p)->info.posicion_b,l_ts)==0)
-		{
-			printf("esto tiene la intermedia: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
-			buffer[0]='\0';
-			strcat(buffer,"_");
-			strcat(buffer,(*p)->info.posicion_b);
-			strcpy((*p)->info.posicion_b,buffer);
-		}
-		if(buscar_en_ts((*p)->info.posicion_c,l_ts)==0)
-		{
-			printf("esto tiene la intermedia: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
-			buffer[0]='\0';
-			strcat(buffer,"_");
-			strcat(buffer,(*p)->info.posicion_c);
-			strcpy((*p)->info.posicion_c,buffer);
-		}
-		if(strcmp((*p)->info.posicion_a,"READ")==0)
-		{
-			fprintf(arch,"GetInteger %s\n",(*p)->info.posicion_b);
-		}
 		if(strcmp((*p)->info.posicion_a,"PRINT")==0)
 		{
 			fprintf(arch,"DisplayString %s\n",(*p)->info.posicion_b);
 		}
-		if(strcmp((*p)->info.posicion_a,":=")==0)
-		{
-			fprintf(arch,"fild %s\nfistp %s\n",(*p)->info.posicion_c,(*p)->info.posicion_b);
-		}
-		if(strcmp((*p)->info.posicion_a,"*")==0)
-		{
-			fprintf(arch,"fild %s\nfild %s\nfmul\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
-		}
-		if(strcmp((*p)->info.posicion_a,"+")==0)
-		{
-			fprintf(arch,"fild %s\nfild %s\nfadd\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
-		}
-		if(strcmp((*p)->info.posicion_a,"/")==0)
-		{
-			fprintf(arch,"fild %s\nfild %s\nfdiv\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
-		}
-		if(strcmp((*p)->info.posicion_a,"-")==0)
-		{
-			fprintf(arch,"fild %s\nfild %s\nfsub\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
-		}
-		if(strcmp((*p)->info.posicion_a,"CMP")==0)
-		{
-			fprintf(arch,"fild %s\nfild %s\nfxch\nfcom\nfstsw ax\nsahf\n",(*p)->info.posicion_b,(*p)->info.posicion_c);
-		}
-		if(strcmp((*p)->info.posicion_a,"THEN")==0 || strcmp((*p)->info.posicion_a,"ELSE")==0 || strcmp((*p)->info.posicion_a,"ENDIF")==0 || strcmp((*p)->info.posicion_a,"REPEAT")==0 || strcmp((*p)->info.posicion_a,"LISTA")==0 || strcmp((*p)->info.posicion_a,"ENDFILTER")==0 || strcmp((*p)->info.posicion_a,"ENDREPEAT")==0 || strcmp((*p)->info.posicion_a,"ENDINLIST")==0)
+		if(strncmp((*p)->info.posicion_a,"THEN",4)==0 || strncmp((*p)->info.posicion_a,"ELSE",4)==0 || strncmp((*p)->info.posicion_a,"ENDIF",5)==0 || strncmp((*p)->info.posicion_a,"REPEAT",6)==0 || strncmp((*p)->info.posicion_a,"LISTA",5)==0 || strncmp((*p)->info.posicion_a,"ENDFILTER",9)==0 || strncmp((*p)->info.posicion_a,"ENDREPEAT",9)==0 || strncmp((*p)->info.posicion_a,"ENDINLIST",9)==0)
 		{
 			fprintf(arch,"%s:\n",(*p)->info.posicion_a);
 		}
@@ -1892,6 +1847,50 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 				terceto_encontrado=buscar_lista_intermedia(p,pt+1);
 				fprintf(arch,"%s %s\n",(*p)->info.posicion_a,terceto_encontrado->posicion_a);
 			}
+		}
+		if(buscar_en_ts((*p)->info.posicion_b,l_ts)==0)
+		{
+			printf("esto tiene la intermedia: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			buffer[0]='\0';
+			strcat(buffer,"_");
+			strcat(buffer,(*p)->info.posicion_b);
+			strcpy((*p)->info.posicion_b,buffer);
+		}
+		if(buscar_en_ts((*p)->info.posicion_c,l_ts)==0)
+		{
+			printf("esto tiene la intermedia: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+			buffer[0]='\0';
+			strcat(buffer,"_");
+			strcat(buffer,(*p)->info.posicion_c);
+			strcpy((*p)->info.posicion_c,buffer);
+		}
+		if(strcmp((*p)->info.posicion_a,"READ")==0)
+		{
+			fprintf(arch,"GetInteger %s\n",(*p)->info.posicion_b);
+		}
+		if(strcmp((*p)->info.posicion_a,":=")==0)
+		{
+			fprintf(arch,"fild %s\nfistp %s\n",(*p)->info.posicion_c,(*p)->info.posicion_b);
+		}
+		if(strcmp((*p)->info.posicion_a,"*")==0)
+		{
+			fprintf(arch,"fild %s\nfild %s\nfmul\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
+		if(strcmp((*p)->info.posicion_a,"+")==0)
+		{
+			fprintf(arch,"fild %s\nfild %s\nfadd\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
+		if(strcmp((*p)->info.posicion_a,"/")==0)
+		{
+			fprintf(arch,"fild %s\nfild %s\nfdiv\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
+		if(strcmp((*p)->info.posicion_a,"-")==0)
+		{
+			fprintf(arch,"fild %s\nfild %s\nfsub\nfistp %s\n",(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
+		}
+		if(strcmp((*p)->info.posicion_a,"CMP")==0)
+		{
+			fprintf(arch,"fild %s\nfild %s\nfxch\nfcom\nfstsw ax\nsahf\n",(*p)->info.posicion_b,(*p)->info.posicion_c);
 		}
 		p=&(*p)->sig;
 	}
