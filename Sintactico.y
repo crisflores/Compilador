@@ -658,6 +658,10 @@
 			strcpy(terceto_if.posicion_c, "_");
 			p_terceto_fin_then = crearTerceto(&terceto_if);
 
+			char aux[5];
+			itoa(p_terceto_fin_then, aux, 10);
+			strcat(terceto_if.posicion_a, aux);
+
 			// por cada comparación que se haga en la condición
 			int compraciones_condicion = 1;
 			while(compraciones_condicion) {
@@ -1531,8 +1535,19 @@ void guardar_intermedia(cola_t *p, FILE *arch) {
 	int numero = NUMERO_INICIAL_TERCETO;
 	info_cola_t info_terceto;
 	while(sacar_de_cola(&cola_terceto, &info_terceto) != COLA_VACIA) {
-		printf("[%d](%s,%s,%s)\n", numero,info_terceto.posicion_a ,info_terceto.posicion_b ,info_terceto.posicion_c);
-		fprintf(arch,"[%d](%s,%s,%s)\n", numero++, info_terceto.posicion_a ,info_terceto.posicion_b ,info_terceto.posicion_c);
+		if(strcmp(info_terceto.posicion_a, "THEN") == 0 || strcmp(info_terceto.posicion_a, "ELSE") == 0 ||
+		 strcmp(info_terceto.posicion_a, "ENDIF") == 0 || strcmp(info_terceto.posicion_a, "REPEAT") == 0 ||
+		  strcmp(info_terceto.posicion_a, "ENDREPEAT") == 0 || strcmp(info_terceto.posicion_a, "LISTA") == 0 ||
+		   strcmp(info_terceto.posicion_a, "ENDINLIST") == 0 || strcmp(info_terceto.posicion_a, "ENDFILTER") == 0) {
+
+			printf("[%d](%s_%d,%s,%s)\n", numero,info_terceto.posicion_a, numero, info_terceto.posicion_b ,info_terceto.posicion_c);
+			fprintf(arch,"[%d](%s_%d,%s,%s)\n", numero, info_terceto.posicion_a, numero, info_terceto.posicion_b ,info_terceto.posicion_c);
+			numero++;
+		}
+		else {
+			printf("[%d](%s,%s,%s)\n", numero,info_terceto.posicion_a ,info_terceto.posicion_b ,info_terceto.posicion_c);
+			fprintf(arch,"[%d](%s,%s,%s)\n", numero++, info_terceto.posicion_a ,info_terceto.posicion_b ,info_terceto.posicion_c);
+		}
 	}
 	cant_total_tercetos=numero;
 }
