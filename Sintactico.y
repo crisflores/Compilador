@@ -1673,19 +1673,27 @@ void generarDataAssembler(FILE* asmFile, lista_t *p) {
 	while(*p) {
 		// Variables
 		if (strcmp((*p)->info.tipodato, "Integer") == 0) {
-			if (strcmp((*p)->info.clave, "__INLIST_RETURN") == 0 || strcmp((*p)->info.clave, "__FILTER_INDEX") == 0 )
-				fprintf(asmFile, "%-35s DD (?)\n", (*p)->info.clave);
-			else 
-			fprintf(asmFile,"_%-35s DD (?)\n", (*p)->info.clave);
+			if (strcmp((*p)->info.clave, "__INLIST_RETURN") != 0 && strcmp((*p)->info.clave, "__FILTER_INDEX") != 0 ) {
+				char aux[TAM+1];
+				sprintf(aux, "_%s", (*p)->info.clave);
+				strcpy((*p)->info.clave, aux);
+			}
+				fprintf(asmFile,"%-35s DD (?)\n", (*p)->info.clave);
 		}
 		if (strcmp((*p)->info.tipodato, "Float") == 0) {
-			if (strncmp("_@aux", (*p)->info.clave, 5) == 0)
-				fprintf(asmFile, "%-35s DD (?)\n", (*p)->info.clave);		
-			else
-				fprintf(asmFile,"_%-35s DD (?)\n", (*p)->info.clave);		
+			if (strncmp("_@aux", (*p)->info.clave, 5) != 0) {
+				char aux[TAM+1];
+				sprintf(aux, "_%s", (*p)->info.clave);
+				strcpy((*p)->info.clave, aux);
+			}
+				fprintf(asmFile,"%-35s DD (?)\n", (*p)->info.clave);
 		}
-		if (strcmp((*p)->info.tipodato, "String") == 0)
-			fprintf(asmFile,"_%-35s DB MAXTEXTSIZE dup (?)\n", (*p)->info.clave);
+		if (strcmp((*p)->info.tipodato, "String") == 0) {
+			char aux[TAM+1];
+			sprintf(aux, "_%s", (*p)->info.clave);
+			strcpy((*p)->info.clave, aux);
+			fprintf(asmFile,"%-35s DB MAXTEXTSIZE dup (?)\n", (*p)->info.clave);
+		}
 		if (strcmp((*p)->info.tipodato, "Undefined") == 0)
 			fprintf(asmFile,"%-35s DD (?)\n", (*p)->info.clave);
 		
@@ -1698,7 +1706,8 @@ void generarDataAssembler(FILE* asmFile, lista_t *p) {
 			char aux[TAM];
 			strncpy(aux, ((*p)->info.valor) + 1, strlen((*p)->info.valor) - 2);
 			aux[strlen((*p)->info.valor)-2] = '\0';
-			fprintf(asmFile,"_%-35s DB %-10s, %s dup (?)\n", aux, (*p)->info.valor, (*p)->info.longitud);
+			sprintf((*p)->info.clave, "_%s", aux);
+			fprintf(asmFile,"%-35s DB %-10s, %s dup (?)\n", (*p)->info.clave, (*p)->info.valor, (*p)->info.longitud);
 		}
 
 		p=&(*p)->sig;
