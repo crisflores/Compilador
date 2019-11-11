@@ -1762,15 +1762,12 @@ info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_
 }
 int buscar_en_ts(char * cad ,lista_t *l_ts)
 {
-	printf("estoy buscando esto: %s\n",cad);
 	while(*l_ts && strcmp((*l_ts)->info.clave,cad)!=0) {
 		l_ts=&(*l_ts)->sig;
 	}
-	if (l_ts) {
-		printf("no lo encontre\n");
+	if (*l_ts) {
 		return 1;
 	}
-	printf("lo encontre\n");
 	return 0;
 }
 
@@ -1781,9 +1778,14 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 	fprintf(arch,".CODE\n\nSTART:\nMOV AX, @DATA\nMOV DS,AX\nFINIT\nFFREE\n\n");
 
 	while(*p) {
+		while(*p && strcmp((*p)->info.posicion_aux,"BORRADO")==0)
+		{	
+			p=&(*p)->sig;
+		}	
 		
 		if(buscar_en_ts((*p)->info.posicion_b,l_ts)==0)
 		{
+			printf("esto tiene la intermedia: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 			buffer[0]='\0';
 			strcat(buffer,"_");
 			strcat(buffer,(*p)->info.posicion_b);
@@ -1791,6 +1793,7 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 		}
 		if(buscar_en_ts((*p)->info.posicion_c,l_ts)==0)
 		{
+			printf("esto tiene la intermedia: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 			buffer[0]='\0';
 			strcat(buffer,"_");
 			strcat(buffer,(*p)->info.posicion_c);
