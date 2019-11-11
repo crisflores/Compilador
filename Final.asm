@@ -107,8 +107,8 @@ fild c
 fild 4
 fmul
 fistp _@aux1
-fild __@aux0
-fild __@aux1
+fild _@aux0
+fild _@aux1
 fadd
 fistp _@aux2
 fild _@aux2
@@ -205,6 +205,7 @@ JMP ENDIF
 ELSE:
 DisplayString "else del primer if"
 ENDIF:
+GetInteger _a
 DisplayString a
 DisplayString "hola mundo"
 REPEAT:
@@ -212,7 +213,7 @@ fild b
 fild 100
 fadd
 fistp _@aux3
-fild _a
+fild a
 fild _@aux3
 fxch
 fcom
@@ -236,7 +237,7 @@ fistp _@aux4
 fild _@aux4
 fistp __FILTER_INDEX
 fild __FILTER_OPERANDO
-fild _a
+fild a
 fxch
 fcom
 fstsw ax

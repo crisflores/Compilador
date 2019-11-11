@@ -1765,12 +1765,28 @@ int buscar_en_ts(char * cad ,lista_t *l_ts)
 void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 	char * pt;
 	info_intermedia_t *terceto_encontrado;
+	char buffer[20];
 	fprintf(arch,".CODE\n\nSTART:\nMOV AX, @DATA\nMOV DS,AX\nFINIT\nFFREE\n\n");
 
 	while(*p) {
+		
+		if(buscar_en_ts((*p)->info.posicion_b,l_ts)==0)
+		{
+			buffer[0]='\0';
+			strcat(buffer,"_");
+			strcat(buffer,(*p)->info.posicion_b);
+			strcpy((*p)->info.posicion_b,buffer);
+		}
+		if(buscar_en_ts((*p)->info.posicion_c,l_ts)==0)
+		{
+			buffer[0]='\0';
+			strcat(buffer,"_");
+			strcat(buffer,(*p)->info.posicion_c);
+			strcpy((*p)->info.posicion_c,buffer);
+		}
 		if(strcmp((*p)->info.posicion_a,"READ")==0)
 		{
-			fprintf(arch,"GetInteger %s\n",buscar_en_ts((*p)->info.posicion_b,l_ts)?(*p)->info.posicion_b:strcat("_",(*p)->info.posicion_b));
+			fprintf(arch,"GetInteger %s\n",(*p)->info.posicion_b);
 		}
 		if(strcmp((*p)->info.posicion_a,"PRINT")==0)
 		{
