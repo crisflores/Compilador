@@ -1,57 +1,37 @@
 NOMBRE                              TIPO DE DATO     VALOR                               LONGITUD                           
+_z                                  Integer                                                                                 
+_r                                  Integer                                                                                 
 _miString                           String                                                                                  
 _miInteger                          Integer                                                                                 
 _miFloat                            Float                                                                                   
-_hola_este_mi_insuperable_float     Float                                                                                   
-_d                                  String                                                                                  
+_j                                  Integer                                                                                 
+_i                                  Integer                                                                                 
+_h                                  Integer                                                                                 
+_g                                  Integer                                                                                 
+_f                                  Integer                                                                                 
+_e                                  Float                                                                                   
+_d                                  Integer                                                                                 
 _c                                  Integer                                                                                 
 _b                                  Float                                                                                   
 _a                                  Integer                                                                                 
 __INLIST_RETURN                     Integer          0                                                                      
-__FILTER_OPERANDO                   Undefined                                                                               
-__FILTER_INDEX                      Integer          0                                                                      
-_@aux9                              Float                                                                                   
-_@aux8                              Float                                                                                   
-_@aux7                              Float                                                                                   
-_@aux6                              Float                                                                                   
-_@aux5                              Float                                                                                   
 _@aux4                              Float                                                                                   
 _@aux3                              Float                                                                                   
-_@aux24                             Float                                                                                   
-_@aux23                             Float                                                                                   
-_@aux22                             Float                                                                                   
-_@aux21                             Float                                                                                   
-_@aux20                             Float                                                                                   
 _@aux2                              Float                                                                                   
-_@aux19                             Float                                                                                   
-_@aux18                             Float                                                                                   
-_@aux17                             Float                                                                                   
-_@aux16                             Float                                                                                   
-_@aux15                             Float                                                                                   
-_@aux14                             Float                                                                                   
-_@aux13                             Float                                                                                   
-_@aux12                             Float                                                                                   
-_@aux11                             Float                                                                                   
-_@aux10                             Float                                                                                   
 _@aux1                              Float                                                                                   
 _@aux0                              Float                                                                                   
-_99.                                const Float      99.                                                                    
+_9999                               const Integer    9999                                                                   
+_99                                 const Integer    99                                                                     
+_8                                  const Integer    8                                                                      
 _7                                  const Integer    7                                                                      
 _65535                              const Integer    65535                                                                  
-_6.5                                const Float      6.5                                                                    
 _48                                 const Integer    48                                                                     
-_4294967295.0                       const Float      4294967295.0                                                           
-_4                                  const Integer    4                                                                      
+_45                                 const Integer    45                                                                     
+_42949                              const Integer    42949                                                                  
 _34                                 const Integer    34                                                                     
-_2.3                                const Float      2.3                                                                    
 _2                                  const Integer    2                                                                      
 _1237                               const Integer    1237                                                                   
+_12345                              const Integer    12345                                                                  
 _12                                 const Integer    12                                                                     
-_100                                const Integer    100                                                                    
-_1.22                               const Float      1.22                                                                   
-_0                                  const Integer    0                                                                      
-_.9999                              const Float      .9999                                                                  
-_asldkfhsjf                         const String     "asldkfhsjf"                        10                                 
-_as ldkf hsjf                       const String     "as ldkf hsjf"                      12                                 
-_@sdADaSjfla%dfg                    const String     "@sdADaSjfla%dfg"                   15                                 
-_123456789012345678901234567890     const String     "123456789012345678901234567890"    30                                 
+_10                                 const Integer    10                                                                     
+_1                                  const Integer    1                                                                      

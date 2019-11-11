@@ -354,7 +354,22 @@
 			strcpy(d.valor, "0");
 			insertar_en_ts(&l_ts, &d);
 
+			strcpy(d.clave, _1);
+			strcpy(d.tipodato, "Integer");
+			strcpy(d.valor, "1");
+			insertar_en_ts(&l_ts, &d);
+
+			strcpy(d.clave, _0);
+			strcpy(d.tipodato, "Integer");
+			strcpy(d.valor, "0");
+			insertar_en_ts(&l_ts, &d);
+
+
 			// inicializar __INLIST_RETURN en cero
+			strcpy(terceto_cmp.posicion_a,"RETURN_FALSE");
+			strcpy(terceto_cmp.posicion_b,"_");
+			strcpy(terceto_cmp.posicion_c,"_");
+			crearTerceto(&terceto_cmp);
 			strcpy(terceto_inlist.posicion_a, ":=");
 			strcpy(terceto_inlist.posicion_b, __INLIST_RETURN);
 			strcpy(terceto_inlist.posicion_c, "0");
@@ -373,6 +388,11 @@
 			strcpy(terceto_inlist.posicion_c, "_");
 			p_terceto_inlist_salto_a_fin = crearTerceto(&terceto_inlist);
 
+			
+			strcpy(terceto_cmp.posicion_a,"RETURN_TRUE");
+			strcpy(terceto_cmp.posicion_b,"_");
+			strcpy(terceto_cmp.posicion_c,"_");
+			crearTerceto(&terceto_cmp);
 			// acá salta si una comparación dió que son iguales
 			strcpy(terceto_inlist.posicion_a, ":=");
 			strcpy(terceto_inlist.posicion_b, __INLIST_RETURN);
@@ -383,7 +403,7 @@
 				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_inlist_iguales));
 				modificarTerceto(inlist_comparacion.numero_terceto, &terceto);
 			}
-
+			
 			strcpy(terceto_inlist.posicion_a, "ENDINLIST");
 			strcpy(terceto_inlist.posicion_b, "_");
 			strcpy(terceto_inlist.posicion_c, "_");
@@ -775,6 +795,10 @@
 		en_lista {
 			// al finalizar la lista, tiene que comprar la variable de compilador con el 
 			// return del INLIST osea __INLIST_RETURN con 1, si son distintos sale del IF
+			strcpy(terceto_cmp.posicion_a,"RETURN_TRUE");
+			strcpy(terceto_cmp.posicion_b,"_");
+			strcpy(terceto_cmp.posicion_c,"_");
+			crearTerceto(&terceto_cmp);
 			strcpy(terceto_cmp.posicion_a, "CMP");
 			strcpy(terceto_cmp.posicion_b, __INLIST_RETURN);
 			strcpy(terceto_cmp.posicion_c, "1");
@@ -1676,12 +1700,12 @@ void crear_assembler(lista_t *l_ts){
 void generarHeaderAssembler(FILE* asmFile) {
 	fprintf(asmFile,"include macros2.asm\n");
 	fprintf(asmFile,"include number.asm\n\n");
-	fprintf(asmFile,"include numbers.asm\n\n");
+	//fprintf(asmFile,"include numbers.asm\n\n");
 	fprintf(asmFile,".MODEL LARGE\n.STACK 200h\n.386\n.387\n\n");
 }
 
 void generarDataAssembler(FILE* asmFile, lista_t *p) {
-		fprintf(asmFile,".DATA\n\nMAXTEXTSIZE equ 50\n\n");
+		fprintf(asmFile,"MAXTEXTSIZE equ 50\n\n.DATA\n\n");
 
 	if (strcmp((*p)->info.clave, "__INLIST_RETURN") != 0 && strcmp((*p)->info.clave, "__FILTER_INDEX") != 0 )
 
@@ -1793,15 +1817,15 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 	fprintf(arch,".CODE\n\nSTART:\nMOV AX, @DATA\nMOV DS,AX\nFINIT\nFFREE\n\n");
 
 	while(*p) {
-		while(*p && strcmp((*p)->info.posicion_aux,"BORRADO")==0)
-		{	
-			p=&(*p)->sig;
-		}	
 		if(strcmp((*p)->info.posicion_a,"PRINT")==0)
 		{
 			fprintf(arch,"DisplayString %s\n",(*p)->info.posicion_b);
 		}
-		if(strncmp((*p)->info.posicion_a,"THEN",4)==0 || strncmp((*p)->info.posicion_a,"ELSE",4)==0 || strncmp((*p)->info.posicion_a,"ENDIF",5)==0 || strncmp((*p)->info.posicion_a,"REPEAT",6)==0 || strncmp((*p)->info.posicion_a,"LISTA",5)==0 || strncmp((*p)->info.posicion_a,"ENDFILTER",9)==0 || strncmp((*p)->info.posicion_a,"ENDREPEAT",9)==0 || strncmp((*p)->info.posicion_a,"ENDINLIST",9)==0)
+		if(strncmp((*p)->info.posicion_a,"REPEAT",6)==0)
+		{
+			fprintf(arch,"%s:\n",(*p)->info.posicion_a);
+		}
+		if(strncmp((*p)->info.posicion_a,"THEN",4)==0 || strncmp((*p)->info.posicion_a,"ELSE",4)==0 || strncmp((*p)->info.posicion_a,"ENDIF",5)==0 || strncmp((*p)->info.posicion_a,"LISTA",5)==0 || strncmp((*p)->info.posicion_a,"ENDFILTER",9)==0 || strncmp((*p)->info.posicion_a,"ENDREPEAT",9)==0 || strncmp((*p)->info.posicion_a,"ENDINLIST",9)==0)
 		{
 			fprintf(arch,"%s:\n",(*p)->info.posicion_a);
 		}
@@ -1850,7 +1874,6 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 		}
 		if(buscar_en_ts((*p)->info.posicion_b,l_ts)==0)
 		{
-			printf("esto tiene la intermedia: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 			buffer[0]='\0';
 			strcat(buffer,"_");
 			strcat(buffer,(*p)->info.posicion_b);
@@ -1858,7 +1881,6 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 		}
 		if(buscar_en_ts((*p)->info.posicion_c,l_ts)==0)
 		{
-			printf("esto tiene la intermedia: %s,%s,%s,%s,%s\n",(*p)->info.numero,(*p)->info.posicion_a,(*p)->info.posicion_b,(*p)->info.posicion_c,(*p)->info.posicion_aux);
 			buffer[0]='\0';
 			strcat(buffer,"_");
 			strcat(buffer,(*p)->info.posicion_c);
