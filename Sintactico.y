@@ -1762,13 +1762,16 @@ info_intermedia_t* buscar_lista_intermedia(t_lista_intermedia *p ,char * numero_
 }
 int buscar_en_ts(char * cad ,lista_t *l_ts)
 {
+	printf("estoy buscando esto: %s\n",cad);
 	while(*l_ts && strcmp((*l_ts)->info.clave,cad)!=0) {
 		l_ts=&(*l_ts)->sig;
 	}
 	if (l_ts) {
-		return 0;
+		printf("no lo encontre\n");
+		return 1;
 	}
-	return 1;
+	printf("lo encontre\n");
+	return 0;
 }
 
 void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){

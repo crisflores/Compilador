@@ -77,692 +77,692 @@ MOV DS,AX
 FINIT
 FFREE
 
-fild _b
-fistp _a
-fild _"asldkfhsjf"
-fistp _b
-fild _"as ldkf hsjf"
-fistp _c
-fild _"123456789012345678901234567890"
-fistp _d
-fild _"@sdADaSjfla%dfg"
-fistp _e
-fild _4294967295.0
-fistp _f
-fild _99.
-fistp _g
-fild _.9999
-fistp _h
-fild _65535
-fistp _i
-fild _1237
-fistp _j
-fild _0
-fistp _miInteger
-fild _a
-fild _b
+fild b
+fistp a
+fild "asldkfhsjf"
+fistp b
+fild "as ldkf hsjf"
+fistp c
+fild "123456789012345678901234567890"
+fistp d
+fild "@sdADaSjfla%dfg"
+fistp e
+fild 4294967295.0
+fistp f
+fild 99.
+fistp g
+fild .9999
+fistp h
+fild 65535
+fistp i
+fild 1237
+fistp j
+fild 0
+fistp miInteger
+fild a
+fild b
 fadd
 fistp _@aux0
-fild _c
-fild _4
+fild c
+fild 4
 fmul
 fistp _@aux1
-fild __@aux0
-fild __@aux1
+fild _@aux0
+fild _@aux1
 fadd
 fistp _@aux2
-fild __@aux2
-fistp _a
-fild _a
-fild _b
+fild _@aux2
+fistp a
+fild a
+fild b
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDIF
 THEN:
-DisplayString _"if simple"
+DisplayString "if simple"
 ENDIF:
-fild _a
-fild _b
+fild a
+fild b
 fxch
 fcom
 fstsw ax
 sahf
 JL ENDIF
 THEN:
-DisplayString _"if con not"
+DisplayString "if con not"
 ENDIF:
-fild _a
-fild _b
+fild a
+fild b
 fxch
 fcom
 fstsw ax
 sahf
 JG ENDIF
-fild _a
-fild _c
+fild a
+fild c
 fxch
 fcom
 fstsw ax
 sahf
 JLE ENDIF
 THEN:
-DisplayString _"if con and"
+DisplayString "if con and"
 ENDIF:
-fild _a
-fild _b
+fild a
+fild b
 fxch
 fcom
 fstsw ax
 sahf
 JGE THEN
-fild _a
-fild _c
+fild a
+fild c
 fxch
 fcom
 fstsw ax
 sahf
 JE ENDIF
 THEN:
-DisplayString _"if con or"
+DisplayString "if con or"
 ENDIF:
-fild _a
-fild _b
+fild a
+fild b
 fxch
 fcom
 fstsw ax
 sahf
 JE ELSE
 THEN:
-DisplayString _"if con else"
+DisplayString "if con else"
 JMP ENDIF
 ELSE:
-DisplayString _"este es el else"
+DisplayString "este es el else"
 ENDIF:
-fild _a
-fild _b
+fild a
+fild b
 fxch
 fcom
 fstsw ax
 sahf
 JNE ELSE
 THEN:
-fild _a
-fild _b
+fild a
+fild b
 fxch
 fcom
 fstsw ax
 sahf
 JL ELSE
 THEN:
-DisplayString _"if con else anidado"
+DisplayString "if con else anidado"
 JMP ENDIF
 ELSE:
-DisplayString _"parte else"
+DisplayString "parte else"
 ENDIF:
 JMP ENDIF
 ELSE:
-DisplayString _"else del primer if"
+DisplayString "else del primer if"
 ENDIF:
-GetInteger _a
-DisplayString _a
-DisplayString _"hola mundo"
+GetInteger a
+DisplayString a
+DisplayString "hola mundo"
 REPEAT:
-fild _b
-fild _100
+fild b
+fild 100
 fadd
 fistp _@aux3
-fild _a
-fild __@aux3
+fild a
+fild _@aux3
 fxch
 fcom
 fstsw ax
 sahf
 JGE ENDREPEAT
 THEN:
-DisplayString _"repeat sentencia 1"
-DisplayString _"repeat sentencia 2"
-DisplayString _"repeat sentencia 3"
-JMP _REPEAT
+DisplayString "repeat sentencia 1"
+DisplayString "repeat sentencia 2"
+DisplayString "repeat sentencia 3"
+JMP REPEAT
 ENDREPEAT:
-fild _0
-fistp ___FILTER_INDEX
+fild 0
+fistp __FILTER_INDEX
 JMP LISTA
 THEN:
-fild ___FILTER_INDEX
-fild _1
+fild __FILTER_INDEX
+fild 1
 fadd
 fistp _@aux4
-fild __@aux4
-fistp ___FILTER_INDEX
-fild ___FILTER_OPERANDO
-fild _a
+fild _@aux4
+fistp __FILTER_INDEX
+fild __FILTER_OPERANDO
+fild a
 fxch
 fcom
 fstsw ax
 sahf
 JL ENDFILTER
 LISTA:
-fild ___FILTER_INDEX
-fild _0
+fild __FILTER_INDEX
+fild 0
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDFILTER
-fild _a
-fistp ___FILTER_OPERANDO
-JMP _THEN
+fild a
+fistp __FILTER_OPERANDO
+JMP THEN
 ENDFILTER:
-fild _0
-fistp ___FILTER_INDEX
+fild 0
+fistp __FILTER_INDEX
 JMP LISTA
 THEN:
-fild ___FILTER_INDEX
-fild _1
+fild __FILTER_INDEX
+fild 1
 fadd
 fistp _@aux5
-fild __@aux5
-fistp ___FILTER_INDEX
-fild _4
-fild _r
+fild _@aux5
+fistp __FILTER_INDEX
+fild 4
+fild r
 fadd
 fistp _@aux6
-fild ___FILTER_OPERANDO
-fild __@aux6
+fild __FILTER_OPERANDO
+fild _@aux6
 fxch
 fcom
 fstsw ax
 sahf
 JLE LISTA
-fild ___FILTER_OPERANDO
-fild _6.5
+fild __FILTER_OPERANDO
+fild 6.5
 fxch
 fcom
 fstsw ax
 sahf
 JLE ENDFILTER
 LISTA:
-fild ___FILTER_INDEX
-fild _0
+fild __FILTER_INDEX
+fild 0
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDFILTER
-fild _b
-fistp ___FILTER_OPERANDO
-JMP _THEN
+fild b
+fistp __FILTER_OPERANDO
+JMP THEN
 ENDFILTER:
-fild _0
-fistp ___FILTER_INDEX
+fild 0
+fistp __FILTER_INDEX
 JMP LISTA
 THEN:
-fild ___FILTER_INDEX
-fild _1
+fild __FILTER_INDEX
+fild 1
 fadd
 fistp _@aux7
-fild __@aux7
-fistp ___FILTER_INDEX
-fild _4
-fild _r
+fild _@aux7
+fistp __FILTER_INDEX
+fild 4
+fild r
 fadd
 fistp _@aux8
-fild ___FILTER_OPERANDO
-fild __@aux8
+fild __FILTER_OPERANDO
+fild _@aux8
 fxch
 fcom
 fstsw ax
 sahf
 JG ENDFILTER
-fild ___FILTER_OPERANDO
-fild _6.5
+fild __FILTER_OPERANDO
+fild 6.5
 fxch
 fcom
 fstsw ax
 sahf
 JLE ENDFILTER
 LISTA:
-fild ___FILTER_INDEX
-fild _0
+fild __FILTER_INDEX
+fild 0
 fxch
 fcom
 fstsw ax
 sahf
 JNE CMP
-fild _a
-fistp ___FILTER_OPERANDO
-JMP _THEN
-fild ___FILTER_INDEX
-fild _1
+fild a
+fistp __FILTER_OPERANDO
+JMP THEN
+fild __FILTER_INDEX
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JNE CMP
-fild _b
-fistp ___FILTER_OPERANDO
-JMP _THEN
-fild ___FILTER_INDEX
-fild _2
+fild b
+fistp __FILTER_OPERANDO
+JMP THEN
+fild __FILTER_INDEX
+fild 2
 fxch
 fcom
 fstsw ax
 sahf
 JNE CMP
-fild _c
-fistp ___FILTER_OPERANDO
-JMP _THEN
-fild ___FILTER_INDEX
-fild _3
+fild c
+fistp __FILTER_OPERANDO
+JMP THEN
+fild __FILTER_INDEX
+fild 3
 fxch
 fcom
 fstsw ax
 sahf
 JNE CMP
-fild _d
-fistp ___FILTER_OPERANDO
-JMP _THEN
-fild ___FILTER_INDEX
-fild _4
+fild d
+fistp __FILTER_OPERANDO
+JMP THEN
+fild __FILTER_INDEX
+fild 4
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDFILTER
-fild _mi_variable
-fistp ___FILTER_OPERANDO
-JMP _THEN
+fild mi_variable
+fistp __FILTER_OPERANDO
+JMP THEN
 ENDFILTER:
-fild _0
-fistp ___FILTER_INDEX
+fild 0
+fistp __FILTER_INDEX
 JMP LISTA
 THEN:
-fild ___FILTER_INDEX
-fild _1
+fild __FILTER_INDEX
+fild 1
 fadd
 fistp _@aux9
-fild __@aux9
-fistp ___FILTER_INDEX
-fild ___FILTER_OPERANDO
-fild _100
+fild _@aux9
+fistp __FILTER_INDEX
+fild __FILTER_OPERANDO
+fild 100
 fxch
 fcom
 fstsw ax
 sahf
 JLE ENDFILTER
 LISTA:
-fild ___FILTER_INDEX
-fild _0
+fild __FILTER_INDEX
+fild 0
 fxch
 fcom
 fstsw ax
 sahf
 JNE CMP
-fild _a
-fistp ___FILTER_OPERANDO
-JMP _THEN
-fild ___FILTER_INDEX
-fild _1
+fild a
+fistp __FILTER_OPERANDO
+JMP THEN
+fild __FILTER_INDEX
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDFILTER
-fild _b
-fistp ___FILTER_OPERANDO
-JMP _THEN
+fild b
+fistp __FILTER_OPERANDO
+JMP THEN
 ENDFILTER:
-fild _0
-fistp ___INLIST_RETURN
-fild _2
-fild _b
+fild 0
+fistp __INLIST_RETURN
+fild 2
+fild b
 fmul
 fistp _@aux10
-fild __@aux10
-fild _7
+fild _@aux10
+fild 7
 fadd
 fistp _@aux11
-fild _a
-fild __@aux11
+fild a
+fild _@aux11
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _a
-fild _12
+fild a
+fild 12
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _34
-fild _d
+fild 34
+fild d
 fadd
 fistp _@aux12
-fild _b
-fild __@aux12
+fild b
+fild _@aux12
 fmul
 fistp _@aux13
-fild _34
-fild __@aux13
+fild 34
+fild _@aux13
 fadd
 fistp _@aux14
-fild _a
-fild __@aux14
+fild a
+fild _@aux14
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _a
-fild _48
-fxch
-fcom
-fstsw ax
-sahf
-JE :=
-JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
-ENDINLIST:
-fild _0
-fistp ___INLIST_RETURN
-fild _z
-fild _2.3
-fxch
-fcom
-fstsw ax
-sahf
-JE :=
-fild _z
-fild _1.22
+fild a
+fild 48
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
 JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
+fild 1
+fistp __INLIST_RETURN
 ENDINLIST:
-fild _0
-fistp ___INLIST_RETURN
-fild _z
-fild _2.3
+fild 0
+fistp __INLIST_RETURN
+fild z
+fild 2.3
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _z
-fild _1.22
+fild z
+fild 1.22
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
 JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
+fild 1
+fistp __INLIST_RETURN
 ENDINLIST:
-fild ___INLIST_RETURN
-fild _1
+fild 0
+fistp __INLIST_RETURN
+fild z
+fild 2.3
+fxch
+fcom
+fstsw ax
+sahf
+JE :=
+fild z
+fild 1.22
+fxch
+fcom
+fstsw ax
+sahf
+JE :=
+JMP ENDINLIST
+fild 1
+fistp __INLIST_RETURN
+ENDINLIST:
+fild __INLIST_RETURN
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDIF
 THEN:
-DisplayString _"if con inlist"
+DisplayString "if con inlist"
 ENDIF:
-fild _0
-fistp ___INLIST_RETURN
-fild _z
-fild _2.3
+fild 0
+fistp __INLIST_RETURN
+fild z
+fild 2.3
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _z
-fild _1.22
+fild z
+fild 1.22
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
 JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
+fild 1
+fistp __INLIST_RETURN
 ENDINLIST:
-fild ___INLIST_RETURN
-fild _1
+fild __INLIST_RETURN
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JE THEN
-fild _0
-fistp ___INLIST_RETURN
-fild _2
-fild _b
+fild 0
+fistp __INLIST_RETURN
+fild 2
+fild b
 fmul
 fistp _@aux15
-fild __@aux15
-fild _7
+fild _@aux15
+fild 7
 fadd
 fistp _@aux16
-fild _a
-fild __@aux16
+fild a
+fild _@aux16
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _a
-fild _12
+fild a
+fild 12
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _34
-fild _d
+fild 34
+fild d
 fadd
 fistp _@aux17
-fild _b
-fild __@aux17
+fild b
+fild _@aux17
 fmul
 fistp _@aux18
-fild _34
-fild __@aux18
+fild 34
+fild _@aux18
 fadd
 fistp _@aux19
-fild _a
-fild __@aux19
+fild a
+fild _@aux19
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _a
-fild _48
+fild a
+fild 48
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
 JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
+fild 1
+fistp __INLIST_RETURN
 ENDINLIST:
-fild ___INLIST_RETURN
-fild _1
+fild __INLIST_RETURN
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDIF
 THEN:
-DisplayString _"if con inlist y or"
+DisplayString "if con inlist y or"
 ENDIF:
-fild _0
-fistp ___INLIST_RETURN
-fild _z
-fild _2.3
+fild 0
+fistp __INLIST_RETURN
+fild z
+fild 2.3
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _z
-fild _1.22
+fild z
+fild 1.22
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
 JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
+fild 1
+fistp __INLIST_RETURN
 ENDINLIST:
-fild ___INLIST_RETURN
-fild _1
+fild __INLIST_RETURN
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JE ENDIF
 THEN:
-DisplayString _"if con not inlist"
+DisplayString "if con not inlist"
 ENDIF:
 REPEAT:
-fild _0
-fistp ___INLIST_RETURN
-fild _z
-fild _2.3
+fild 0
+fistp __INLIST_RETURN
+fild z
+fild 2.3
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _z
-fild _1.22
+fild z
+fild 1.22
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
 JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
+fild 1
+fistp __INLIST_RETURN
 ENDINLIST:
-fild ___INLIST_RETURN
-fild _1
+fild __INLIST_RETURN
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDREPEAT
 THEN:
-DisplayString _"repeat con inlist"
-JMP _REPEAT
+DisplayString "repeat con inlist"
+JMP REPEAT
 ENDREPEAT:
 REPEAT:
-fild _0
-fistp ___INLIST_RETURN
-fild _z
-fild _2.3
+fild 0
+fistp __INLIST_RETURN
+fild z
+fild 2.3
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _z
-fild _1.22
+fild z
+fild 1.22
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
 JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
+fild 1
+fistp __INLIST_RETURN
 ENDINLIST:
-fild ___INLIST_RETURN
-fild _1
+fild __INLIST_RETURN
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JE THEN
-fild _0
-fistp ___INLIST_RETURN
-fild _2
-fild _b
+fild 0
+fistp __INLIST_RETURN
+fild 2
+fild b
 fmul
 fistp _@aux20
-fild __@aux20
-fild _7
+fild _@aux20
+fild 7
 fadd
 fistp _@aux21
-fild _a
-fild __@aux21
+fild a
+fild _@aux21
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _a
-fild _12
+fild a
+fild 12
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _34
-fild _d
+fild 34
+fild d
 fadd
 fistp _@aux22
-fild _b
-fild __@aux22
+fild b
+fild _@aux22
 fmul
 fistp _@aux23
-fild _34
-fild __@aux23
+fild 34
+fild _@aux23
 fadd
 fistp _@aux24
-fild _a
-fild __@aux24
+fild a
+fild _@aux24
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
-fild _a
-fild _48
+fild a
+fild 48
 fxch
 fcom
 fstsw ax
 sahf
 JE :=
 JMP ENDINLIST
-fild _1
-fistp ___INLIST_RETURN
+fild 1
+fistp __INLIST_RETURN
 ENDINLIST:
-fild ___INLIST_RETURN
-fild _1
+fild __INLIST_RETURN
+fild 1
 fxch
 fcom
 fstsw ax
 sahf
 JNE ENDREPEAT
 THEN:
-DisplayString _"repeat con inlist y or"
-JMP _REPEAT
+DisplayString "repeat con inlist y or"
+JMP REPEAT
 ENDREPEAT:
 
 FINAL:
