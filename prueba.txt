@@ -1,7 +1,7 @@
 VAR
   [Float] : [miFloat]
   [Integer, Float, Integer, Integer, Float, Integer, Integer, Integer, Integer, Integer, Integer, Integer] : [a, b, c, d, e, z, f, g, h, i, j, r]
-  [String, Integer] : [miString, miInteger]
+  [String, Integer, String, String] : [miString, miInteger, s1, s2]
 ENDVAR
 
 b := 8
@@ -15,5 +15,36 @@ h := 9999
 i := 65535
 j := 1237
 z := 1
+s1 := "if simple"
+s2 := "repeat sentencia 1"
+miInteger := 0
+a := a + b + (c * 4)
 
-INLIST (a; [2*b+7; 12; a+b*(34+d); 48])
+IF (a == b)
+  PRINT s1
+ENDIF
+
+READ a
+PRINT a
+
+REPEAT (a < b + 100)
+  PRINT s2
+ENDREPEAT
+
+FILTER (_ < a, [a])
+FILTER (_ > (4 + r) AND _ <= 6.5, [b])
+FILTER (_ > (4 + r) OR _ <= 6.5, [a, b])
+FILTER (NOT _ > 100, [a, b])
+
+INLIST (a; [2*b+7; 12; b*(34+d); 48])
+INLIST (z; [2.3; 1.22])
+
+--/ comentario simple /--
+--/ comentario anidado --/simple/-- /--
+--/ comentario --/anidado/-- --/doble/-- /--
+--/ --/comentario/-- --/anidado/-- --/triple/-- /--
+--/ codigo comentado
+  IF (a == b)
+    PRINT "if simple"
+  ENDIF
+/--

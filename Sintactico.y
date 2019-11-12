@@ -128,7 +128,7 @@
 	void generarHeaderAssembler(FILE* asmFile);
 	void generarDataAssembler(FILE* asmFile, lista_t *l_ts);
 	void generarFooterAssembler(FILE* asmFile);
-	
+	char * charReplace(char * str, char caracter, char nuevo_caracter);
 
 	lista_t l_ts;
 	info_t d;
@@ -354,21 +354,8 @@
 			strcpy(d.valor, "0");
 			insertar_en_ts(&l_ts, &d);
 
-			strcpy(d.clave, _1);
-			strcpy(d.tipodato, "Integer");
-			strcpy(d.valor, "1");
-			insertar_en_ts(&l_ts, &d);
-
-			strcpy(d.clave, _0);
-			strcpy(d.tipodato, "Integer");
-			strcpy(d.valor, "0");
-			insertar_en_ts(&l_ts, &d);
-
 
 			// inicializar __INLIST_RETURN en cero
-			strcpy(terceto_cmp.posicion_a,"RETURN_FALSE");
-			strcpy(terceto_cmp.posicion_b,"_");
-			strcpy(terceto_cmp.posicion_c,"_");
 			crearTerceto(&terceto_cmp);
 			strcpy(terceto_inlist.posicion_a, ":=");
 			strcpy(terceto_inlist.posicion_b, __INLIST_RETURN);
@@ -392,14 +379,16 @@
 			strcpy(terceto_cmp.posicion_a,"RETURN_TRUE");
 			strcpy(terceto_cmp.posicion_b,"_");
 			strcpy(terceto_cmp.posicion_c,"_");
-			crearTerceto(&terceto_cmp);
+			p_terceto_inlist_iguales = crearTerceto(&terceto_cmp);
+
 			// acá salta si una comparación dió que son iguales
 			strcpy(terceto_inlist.posicion_a, ":=");
 			strcpy(terceto_inlist.posicion_b, __INLIST_RETURN);
 			strcpy(terceto_inlist.posicion_c, "1");
-			p_terceto_inlist_iguales = crearTerceto(&terceto_inlist);
+			crearTerceto(&terceto_inlist);
 			while(sacar_de_pila(&inlist_comparaciones, &inlist_comparacion) != PILA_VACIA) {
 				leerTerceto(inlist_comparacion.numero_terceto, &terceto);
+				//strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_inlist_iguales));
 				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_inlist_iguales));
 				modificarTerceto(inlist_comparacion.numero_terceto, &terceto);
 			}
@@ -793,12 +782,12 @@
 
 	comparacion: 
 		en_lista {
-			// al finalizar la lista, tiene que comprar la variable de compilador con el 
-			// return del INLIST osea __INLIST_RETURN con 1, si son distintos sale del IF
 			strcpy(terceto_cmp.posicion_a,"RETURN_TRUE");
 			strcpy(terceto_cmp.posicion_b,"_");
 			strcpy(terceto_cmp.posicion_c,"_");
-			crearTerceto(&terceto_cmp);
+			crearTerceto(&terceto_cmp);			
+			// al finalizar la lista, tiene que comprar la variable de compilador con el 
+			// return del INLIST osea __INLIST_RETURN con 1, si son distintos sale del IF
 			strcpy(terceto_cmp.posicion_a, "CMP");
 			strcpy(terceto_cmp.posicion_b, __INLIST_RETURN);
 			strcpy(terceto_cmp.posicion_c, "1");
@@ -1101,6 +1090,11 @@
 			char str_filter_index[12];
 			sprintf(str_filter_index, "%d", 	_filter_index++);
 
+			strcpy(terceto_inlist.posicion_a, "COMPARACION");
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			crearTerceto(&terceto_inlist);
+
 			// la última variable salta al FIN del FILTER por falso
 			strcpy(terceto_filter.posicion_a, "CMP");
 			strcpy(terceto_filter.posicion_b, __FILTER_INDEX);
@@ -1108,7 +1102,7 @@
 			p_terceto_filter_cmp = crearTerceto(&terceto_filter);
 			if(p_terceto_filter_salto_id_siguiente != -1) {
 				leerTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
-				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_filter_cmp));
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(--p_terceto_filter_cmp));
 				modificarTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
 			}
 			strcpy(terceto_filter.posicion_a, "BNE");
@@ -1135,6 +1129,11 @@
 			char str_filter_index[12];
 			sprintf(str_filter_index, "%d", 	_filter_index++);
 
+			strcpy(terceto_inlist.posicion_a, "COMPARACION");
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			crearTerceto(&terceto_inlist);
+
 			// preguntamos si hay que evaluar esta variable en la condición del filter
 			// para esto nos valemos del valor que tiene el "_filter_index"
 			strcpy(terceto_filter.posicion_a, "CMP");
@@ -1144,7 +1143,7 @@
 			if(p_terceto_filter_salto_id_siguiente != -1) {
 				// si la comparación falsa, quiere decir que tengo que analizar el siguiente ID
 				leerTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
-				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_filter_cmp));
+				strcpy(terceto.posicion_b, normalizarPunteroTerceto(--p_terceto_filter_cmp));
 				modificarTerceto(p_terceto_filter_salto_id_siguiente, &terceto);
 			}
 			strcpy(terceto_filter.posicion_a, "BNE");
@@ -1270,7 +1269,8 @@
 			strcpy(terceto_factor.posicion_c, "_");
 			p_terceto_factor = crearTerceto(&terceto_factor);
 
-			strcpy(d.clave, guion_cadena(yytext));
+			//strcpy(cadena, yytext);
+			strcpy(d.clave, guion_cadena(charReplace(yytext, ' ', '_')));
 			strcpy(d.valor, yytext);
 			strcpy(d.tipodato, "const String");
 			sprintf(d.longitud, "%d", strlen(yytext)-2);
@@ -1285,8 +1285,8 @@
 			strcpy(terceto_factor.posicion_c, "_");
 			p_terceto_factor = crearTerceto(&terceto_factor);
 
-			strcpy(d.clave, guion_cadena(yytext));
 			strcpy(d.valor, yytext);
+			strcpy(d.clave, guion_cadena(charReplace(yytext, '.', '_')));
 			strcpy(d.tipodato, "const Float");
 			insertar_en_ts(&l_ts, &d);
 		}
@@ -1562,7 +1562,8 @@ void guardar_intermedia(cola_t *p, FILE *arch) {
 		if(strcmp(info_terceto.posicion_a, "THEN") == 0 || strcmp(info_terceto.posicion_a, "ELSE") == 0 ||
 		 strcmp(info_terceto.posicion_a, "ENDIF") == 0 || strcmp(info_terceto.posicion_a, "REPEAT") == 0 ||
 		  strcmp(info_terceto.posicion_a, "ENDREPEAT") == 0 || strcmp(info_terceto.posicion_a, "LISTA") == 0 ||
-		   strcmp(info_terceto.posicion_a, "ENDINLIST") == 0 || strcmp(info_terceto.posicion_a, "ENDFILTER") == 0) {
+		   strcmp(info_terceto.posicion_a, "ENDINLIST") == 0 || strcmp(info_terceto.posicion_a, "ENDFILTER") == 0
+		   || strcmp(info_terceto.posicion_a, "COMPARACION") == 0 || strcmp(info_terceto.posicion_a, "RETURN_TRUE") == 0) {
 
 			printf("[%d](%s_%d,%s,%s)\n", numero,info_terceto.posicion_a, numero, info_terceto.posicion_b ,info_terceto.posicion_c);
 			fprintf(arch,"[%d](%s_%d,%s,%s)\n", numero, info_terceto.posicion_a, numero, info_terceto.posicion_b ,info_terceto.posicion_c);
@@ -1817,11 +1818,11 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 	fprintf(arch,".CODE\n\nSTART:\nMOV AX, @DATA\nMOV DS,AX\nFINIT\nFFREE\n\n");
 
 	while(*p) {
-		if(strcmp((*p)->info.posicion_a,"PRINT")==0)
+		if(strcmp((*p)->info.posicion_a,"PRINT")==0 )
 		{
-			fprintf(arch,"DisplayString %s\n",(*p)->info.posicion_b);
+			fprintf(arch,"DisplayString _%s\n",charReplace((*p)->info.posicion_b,' ','_'));
 		}
-		if(strncmp((*p)->info.posicion_a,"REPEAT",6)==0)
+		if(strncmp((*p)->info.posicion_a,"REPEAT",6)==0 || strncmp((*p)->info.posicion_a,"RETURN_FALSE",12)==0 || strncmp((*p)->info.posicion_a,"RETURN_TRUE",11)==0 || strncmp((*p)->info.posicion_a,"COMPARACION",11)==0)
 		{
 			fprintf(arch,"%s:\n",(*p)->info.posicion_a);
 		}
@@ -1892,7 +1893,9 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 		}
 		if(strcmp((*p)->info.posicion_a,":=")==0)
 		{
-			fprintf(arch,"fild %s\nfistp %s\n",(*p)->info.posicion_c,(*p)->info.posicion_b);
+			char * pt = strrchr((*p)->info.posicion_c,'"');
+			if(pt){*pt='\0';}
+			fprintf(arch,"fild %s\nfistp %s\n",charReplace((*p)->info.posicion_c,' ','_'),(*p)->info.posicion_b);
 		}
 		if(strcmp((*p)->info.posicion_a,"*")==0)
 		{
@@ -1912,7 +1915,7 @@ void recorrer_intermedia(FILE *arch, t_lista_intermedia *p, lista_t *l_ts){
 		}
 		if(strcmp((*p)->info.posicion_a,"CMP")==0)
 		{
-			fprintf(arch,"fild %s\nfild %s\nfxch\nfcom\nfstsw ax\nsahf\n",(*p)->info.posicion_b,(*p)->info.posicion_c);
+			fprintf(arch,"fild %s\nfild %s\nfxch\nfcom\nfstsw ax\nsahf\n",(*p)->info.posicion_b,charReplace((*p)->info.posicion_c,'.','_'));
 		}
 		p=&(*p)->sig;
 	}
@@ -1959,4 +1962,16 @@ char *invertirOperadorLogico(char *operador_logico) {
 	if(strcmp(operador_logico, "BEQ") == 0)  {
 		return "BNE";
 	}
+}
+
+char * charReplace(char * str, char caracter, char nuevo_caracter) {
+	int i;
+	for(i = 0; i <= strlen(str); i++)
+	{
+		if(str[i] == caracter)  
+		{
+			str[i] = nuevo_caracter;
+		}
+	}
+	return str;
 }
