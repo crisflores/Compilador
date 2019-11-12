@@ -11,12 +11,7 @@ MAXTEXTSIZE equ 50
 .DATA
 
 _z                                  DD (?)
-_s2                                 DB MAXTEXTSIZE dup (?)
-_s1                                 DB MAXTEXTSIZE dup (?)
 _r                                  DD (?)
-_miString                           DB MAXTEXTSIZE dup (?)
-_miInteger                          DD (?)
-_miFloat                            DD (?)
 _j                                  DD (?)
 _i                                  DD (?)
 _h                                  DD (?)
@@ -65,8 +60,6 @@ _100                                DD 100
 _10                                 DD 10        
 _1                                  DD 1         
 _0                                  DD 0         
-_repeat_sentencia_1                 DB "repeat_sentencia_1", 18 dup (?)
-_if_simple                          DB "if_simple", 9 dup (?)
 
 .CODE
 
@@ -98,12 +91,8 @@ fild _1237
 fistp _j
 fild _1
 fistp _z
-fild _if_simple
-fistp _s1
-fild _repeat_sentencia_1
-fistp _s2
 fild _0
-fistp _miInteger
+fistp _z
 fild _a
 fild _b
 fadd
@@ -124,13 +113,16 @@ fxch
 fcom
 fstsw ax
 sahf
-JNE ENDIF_53
-THEN_51:
-DisplayString _s1
-ENDIF_53:
+JNE ELSE_50
+THEN_47:
+DisplayString _a
+JMP ENDIF_52
+ELSE_50:
+DisplayString _b
+ENDIF_52:
 GetInteger _a
 DisplayString _a
-REPEAT_56:
+REPEAT_55:
 fild _b
 fild _100
 fadd
@@ -141,15 +133,15 @@ fxch
 fcom
 fstsw ax
 sahf
-JGE ENDREPEAT_66
-THEN_63:
-DisplayString _s2
-JMP REPEAT_56
-ENDREPEAT_66:
+JGE ENDREPEAT_65
+THEN_62:
+DisplayString _z
+JMP REPEAT_55
+ENDREPEAT_65:
 fild _0
 fistp __FILTER_INDEX
-JMP LISTA_77
-THEN_70:
+JMP LISTA_76
+THEN_69:
 fild __FILTER_INDEX
 fild _1
 fadd
@@ -162,24 +154,24 @@ fxch
 fcom
 fstsw ax
 sahf
-JL ENDFILTER_83
-LISTA_77:
-COMPARACION_78:
+JL ENDFILTER_82
+LISTA_76:
+COMPARACION_77:
 fild __FILTER_INDEX
 fild _0
 fxch
 fcom
 fstsw ax
 sahf
-JNE ENDFILTER_83
+JNE ENDFILTER_82
 fild _a
 fistp __FILTER_OPERANDO
-JMP THEN_70
-ENDFILTER_83:
+JMP THEN_69
+ENDFILTER_82:
 fild _0
 fistp __FILTER_INDEX
-JMP LISTA_100
-THEN_87:
+JMP LISTA_99
+THEN_86:
 fild __FILTER_INDEX
 fild _1
 fadd
@@ -196,31 +188,31 @@ fxch
 fcom
 fstsw ax
 sahf
-JLE LISTA_100
+JLE LISTA_99
 fild __FILTER_OPERANDO
 fild _6_5
 fxch
 fcom
 fstsw ax
 sahf
-JLE ENDFILTER_106
-LISTA_100:
-COMPARACION_101:
+JLE ENDFILTER_105
+LISTA_99:
+COMPARACION_100:
 fild __FILTER_INDEX
 fild _0
 fxch
 fcom
 fstsw ax
 sahf
-JNE ENDFILTER_106
+JNE ENDFILTER_105
 fild _b
 fistp __FILTER_OPERANDO
-JMP THEN_87
-ENDFILTER_106:
+JMP THEN_86
+ENDFILTER_105:
 fild _0
 fistp __FILTER_INDEX
-JMP LISTA_123
-THEN_110:
+JMP LISTA_122
+THEN_109:
 fild __FILTER_INDEX
 fild _1
 fadd
@@ -237,42 +229,53 @@ fxch
 fcom
 fstsw ax
 sahf
-JG ENDFILTER_134
+JG ENDFILTER_138
 fild __FILTER_OPERANDO
 fild _6_5
 fxch
 fcom
 fstsw ax
 sahf
-JLE ENDFILTER_134
-LISTA_123:
-COMPARACION_124:
+JLE ENDFILTER_138
+LISTA_122:
+COMPARACION_123:
 fild __FILTER_INDEX
 fild _0
 fxch
 fcom
 fstsw ax
 sahf
-JNE COMPARACION_129
+JNE COMPARACION_128
 fild _a
 fistp __FILTER_OPERANDO
-JMP THEN_110
-COMPARACION_129:
+JMP THEN_109
+COMPARACION_128:
 fild __FILTER_INDEX
 fild _1
 fxch
 fcom
 fstsw ax
 sahf
-JNE ENDFILTER_134
+JNE COMPARACION_133
 fild _b
 fistp __FILTER_OPERANDO
-JMP THEN_110
-ENDFILTER_134:
+JMP THEN_109
+COMPARACION_133:
+fild __FILTER_INDEX
+fild _2
+fxch
+fcom
+fstsw ax
+sahf
+JNE ENDFILTER_138
+fild _c
+fistp __FILTER_OPERANDO
+JMP THEN_109
+ENDFILTER_138:
 fild _0
 fistp __FILTER_INDEX
-JMP LISTA_145
-THEN_138:
+JMP LISTA_149
+THEN_142:
 fild __FILTER_INDEX
 fild _1
 fadd
@@ -285,31 +288,31 @@ fxch
 fcom
 fstsw ax
 sahf
-JLE ENDFILTER_156
-LISTA_145:
-COMPARACION_146:
+JLE ENDFILTER_160
+LISTA_149:
+COMPARACION_150:
 fild __FILTER_INDEX
 fild _0
 fxch
 fcom
 fstsw ax
 sahf
-JNE COMPARACION_151
+JNE COMPARACION_155
 fild _a
 fistp __FILTER_OPERANDO
-JMP THEN_138
-COMPARACION_151:
+JMP THEN_142
+COMPARACION_155:
 fild __FILTER_INDEX
 fild _1
 fxch
 fcom
 fstsw ax
 sahf
-JNE ENDFILTER_156
+JNE ENDFILTER_160
 fild _b
 fistp __FILTER_OPERANDO
-JMP THEN_138
-ENDFILTER_156:
+JMP THEN_142
+ENDFILTER_160:
 fild __FILTER_OPERANDO
 fild _100
 fxch
@@ -332,14 +335,14 @@ fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_182
+JE RETURN_TRUE_186
 fild _a
 fild _12
 fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_182
+JE RETURN_TRUE_186
 fild _34
 fild _d
 fadd
@@ -354,20 +357,20 @@ fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_182
+JE RETURN_TRUE_186
 fild _a
 fild _48
 fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_182
-JMP ENDINLIST_184
-RETURN_TRUE_182:
+JE RETURN_TRUE_186
+JMP ENDINLIST_188
+RETURN_TRUE_186:
 fild _1
 fistp __INLIST_RETURN
-ENDINLIST_184:
-RETURN_TRUE_186:
+ENDINLIST_188:
+RETURN_TRUE_190:
 fild _0
 fistp __INLIST_RETURN
 fild _z
@@ -376,19 +379,19 @@ fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_196
+JE RETURN_TRUE_200
 fild _z
 fild _1_22
 fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_196
-JMP ENDINLIST_198
-RETURN_TRUE_196:
+JE RETURN_TRUE_200
+JMP ENDINLIST_202
+RETURN_TRUE_200:
 fild _1
 fistp __INLIST_RETURN
-ENDINLIST_198:
+ENDINLIST_202:
 
 FINAL:
 mov ah, 1

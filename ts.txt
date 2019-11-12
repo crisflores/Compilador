@@ -1,11 +1,6 @@
 NOMBRE                              TIPO DE DATO     VALOR                               LONGITUD                           
 _z                                  Integer                                                                                 
-_s2                                 String                                                                                  
-_s1                                 String                                                                                  
 _r                                  Integer                                                                                 
-_miString                           String                                                                                  
-_miInteger                          Integer                                                                                 
-_miFloat                            Float                                                                                   
 _j                                  Integer                                                                                 
 _i                                  Integer                                                                                 
 _h                                  Integer                                                                                 
@@ -54,5 +49,3 @@ _100                                const Integer    100
 _10                                 const Integer    10                                                                     
 _1                                  const Integer    1                                                                      
 _0                                  const Integer    0                                                                      
-_repeat_sentencia_1                 const String     "repeat_sentencia_1"                18                                 
-_if_simple                          const String     "if_simple"                         9                                  

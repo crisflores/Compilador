@@ -19,3 +19,7 @@ move c:\GnuWin32\bin\%PUNTO_EXE% %PATH%%PUNTO_EXE%
 move %TABLA_DE_SIMBOLOS% %PATH%%TABLA_DE_SIMBOLOS%
 move %INTERMEDIA% %PATH%%INTERMEDIA%
 cd %PATH%
+tasm final.asm /m2
+tasm numbers.asm
+tlink final.obj numbers.obj /3
+final.exe
