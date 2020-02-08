@@ -34,7 +34,7 @@ FILTER (_ > (4 + r) AND _ <= 6.5, [b])
 FILTER (_ > (4 + r) OR _ <= 6.5, [a, b, c])
 FILTER (NOT _ > 100, [a, b])
 
-INLIST (a; [2*b+7; 12; b*(34+d); 48])
+# IGUALES(a, [2*b+7, 12, b*(34+d), 48])
 INLIST (z; [2.3; 1.22])
 
 --/ comentario simple /--

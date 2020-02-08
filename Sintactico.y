@@ -194,6 +194,8 @@
 %locations
 %start start
 %token INLIST
+%token IGUALES
+%token HASHTAG
 %token FILTER
 %token OPERANDO_FILTER
 %token REPEAT
@@ -339,6 +341,32 @@
 
 	sentencia:
 		en_lista
+		;
+
+	sentencia:
+		iguales
+		;
+
+	iguales:
+		HASHTAG IGUALES {
+			printf("iguales\n");
+		} PARENTESIS_ABRE expresion {
+			printf("expresion\n");
+		} COMA CORCHETE_ABRE lista_expresiones_iguales CORCHETE_CIERRA PARENTESIS_CIERRA {
+			printf("fin\n");
+        }
+		;
+
+		lista_expresiones_iguales:
+		expresion {
+			printf("expresion en iguales\n");
+		}
+		;
+
+	lista_expresiones_iguales:
+		lista_expresiones_iguales COMA expresion {
+			printf("expresion en iguales\n");
+		}
 		;
 
 	en_lista:

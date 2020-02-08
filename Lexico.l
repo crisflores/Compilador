@@ -26,7 +26,7 @@
 
 DIGITO ([0-9])+
 LETRA [a-zA-Z]
-SIMBOLO [@|%]
+SIMBOLO [@|%|#]
 ID {LETRA}({LETRA}|{DIGITO}|_)*
 CONSTANTE_ENTERA ({DIGITO})+
 CONSTANTE_REAL (({DIGITO})+("."{1})({DIGITO})*)|(({DIGITO})*("."{1})({DIGITO})+)
@@ -42,6 +42,14 @@ COMENTARIO {COMENTARIO_I}({CARACTER}|{COMENTARIO_SIMPLE}|[\r\n])*{COMENTARIO_F}
 "INLIST" {
 	return INLIST;
 }
+"IGUALES" {
+	return IGUALES;
+}
+
+"#" {
+	return HASHTAG;
+}
+
 "FILTER" {
 	return FILTER;
 }

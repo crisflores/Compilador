@@ -313,14 +313,6 @@ fild _b
 fistp __FILTER_OPERANDO
 JMP THEN_142
 ENDFILTER_160:
-fild __FILTER_OPERANDO
-fild _100
-fxch
-fcom
-fstsw ax
-sahf
-fild _0
-fistp __INLIST_RETURN
 fild _2
 fild _b
 fmul
@@ -329,20 +321,6 @@ fild _@aux10
 fild _7
 fadd
 fistp _@aux11
-fild _a
-fild _@aux11
-fxch
-fcom
-fstsw ax
-sahf
-JE RETURN_TRUE_186
-fild _a
-fild _12
-fxch
-fcom
-fstsw ax
-sahf
-JE RETURN_TRUE_186
 fild _34
 fild _d
 fadd
@@ -351,26 +329,12 @@ fild _b
 fild _@aux12
 fmul
 fistp _@aux13
-fild _a
-fild _@aux13
+fild __FILTER_OPERANDO
+fild _100
 fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_186
-fild _a
-fild _48
-fxch
-fcom
-fstsw ax
-sahf
-JE RETURN_TRUE_186
-JMP ENDINLIST_188
-RETURN_TRUE_186:
-fild _1
-fistp __INLIST_RETURN
-ENDINLIST_188:
-RETURN_TRUE_190:
 fild _0
 fistp __INLIST_RETURN
 fild _z
@@ -379,19 +343,19 @@ fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_200
+JE RETURN_TRUE_185
 fild _z
 fild _1_22
 fxch
 fcom
 fstsw ax
 sahf
-JE RETURN_TRUE_200
-JMP ENDINLIST_202
-RETURN_TRUE_200:
+JE RETURN_TRUE_185
+JMP ENDINLIST_187
+RETURN_TRUE_185:
 fild _1
 fistp __INLIST_RETURN
-ENDINLIST_202:
+ENDINLIST_187:
 
 FINAL:
 mov ah, 1
