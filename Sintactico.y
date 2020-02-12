@@ -18,6 +18,7 @@
 	#define __FILTER_INDEX "__FILTER_INDEX"
 	#define __FILTER_OPERANDO "__FILTER_OPERANDO"
 	#define __INLIST_RETURN "__INLIST_RETURN"
+	#define __IGUALES_RETURN "__IGUALES_RETURN"
 
 	// funciones de Flex y Bison
 	// --------------------------------------------------------
@@ -156,6 +157,7 @@
 	info_cola_t	terceto_print;
 	info_cola_t	terceto_read;
 	int p_terceto_expresion;
+	int p_terceto_expresion_pibot;
 	int p_terceto_termino;
 	int p_terceto_factor;
 	int p_terceto_fin_then;
@@ -349,23 +351,76 @@
 
 	iguales:
 		HASHTAG IGUALES {
-			printf("iguales\n");
+			strcpy(terceto_inlist.posicion_a, yytext);
+			strcpy(terceto_inlist.posicion_b, "_");
+			strcpy(terceto_inlist.posicion_c, "_");
+			crearTerceto(&terceto_inlist);
+			// si el ID está en las lista "__IGUALES_RETURN" suma 1, si no suma 0
+			strcpy(d.clave, __IGUALES_RETURN);
+			strcpy(d.tipodato, "Integer");
+			strcpy(d.valor, "0");
+			insertar_en_ts(&l_ts, &d);
+			// inicializar __IGUALES_RETURN en cero
+			crearTerceto(&terceto_cmp);
+			strcpy(terceto_inlist.posicion_a, ":=");
+			strcpy(terceto_inlist.posicion_b, __IGUALES_RETURN);
+			strcpy(terceto_inlist.posicion_c, "0");
+			crearTerceto(&terceto_inlist);
 		} PARENTESIS_ABRE expresion {
-			printf("expresion\n");
-		} COMA CORCHETE_ABRE lista_expresiones_iguales CORCHETE_CIERRA PARENTESIS_CIERRA {
-			printf("fin\n");
-        }
+			p_terceto_expresion_pibot = p_terceto_expresion;
+		} COMA CORCHETE_ABRE lista_expresiones_iguales CORCHETE_CIERRA PARENTESIS_CIERRA 
 		;
 
 		lista_expresiones_iguales:
 		expresion {
-			printf("expresion en iguales\n");
-		}
-		;
+			strcpy(terceto_inlist.posicion_a, "CMP");
+			strcpy(terceto_inlist.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
+			strcpy(terceto_inlist.posicion_c, normalizarPunteroTerceto(p_terceto_expresion_pibot));
+			
+			strcpy(terceto_inlist.posicion_b, normalizarPunteroTerceto(crearTerceto(&terceto_inlist)+4));
+			strcpy(terceto_inlist.posicion_a, "BEQ");
+			strcpy(terceto_inlist.posicion_c, "_");
+			crearTerceto(&terceto_inlist);
+			
+			strcpy(terceto_inlist.posicion_a, "+");
+			strcpy(terceto_inlist.posicion_b, __IGUALES_RETURN);
+			strcpy(terceto_inlist.posicion_c, "1");
 
-	lista_expresiones_iguales:
+			strcpy(terceto_inlist.posicion_c, normalizarPunteroTerceto(crearTerceto(&terceto_inlist)));
+			strcpy(terceto_inlist.posicion_a, ":=");
+			strcpy(terceto_inlist.posicion_b, __IGUALES_RETURN);
+			crearTerceto(&terceto_inlist);
+
+			strcpy(terceto_inlist.posicion_a, "COMPARACION");
+			strcpy(terceto_inlist.posicion_c, "_");
+			strcpy(terceto_inlist.posicion_b, "_");
+			crearTerceto(&terceto_inlist);
+		};
+
+		lista_expresiones_iguales:
 		lista_expresiones_iguales COMA expresion {
-			printf("expresion en iguales\n");
+			strcpy(terceto_inlist.posicion_a, "CMP");
+			strcpy(terceto_inlist.posicion_b, normalizarPunteroTerceto(p_terceto_expresion));
+			strcpy(terceto_inlist.posicion_c, normalizarPunteroTerceto(p_terceto_expresion_pibot));
+			
+			strcpy(terceto_inlist.posicion_b, normalizarPunteroTerceto(crearTerceto(&terceto_inlist)+4));
+			strcpy(terceto_inlist.posicion_a, "BEQ");
+			strcpy(terceto_inlist.posicion_c, "_");
+			crearTerceto(&terceto_inlist);
+			
+			strcpy(terceto_inlist.posicion_a, "+");
+			strcpy(terceto_inlist.posicion_b, __IGUALES_RETURN);
+			strcpy(terceto_inlist.posicion_c, "1");
+
+			strcpy(terceto_inlist.posicion_c, normalizarPunteroTerceto(crearTerceto(&terceto_inlist)));
+			strcpy(terceto_inlist.posicion_a, ":=");
+			strcpy(terceto_inlist.posicion_b, __IGUALES_RETURN);
+			crearTerceto(&terceto_inlist);
+
+			strcpy(terceto_inlist.posicion_a, "COMPARACION");
+			strcpy(terceto_inlist.posicion_c, "_");
+			strcpy(terceto_inlist.posicion_b, "_");
+			crearTerceto(&terceto_inlist);
 		}
 		;
 
@@ -375,14 +430,11 @@
 			strcpy(terceto_inlist.posicion_b, "_");
 			strcpy(terceto_inlist.posicion_c, "_");
 			crearTerceto(&terceto_inlist);
-
 			// si el ID está en las lista "__INLIST_RETURN" vale 1, si no vale 0
 			strcpy(d.clave, __INLIST_RETURN);
 			strcpy(d.tipodato, "Integer");
 			strcpy(d.valor, "0");
 			insertar_en_ts(&l_ts, &d);
-
-
 			// inicializar __INLIST_RETURN en cero
 			crearTerceto(&terceto_cmp);
 			strcpy(terceto_inlist.posicion_a, ":=");
@@ -396,19 +448,15 @@
 			p_terceto_inlist_id = crearTerceto(&terceto_inlist);
 		} PUNTO_Y_COMA CORCHETE_ABRE lista_expresiones_inlist CORCHETE_CIERRA PARENTESIS_CIERRA {
 			info_cola_t terceto;
-
 			// terminó todas las comparaciones, salta al fin del INLIST
 			strcpy(terceto_inlist.posicion_a, "BRA");
 			strcpy(terceto_inlist.posicion_b, "_");
 			strcpy(terceto_inlist.posicion_c, "_");
 			p_terceto_inlist_salto_a_fin = crearTerceto(&terceto_inlist);
-
-			
 			strcpy(terceto_cmp.posicion_a,"RETURN_TRUE");
 			strcpy(terceto_cmp.posicion_b,"_");
 			strcpy(terceto_cmp.posicion_c,"_");
 			p_terceto_inlist_iguales = crearTerceto(&terceto_cmp);
-
 			// acá salta si una comparación dió que son iguales
 			strcpy(terceto_inlist.posicion_a, ":=");
 			strcpy(terceto_inlist.posicion_b, __INLIST_RETURN);
@@ -420,7 +468,6 @@
 				strcpy(terceto.posicion_b, normalizarPunteroTerceto(p_terceto_inlist_iguales));
 				modificarTerceto(inlist_comparacion.numero_terceto, &terceto);
 			}
-			
 			strcpy(terceto_inlist.posicion_a, "ENDINLIST");
 			strcpy(terceto_inlist.posicion_b, "_");
 			strcpy(terceto_inlist.posicion_c, "_");

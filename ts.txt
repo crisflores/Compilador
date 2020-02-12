@@ -1,51 +1,14 @@
 NOMBRE                              TIPO DE DATO     VALOR                               LONGITUD                           
-_z                                  Integer                                                                                 
-_r                                  Integer                                                                                 
-_j                                  Integer                                                                                 
-_i                                  Integer                                                                                 
-_h                                  Integer                                                                                 
-_g                                  Integer                                                                                 
-_f                                  Integer                                                                                 
-_e                                  Float                                                                                   
-_d                                  Integer                                                                                 
-_c                                  Integer                                                                                 
-_b                                  Float                                                                                   
-_a                                  Integer                                                                                 
-__INLIST_RETURN                     Integer          0                                                                      
-__FILTER_OPERANDO                   Undefined                                                                               
-__FILTER_INDEX                      Integer          0                                                                      
-_@aux9                              Float                                                                                   
-_@aux8                              Float                                                                                   
+___IGUALES_RETURN                   Integer          0                                                                      
 _@aux7                              Float                                                                                   
 _@aux6                              Float                                                                                   
 _@aux5                              Float                                                                                   
 _@aux4                              Float                                                                                   
 _@aux3                              Float                                                                                   
 _@aux2                              Float                                                                                   
-_@aux13                             Float                                                                                   
-_@aux12                             Float                                                                                   
-_@aux11                             Float                                                                                   
-_@aux10                             Float                                                                                   
 _@aux1                              Float                                                                                   
 _@aux0                              Float                                                                                   
-_9999                               const Integer    9999                                                                   
-_99                                 const Integer    99                                                                     
-_8                                  const Integer    8                                                                      
-_7                                  const Integer    7                                                                      
-_6_5                                const Float      6.5                                                                    
-_65535                              const Integer    65535                                                                  
-_48                                 const Integer    48                                                                     
-_45                                 const Integer    45                                                                     
-_42949                              const Integer    42949                                                                  
 _4                                  const Integer    4                                                                      
-_34                                 const Integer    34                                                                     
-_2_3                                const Float      2.3                                                                    
 _2                                  const Integer    2                                                                      
-_1_22                               const Float      1.22                                                                   
-_1237                               const Integer    1237                                                                   
-_12345                              const Integer    12345                                                                  
 _12                                 const Integer    12                                                                     
-_100                                const Integer    100                                                                    
-_10                                 const Integer    10                                                                     
 _1                                  const Integer    1                                                                      
-_0                                  const Integer    0                                                                      
